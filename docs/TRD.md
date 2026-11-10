@@ -32,15 +32,17 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 
 | Asset | Licence | Notes |
 |---|---|---|
-| Bricolage Grotesque (logotype "kalei") | SIL OFL 1.1, "Copyright 2022 The Bricolage Grotesque Project Authors"; no Reserved Font Name declared | Read from upstream repo `ateliertriay/bricolage` (README + `OFL.txt`). Google Fonts page could not be read, so confirmed from upstream only. Upstream says it is a fork of Mayenne Sans (its licence not checked). Variable TTF ≈ 399 KB; the app embeds a **subset** (letters of the logotype) and never loads it from the network. Ship `OFL.txt` in third-party notices |
+| Bricolage Grotesque (logotype "kalei") | SIL OFL 1.1, "Copyright 2022 The Bricolage Grotesque Project Authors"; no Reserved Font Name declared | Read from upstream repo `ateliertriay/bricolage` (README + `OFL.txt`). Google Fonts page could not be read, so confirmed from upstream only. Upstream README says it started as a fork of Mayenne Sans (Jérémy Landes). **Mayenne Sans licence: not verified from a primary source** (see next row). Variable TTF ≈ 399 KB; the app embeds a **subset** (letters of the logotype) and never loads it from the network. Ship `OFL.txt` in third-party notices |
+| Mayenne Sans (ancestor of Bricolage Grotesque) | Secondhand only: Fonts In Use says "Made available under the SIL Open Font License (OFL) in 2018. As of 2022, the repository is no longer available." (https://fontsinuse.com/typefaces/124719/mayenne-sans) | OFL version, copyright line and Reserved Font Name **not found**; original repository and the archived Studio Triple page were not reachable (web.archive.org is blocked for the tool). Bricolage Grotesque's own `OFL.txt` governs what we ship; before the README or notices state anything about Mayenne Sans, get the original `OFL.txt` (ask the author or check the archived page by hand). Credit: https://www.atelierjulianlegendre.com/references/la-mayenne |
 
 ### Later modules (not in v1)
 
 | Module | Engine | Licence | Status / finding |
 |---|---|---|---|
-| PDF render | PDFium via PDFiumCore 157.0.8100 | Apache-2.0 (binding), BSD-3 (PDFium) | OK. Avoid PdfiumViewer: archived 2019 |
-| PDF create/edit | PDFsharp | **6.2.2 (2025-09-22): MIT** per NuGet. **6.5.0 (2026-10-13/14) and 7.0 preview: AGPL-3.0 dual (AGPL or commercial)**, 6.5.0+ code must call `PdfSharpLicense.SetAgplLicense()` | **Latest stable is not usable.** Only an old pinned 6.2.x could be MIT (6.2.3 and 6.2.4 licence fields not verified), with no upstream fixes after the switch. Decide when the PDF module is planned: pinned 6.2.x vs another library. Sources: nuget.org/packages/PDFsharp (+ /6.2.2, /6.5.0), github.com/empira/PDFsharp `master/LICENSE` ("AGPL Dual License"), docs.pdfsharp.net/General/License/License.html and /General/History.html ("Beginning with version 6.5.0, your code must select the type of license"). Samples stay MIT |
-| PDF optimise | qpdf | Apache-2.0 | CLI, separate process; version n.v. |
+| PDF render | PDFium via PDFiumCore 157.0.8100 (Apache-2.0, 456 KB wrapper) + native `bblanchon.PDFium.Win32` 159.0.8152 (10.8 MB nupkg; NuGet says Apache-2.0, the pdfium-binaries repo says MIT; PDFium itself is BSD-style + Apache-2.0 text) | see left | OK. Per-arch size not confirmed. Avoid PdfiumViewer (archived 2019). No runtime licence key found. Sources: nuget.org/packages/PDFiumCore, nuget.org/packages/bblanchon.PDFium.Win32, github.com/bblanchon/pdfium-binaries, pdfium.googlesource.com/pdfium/+/refs/heads/main/LICENSE |
+| PDF create | **SkiaSharp `SKDocument.CreatePdf`** (SkiaSharp 4.155.0, MIT; Skia BSD-3-Clause) | MIT | Multiple pages (`BeginPage`), points as units, metadata (Title, Author, Subject, Keywords, Creator, Producer, Creation, Modified), PDF/A-2b flag. **Images→PDF: fine** (no fonts). **Text→PDF: fonts are always embedded and, in SkiaSharp's Windows build, NOT subset** (Skia only subsets with HarfBuzz; SkiaSharp's `native/windows/build.cake` sets `skia_use_harfbuzz=false` and does not set `skia_pdf_subset_harfbuzz`, so each used font is embedded whole; SkiaSharp issue #848 open, #2180 closed "not planned"). No automatic layout (no line wrapping, page flow) and no shaping unless `SkiaSharp.HarfBuzz` is added. ToUnicode map exists in Skia source, so text should be selectable, but **not tested on a rendered PDF**. Italian accents (precomposed Latin) expected fine, **untested**. SkiaSharp.NativeAssets.Win32 is an 83 MB nupkg (per-RID size not confirmed). Sources: github.com/mono/SkiaSharp, nuget.org/packages/SkiaSharp, learn.microsoft.com/en-us/dotnet/api/skiasharp.skdocument.createpdf, skia.googlesource.com/skia/+/refs/heads/main/src/pdf/SkPDFSubsetFont.cpp |
+| PDF create (fallback) | PDFsharp | **≤ 6.2.x: MIT** (6.2.2 per NuGet); **6.5.0 (2026-10-13/14) and 7.0 preview: AGPL-3.0 dual** (AGPL or commercial; code must call `PdfSharpLicense.SetAgplLicense()`) | Latest stable unusable. Pinned 6.2.x is a fallback for text→PDF with layout, no upstream fixes after the switch; 6.2.3/6.2.4 NuGet licence fields not read by us (Filee pins 6.2.4 and comments "6.2 is MIT", `Directory.Packages.props:35-36`, secondary evidence). Sources: nuget.org/packages/PDFsharp (+ /6.2.2, /6.5.0), github.com/empira/PDFsharp `master/LICENSE`, docs.pdfsharp.net/General/History.html |
+| PDF merge/optimise | qpdf 12.4.2 | Apache-2.0 (before v7: Artistic-2.0) | Command-line tool + C++ library, **not .NET**: run as a separate process in the Module. Linearize, encrypt, merge/split, create from supplied content; does not render or extract text. Windows binary size and object-stream compression **not confirmed**. Source: github.com/qpdf/qpdf |
 | Audio/video | FFmpeg, BtbN "lgpl" build | LGPL (build flavour; licence text not stated on the page) | gyan.dev builds are **GPLv3 only**, unusable. Not confirmed in BtbN LGPL build: libvpx, SVT-AV1, libopus, libmp3lame, `h264_mf` |
 | Documents | pandoc 3.13 | GPL-2.0-or-later | separate process; ~43 MB; ship licence + source offer |
 | Archives | SharpCompress | MIT (SPDX n.v.) | version n.v. |
@@ -49,6 +51,15 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 | 3D | Assimp | BSD-3-Clause (modified; SPDX n.v.) | |
 | Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify before relying on it |
 | Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used; alternative if unsuitable |
+
+### PDF module — proposed plan (decided when the module is scheduled)
+Images→PDF with SKDocument; render with PDFium; merge/optimise with qpdf (separate process). Text→PDF is the open point: either SKDocument with one small bundled text font (embedded whole in every file) and our own simple line wrapping, or the pinned PDFsharp 6.2.x fallback. Decide with a test PDF check: selectable text, Italian accents, file size. Not to be chosen before that test.
+
+### Hook (global Donut, 1.2)
+| Component | Licence | Finding |
+|---|---|---|
+| SharpHook 8.0.1 | MIT (LICENSE + NuGet) | Wrapper of libuiohook; NuGet lists no dependencies; README implies it ships `uiohook.dll` under `lib/win-<platform>` (package contents not inspected). |
+| libuiohook (kwhat) | GPL-3.0 text (`COPYING.md`) **and** LGPL-3.0 text (`COPYING.LESSER.md`) in the repo, branch `1.2`; **no statement found about which applies and no GPL linking exception found** | Default build is a shared library. SharpHook builds from a fork (`TolikPylypchuk/libuiohook`, not read). Filee's notices describe it as "GPL-3.0 with linking exception / LGPL-3.0" (secondary, unconfirmed by the sources read). Decision: **write our own minimal `WH_MOUSE_LL` hook** (ADR 0009); no dependency, no licence question. |
 
 ## Corrections to earlier assumptions
 1. NetVips.Native is LGPL-**3.0**+, not 2.1+.
@@ -62,4 +73,7 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 - NetVips.Native content: AVIF write, GIF via cgif, HEVC absent, loaders list, block-untrusted API.
 - Real installer size against the PRD target (~45 MB).
 - Trimming test for each library marked n.v.
+- Ticket 0 additions (Round 4): in-app Donut (OLE drag over an Avalonia window + radial overlay), Sentinel RAM at rest (target ≤ 20 MB), gesture-to-overlay latency, wheel events during an OLE drag, Native AOT with Avalonia + Skia (Filee uses ReadyToRun, not AOT).
+- PDF: rendered test PDF from SKDocument (selectable text, Italian accents, size with and without a bundled font).
+- Original Mayenne Sans `OFL.txt` (ask the author or use the archived Studio Triple page by hand).
 - Redistribution notices: THIRD-PARTY-NOTICES generated at build, shown in About.
