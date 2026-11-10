@@ -6,7 +6,18 @@ Pairs not listed are not offered in the UI. Input is recognised from content, no
 
 ## Images — Module `images` (1.0, built-in, libvips + WIC)
 
-**Every image pair below ships in 1.0 only if the feasibility spike confirms the engine can do it** (AVIF writing, GIF via cgif, BMP and ICO codecs, HEIC; see [ticket-0.md](ticket-0.md)). Formats not confirmed move to a later release. Category: **image**.
+Category: **image**. Format status after the engine check (ticket 02, W5 and W6, run 2026-11-10 on the owner's Windows 11 PC, outside the sandbox; details in [ticket-0.md](ticket-0.md#results)):
+
+| Format | Read | Write | Status for 1.0 |
+|---|---|---|---|
+| PNG, JPG, WebP, TIFF | libvips | libvips | **confirmed** |
+| GIF | libvips | libvips (`gifsave`, written and read back) | **confirmed** (palette output: colours are quantised) |
+| AVIF | libvips | libvips (`heifsave` with AV1, brand `avif`, written and read back) | **confirmed** |
+| BMP | not in libvips | not in libvips | **leaves 1.0** unless ticket [17](tickets/17-images-bmp-ico.md) delivers own codecs with fuzz tests |
+| ICO | not in libvips | not in libvips | **leaves 1.0** unless ticket [17](tickets/17-images-bmp-ico.md) delivers own codecs with fuzz tests |
+| HEIC | **not** libvips (its libheif has no HEVC decoder); WIC decodes it here | – (input only) | **leaves 1.0** until ticket [18](tickets/18-images-heic-via-wic.md) shows WIC works inside the sandbox and which Windows extensions are required (not verified) |
+
+The table below is the target list; a pair that involves a Format marked **leaves 1.0** is not offered until its ticket confirms it.
 
 | From ↓ / To → | PNG | JPG | WebP | GIF | BMP | TIFF | ICO | AVIF |
 |---|---|---|---|---|---|---|---|---|
