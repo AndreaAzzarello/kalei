@@ -29,6 +29,8 @@ Timings are the median of 10 runs, cold (after a reboot, or with the file cache 
 | W16 | Watchdog and cancel (run in tickets 07b and 08) | a hung Worker is killed within 10 s of missing heartbeat; cancel leaves no partial file; crash leaves none after the next start (journal) | all three | partial files remain → journal logic fixed before 1.0 | S1, S7 |
 | W17 | Antivirus behaviour | Microsoft Defender and one other free consumer antivirus (named in the report) on the installer and the app (SmartScreen, heuristics); run on the final installer in ticket 31 (the Sentinel is checked in ticket 34) | no detection, or documented | detections → code signing earlier than 1.2; document | PRD |
 | W18 | Installer licence and signing | Inno Setup licence text for the used version read; SignPath Foundation eligibility terms read | both documented | unsuitable → another installer; signing path chosen before 1.0 | TRD |
+| W19 | Isolation without the filtering services (Hyper-V VM) | the network probes of W2 (TCP, UDP, DNS, loopback; `run-proofs.ps1` of ticket 01) in five states, each restored afterwards from a VM checkpoint: (a) normal, (b) the three Windows Firewall profiles off, (c) the Windows Firewall service stopped, (d) the Base Filtering Engine stopped (if Windows refuses a stop, the service is set to disabled and the VM rebooted), (e) an outbound allow rule added for the AppContainer profile | every state recorded with the outcome of each probe; probes failing in all five = the block does not depend on the firewall | any probe succeeds in a state → the promise depends on that state; the canary (W20) and the service check become the guard and the README says "checked at start-up", not "always" | S5, ADR 0003 |
+| W20 | The network canary notices it | the canary of ticket 07c run in the same five states | `isolated` only in states where every probe failed; `leaked` in every state where a probe connected; zero false `isolated`; verdict within 1.5 s | a false `isolated` → more probes or a service-state rule; the canary is not adopted until there are none | S5, ticket 07c |
 
 ## Part A2 — Windows global-gesture spike (for 1.2, does not block 1.0)
 Same table layout as Part A. Run in ticket 34. They matter only for the Global Donut (1.2) and for the back Face of the Donut, which 1.0 does not have (at most 8 targets). W11 moved here from Part A for that reason; W11g is its global counterpart.
@@ -75,6 +77,8 @@ The tickets are in [tickets/README.md](tickets/README.md).
 | W5, W6 | 02 Image engine content |
 | W7, W9, and a first W8 estimate | 03a Build spike |
 | W18 | 03b Licence and signing checks |
+| W19 | Issue [#47](https://github.com/AndreaAzzarello/kalei/issues/47) (reference VM, with the package of ticket 01) |
+| W20 | 07c Network canary |
 | W10 | 04 In-app Donut spike |
 | W16 | 07b (hang and cancel) and 08 (journal) |
 | W8 (final), W17 | 31 Installer |
@@ -84,6 +88,21 @@ The tickets are in [tickets/README.md](tickets/README.md).
 
 ## Results
 Measured or read results, newest first. A row not listed here is still open.
+
+### W1, W2, W3 and W4 — Sandbox spike (ticket 01, run 2026-11-10)
+Machine: **Windows 11 dev PC — to repeat on the reference VM (Hyper-V Win10 22H2, 2 vCPU, 4 GB), issue [#47](https://github.com/AndreaAzzarello/kalei/issues/47)**. Windows build 10.0.26300, 16 logical CPUs, .NET 10.0.13, NetVips 3.2.0, libvips 8.18.7; Windows Firewall service and BFE running, all profiles on, no loopback exemption for the spike profile; third-party firewall or antivirus not inspected. Code, 15 tests (all pass) and `results/report.json`: branch `spike/01-sandbox` (not merged). Every "must fail" proof has a positive control outside the sandbox that succeeded; a failed control is reported as inconclusive, never as a pass. Details and the mechanism: [ADR 0003](adr/0003-worker-sandbox-and-handle-passing.md#result-of-the-sandbox-spike-ticket-01-w1w4-2026-11-10).
+- **W1 pass (Windows 11).** AppContainer with no capabilities + Job Object, handles from `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`: PNG 1600×1200 to AVIF (5,075 bytes) and to WebP (9,780 bytes), output decoded and checked by the launcher. Windows 10 22H2: **not verified**.
+- **W2 pass (Windows 11), S5 holds here.** TCP to 1.1.1.1:443: socket access denied; UDP DNS query to 1.1.1.1:53: no answer in 4 s; DNS lookup: host unknown; TCP to a listener on 127.0.0.1: timeout. Controls: all four succeed outside the sandbox. Windows 10 22H2: **not verified**; the "no network" promise may not be written for Windows 10 until it is.
+- **W3 pass (Windows 11).** Handles are seekable: a 4096×4096 tiled deflate pyramid TIFF (6 levels, 24 regions read from the deepest level to the first) took 887 seeks, an AVIF 226. No Format needs removing. Windows 10 22H2: not verified.
+- **W4 pass (Windows 11).** Before the grant the Worker does not start (exit `0x80008085`); after `icacls` read and execute for ALL APPLICATION PACKAGES (`S-1-15-2-1`) on a folder the user owns, the Worker, the .NET runtime and libvips load. No administrator rights. Windows 10 22H2: not verified.
+- **Also shown**: filesystem access by path denied (0 of 6 allowed, 6 of 6 outside); Job Object memory cap 2 GB (out of memory at 1,472 MB), timeout kill (4 s), child processes refused, Worker gone within 3 ms of the app exiting or being killed. LPAC is not needed.
+- **Measures (warm, median of 10)**: 46 ms from process creation to the first message, about 80 ms to convert, about 190 ms for the whole Worker run, 119 MB peak private memory. Not cold-start timings.
+- **Not verified**: Windows 10 22H2 and cold timings (issue #47); stopped Firewall services or third-party firewall; HEIC through WIC inside the sandbox (stays with ticket 18); a Worker started from the installer-set folder (ticket 07b and 31).
+
+### Network isolation and the firewall (primary sources, read 2026-11-10; plan for W19 and W20)
+- **What Microsoft documents**: AppContainer isolation is done by WFP filters: the "Windows Application Isolation" sublayer ("These filters apply to applications running in an App-Container and requires App-Container network capabilities"), "UWP default" and "AppContainer loopback" block filters, and the Base Filtering Engine adds and removes the filters. Sources and quotes: [ADR 0003](adr/0003-worker-sandbox-and-handle-passing.md#what-enforces-the-network-block-microsoft-documentation-read-2026-11-10).
+- **What Microsoft does not document** (none of the four pages read says it): the behaviour of AppContainer network access with the Windows Firewall service or the BFE stopped, the profiles off, or a rule or policy that allows the traffic (fail-closed or fail-open). **Not verified**: our test on Windows 11 ran with the BFE and the firewall service running and all profiles on.
+- **Consequence**: W19 and W20 above, issue #47 for the VM runs, ticket [07c](tickets/07c-network-canary.md) for the canary, and the promise "no network" worded as "checked at start-up on your PC" until they pass.
 
 ### W5 and W6 — Image engine content (ticket 02, run 2026-11-10)
 Machine: owner's Windows 11 PC, .NET SDK 10.0.402, NetVips 3.2.0, NetVips.Native.win-x64 8.18.7 (libvips 8.18.7). Outside the sandbox. Code and run output: branch `spike/02-image-engine` (not merged into main). 17 tests, all pass; a missing feature is asserted as absent.

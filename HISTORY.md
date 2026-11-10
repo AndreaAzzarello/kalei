@@ -2,6 +2,15 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #23 — Network canary (S5) and the firewall dependency
+- Microsoft's pages (WFP sublayer "Windows Application Isolation", "UWP default" and "AppContainer loopback" block filters, BFE) show the AppContainer network block is done by WFP filters; none says what happens with the Windows Firewall service or BFE stopped, profiles off, or an allow rule. ADR 0003 now says so, with the quotes.
+- New: architecture section "Network canary" (three fixed probes, verdicts, when it runs, at most 1.5 s, promise shown only if `isolated`, log event without personal data), ipc-spec messages `Canary` and `CanaryResult` and notice `NETWORK_ISOLATION_UNPROVEN`, glossary term, proofs W19 (VM, five firewall states) and W20 (canary notices it), ticket 07c (issue #50). The two external probes need the owner's confirmation before they ship.
+- ADR 0003 and 0006 read "accepted per Windows 11; Windows 10 22H2 pending #47". New ticket 38 (issue #51): Native AOT trial on a GitHub Actions Windows runner, with the analysis of the ILCompiler advisory first. Tickets are now 46.
+
+## 2026-11-10 #22 — Sandbox spike (ticket 01, W1–W4)
+- On the owner's Windows 11 PC (to repeat on the reference VM, issue #47): AppContainer with no capabilities + Job Object + inherited handles converts PNG to AVIF and WebP; TCP, UDP, DNS and loopback all fail inside, all succeed outside (S5 holds here); filesystem by path denied; handles are seekable (TIFF, AVIF); memory cap, timeout, no child process and kill-on-close work; the install-folder ACL for ALL APPLICATION PACKAGES needs no admin.
+- ADR 0003 and ADR 0006 now accepted for Windows 11; Windows 10 22H2, cold timings, a stopped firewall service and HEIC through WIC in the sandbox not verified. Spike code stays on branch `spike/01-sandbox`.
+
 ## 2026-11-10 #21 — Ticket 03b criterion 4 marked superseded
 - Criterion 4 (original Mayenne Sans licence) now carries a "superseded" note: owner decision, only Bricolage Grotesque (OFL 1.1) is cited, Mayenne Sans is not needed. Issue #4 stays closed.
 

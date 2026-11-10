@@ -1,6 +1,6 @@
 # Tickets for Kalei 1.0 (Windows)
 
-Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 44 tickets: 01–37 with a few split into a and b.
+Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 46 tickets: 01–38 with a few split into a and b, and 07c added after the sandbox spike.
 
 **Words used here**: "owner" is the owner of the repository; "agent" is an AI coding agent; WIC is the Windows Imaging Component; AOT is ahead-of-time compilation; n.v. is "not verified" (see the [TRD](../TRD.md)); "Ticket 0" in the other documents means the [feasibility spike document](../ticket-0.md) and the spike tickets that carry out its proofs (01–04 for Windows, 35 Linux, 36 macOS, 34 global gesture). "Main reference machine" is the Hyper-V Windows 10 VM and "Windows 11 PC" is the owner's desktop PC ([reference machines](../ticket-0.md#reference-machines)).
 
@@ -29,6 +29,7 @@ Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-sk
 | [07a](07a-ipc-protocol-and-worker-host.md) · [#8](https://github.com/AndreaAzzarello/kalei/issues/8) | IPC protocol and Worker host: messages, watchdog decisions, fake launcher | 05 | M | S1, S2, S3 | ready-for-agent | – |
 | [08](08-broker-and-output-writing.md) · [#10](https://github.com/AndreaAzzarello/kalei/issues/10) | Broker and Output file writing: safe temporary file, journal, naming | 05 | M | S4, S7 | ready-for-agent | – |
 | [07b](07b-windows-sandbox-launcher.md) · [#9](https://github.com/AndreaAzzarello/kalei/issues/9) | Windows sandbox launcher: Job Object, AppContainer, first-run set-up | 01, 05, 07a, 08 | L | S1, S2, S5, S7 | ready-for-agent | yes |
+| [07c](07c-network-canary.md) · [#50](https://github.com/AndreaAzzarello/kalei/issues/50) | Network canary: prove at start-up that the sandbox blocks the network | 07a, 07b, 10a, 26 | M | S5, S10 | ready-for-agent | yes |
 | [09a](09a-images-module-core.md) · [#11](https://github.com/AndreaAzzarello/kalei/issues/11) | Images Module core: Worker host, manifest, PNG, JPG and WebP from Core to file | 02, 06, 07a, 07b, 08 | L | S2, S3, S5, S8 | ready-for-agent | – |
 | [09b](09b-images-module-behaviours.md) · [#12](https://github.com/AndreaAzzarello/kalei/issues/12) | Images Module behaviours: GIF as source, TIFF, options, metadata, flattening | 09a | M | S2, S3 | ready-for-agent | – |
 | [10a](10a-main-window-file-card.md) · [#13](https://github.com/AndreaAzzarello/kalei/issues/13) | Main window: Drop zone, file card, target list and Category accent | 09a | L | S3, S6, S10 | ready-for-agent | yes |
@@ -67,7 +68,8 @@ Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-sk
 | [30](30-portable-zip-sums-notices.md) · [#37](https://github.com/AndreaAzzarello/kalei/issues/37) | Portable ZIP, provisional SHA256SUMS, third-party notices and About | 03a, 10a | M | S6 | ready-for-agent | – |
 | [31](31-per-user-installer.md) · [#38](https://github.com/AndreaAzzarello/kalei/issues/38) | Per-user installer, clean uninstall, final size and antivirus checks | 01, 03a, 03b, 07b, 30 | M | S1, S5 | needs-owner-hardware | – |
 | [32](32-code-signing-and-final-sums.md) · [#39](https://github.com/AndreaAzzarello/kalei/issues/39) | Code signing, only if confirmed, and the final SHA256SUMS | 31, 03b | S | none | needs-owner-hardware | – |
-| [33](33-final-verification.md) · [#40](https://github.com/AndreaAzzarello/kalei/issues/40) | Final verification: the S1–S12 gate and a release dry run | 13, 14b, 16, 17, 18, 22, 23, 25, 26, 27, 29, 32, 37 | L | S1–S12 | needs-owner-hardware | – |
+| [33](33-final-verification.md) · [#40](https://github.com/AndreaAzzarello/kalei/issues/40) | Final verification: the S1–S12 gate and a release dry run | 07c, 13, 14b, 16, 17, 18, 22, 23, 25, 26, 27, 29, 32, 37 | L | S1–S12 | needs-owner-hardware | – |
+| [38](38-native-aot-trial.md) · [#51](https://github.com/AndreaAzzarello/kalei/issues/51) | Native AOT trial on a GitHub Actions Windows runner | 05, 30 | S | none | ready-for-agent | – |
 
 ## Not blocking 1.0
 | # | Title | Blocked by | Size | Rules | Status | Manual check |
