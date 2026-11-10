@@ -10,7 +10,7 @@ The Donut is a ring of Slices opened at the cursor while files are dragged. Drop
 
 Each Donut has a front Face (up to 8 common target Formats, the source Format excluded) and, only when more targets exist, a back Face with the rest; the hint to flip is hidden when there is no back Face. One fixed profile per Category; presets are only quality and size. With mixed Categories the Donut offers only Formats valid for every file; if there is none, the Donut does not open and the Batch state asks to split the files. From 1.1 a Slice whose Module is missing is shown disabled with the reason, and releasing on it opens the consent card (never a silent download); in 1.0 there are no Optional modules and so no such Slice.
 
-Accessibility: the Donut is a shortcut, not the only way. The main window and (from 1.1) the Explorer menu offer the same Format list, fully keyboard and screen-reader operable. Faces flip with the mouse wheel; Tab only in the in-app host, where the window has focus. The Donut honours "Reduce animations".
+Accessibility: the Donut is a shortcut, not the only way. The main window and (from 1.1) the file-manager menu offer the same Format list, fully keyboard and screen-reader operable. Faces flip with the mouse wheel; Tab only in the in-app host, where the window has focus. The Donut honours "Reduce animations".
 
 ## Considered options
 

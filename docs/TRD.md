@@ -3,19 +3,20 @@
 Shape and security rules: [architecture.md](architecture.md). Decisions: [adr/](adr/). Pairs: [conversion-matrix.md](conversion-matrix.md).
 
 ## Stack
-.NET 10, Avalonia 12 (12.1.6 on NuGet, MIT). UI app published with Native AOT; Workers are self-contained, trimmed, not AOT ([ADR 0001](adr/0001-avalonia-net10-aot-ui-only.md)). Installer: Inno Setup, per-user (`PrivilegesRequired=lowest`); portable ZIP. Tests: xUnit via `dotnet test`. Build: `dotnet build`.
+.NET 10, Avalonia 12 (12.1.6 on NuGet, MIT). UI app published with Native AOT; Workers are self-contained, trimmed, not AOT ([ADR 0001](adr/0001-avalonia-net10-aot-ui-only.md)). Installer on Windows: Inno Setup, per-user (`PrivilegesRequired=lowest`); portable ZIP. Other systems and their packaging: see Platform support below and [ADR 0010](adr/0010-multiplatform-architecture-windows-first.md). Tests: xUnit via `dotnet test`. Build: `dotnet build`.
 
 ## Engines and licences
 Data from primary sources (NuGet pages, official repos), checked 2026-11-10 by a research pass. **n.v.** = not verified; the check is a to-do in Ticket 0 or in the ticket that adds the library. Sizes are NuGet package sizes, not final installed size.
 
-### MVP (built-in)
+### 1.0 (built-in)
 
 | Family | Library | Licence | Version | Size | Trimming (Worker) | Notes |
 |---|---|---|---|---|---|---|
 | App | Avalonia | MIT | 12.1.6 | 9.7 MB pkg | AOT documented by Avalonia (needs `IsAotCompatible`, trimmer roots) | |
 | Images | NetVips | MIT | 3.2.0 | 0.26 MB | n.v. | wrapper |
-| Images | NetVips.Native.win-x64 (libvips) | **LGPL-3.0-or-later** (libvips itself: LGPL-2.1+) | 8.18.7 | 7.7 MB | n.v. | dynamic link; ship licence + source offer. Declares JPEG, PNG, WebP, AVIF, TIFF, GIF, SVG(in). **Not confirmed:** AVIF encode, GIF via cgif, HEIF/HEVC backend, `vips_block_untrusted_set`, which loaders are compiled in |
-| Images | WIC (Windows) | OS component | – | 0 | – | HEIC read, best effort, user's HEVC extension |
+| Images | NetVips.Native.win-x64 (libvips) | **LGPL-3.0-or-later** (libvips itself: LGPL-2.1+) | 8.18.7 | 7.7 MB | n.v. | dynamic link; ship licence + source offer. Declares JPEG, PNG, WebP, AVIF, TIFF, GIF, SVG(in). **Not declared: BMP and ICO.** The SVG loader is not in the 1.0 matrix, so it must be disabled (attack surface). **Not confirmed:** AVIF encode, GIF via cgif, HEIF/HEVC backend, `vips_block_untrusted_set`, which loaders are compiled in (all checked in Ticket 0, W6) |
+| Images | BMP and ICO codecs | own code (MIT) | – | small | – | small decoders/encoders inside the Worker, with fuzz tests, unless W6 shows an engine that does them; if neither, the format leaves the 1.0 matrix |
+| Images | WIC (Windows) | OS component | – | 0 | – | HEIC read only, best effort. Reported to need the HEIF **and** the HEVC extensions of the user's Windows (not verified; Ticket 0, W5) |
 | Data | Sep | MIT | 0.17.1 | n.v. | README: trimmable + AOT | candidate CSV |
 | Data | CsvHelper | MS-PL OR Apache-2.0 | 34.0.0 | 1.1 MB | `IsTrimmable` + `IsAotCompatible` (net8/net10) | candidate CSV; avoid `dynamic`/Linq |
 | Data | System.Text.Json, System.Xml | MIT (BCL) | .NET 10 | 0 | trim-safe with source generators for JSON | DTD/external entities off |
@@ -32,10 +33,10 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 
 | Asset | Licence | Notes |
 |---|---|---|
-| Bricolage Grotesque (logotype "kalei") | SIL OFL 1.1, "Copyright 2022 The Bricolage Grotesque Project Authors"; no Reserved Font Name declared | Read from upstream repo `ateliertriay/bricolage` (README + `OFL.txt`). Google Fonts page could not be read, so confirmed from upstream only. Upstream README says it started as a fork of Mayenne Sans (Jérémy Landes). **Mayenne Sans licence: not verified from a primary source** (see next row). Variable TTF ≈ 399 KB; the app embeds a **subset** (letters of the logotype) and never loads it from the network. Ship `OFL.txt` in third-party notices |
+| Bricolage Grotesque (logotype "kalei") | SIL OFL 1.1, "Copyright 2022 The Bricolage Grotesque Project Authors"; no Reserved Font Name declared | Read from upstream repo `ateliertriay/bricolage` (README + `OFL.txt`). Google Fonts page could not be read, so confirmed from upstream only. Upstream README says it started as a fork of Mayenne Sans (Jérémy Landes). **Mayenne Sans licence: not verified from a primary source** (see next row). Variable TTF ≈ 399 KB; the app embeds a **subset** and never loads it from the network. **Subset definition (the only one): the letters of "kalei", A–Z, 0–9, and the characters `. + -` used in Format names and Donut labels.** Ship `OFL.txt` in third-party notices |
 | Mayenne Sans (ancestor of Bricolage Grotesque) | Secondhand only: Fonts In Use says "Made available under the SIL Open Font License (OFL) in 2018. As of 2022, the repository is no longer available." (https://fontsinuse.com/typefaces/124719/mayenne-sans) | OFL version, copyright line and Reserved Font Name **not found**; original repository and the archived Studio Triple page were not reachable (web.archive.org is blocked for the tool). Bricolage Grotesque's own `OFL.txt` governs what we ship; before the README or notices state anything about Mayenne Sans, get the original `OFL.txt` (ask the author or check the archived page by hand). Credit: https://www.atelierjulianlegendre.com/references/la-mayenne |
 
-### Later modules (not in v1)
+### Later modules (1.1 onwards; research kept short on purpose)
 
 | Module | Engine | Licence | Status / finding |
 |---|---|---|---|
@@ -49,8 +50,8 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 | Archives | 7-Zip 26.06 (7za) | LGPL-2.1+ with unRAR restriction | no RAR |
 | Vector | resvg | Apache-2.0 OR MIT | no .NET binding found: separate binary |
 | 3D | Assimp | BSD-3-Clause (modified; SPDX n.v.) | |
-| Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify before relying on it |
-| Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used; alternative if unsuitable |
+| Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify **before 1.0**, because 1.0 and 1.1 would otherwise ship unsigned (Ticket 0, W18) |
+| Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used before the installer ticket (Ticket 0, W18); alternative if unsuitable |
 
 ### PDF module — proposed plan (decided when the module is scheduled)
 Images→PDF with SKDocument; render with PDFium; merge/optimise with qpdf (separate process). Text→PDF is the open point: either SKDocument with one small bundled text font (embedded whole in every file) and our own simple line wrapping, or the pinned PDFsharp 6.2.x fallback. Decide with a test PDF check: selectable text, Italian accents, file size. Not to be chosen before that test.
@@ -59,14 +60,7 @@ Images→PDF with SKDocument; render with PDFium; merge/optimise with qpdf (sepa
 | Component | Licence | Finding |
 |---|---|---|
 | SharpHook 8.0.1 | MIT (LICENSE + NuGet) | Wrapper of libuiohook; NuGet lists no dependencies; README implies it ships `uiohook.dll` under `lib/win-<platform>` (package contents not inspected). |
-| libuiohook (kwhat) | GPL-3.0 text (`COPYING.md`) **and** LGPL-3.0 text (`COPYING.LESSER.md`) in the repo, branch `1.2`; **no statement found about which applies and no GPL linking exception found** | Default build is a shared library. SharpHook builds from a fork (`TolikPylypchuk/libuiohook`, not read). Filee's notices describe it as "GPL-3.0 with linking exception / LGPL-3.0" (secondary, unconfirmed by the sources read). Decision: **write our own minimal `WH_MOUSE_LL` hook** (ADR 0009); no dependency, no licence question. |
-
-## Corrections to earlier assumptions
-1. NetVips.Native is LGPL-**3.0**+, not 2.1+.
-2. PDFsharp is MIT only up to 6.2.x; from 6.5.0 it is AGPL/commercial → latest version removed from the plan (see row above).
-3. resvg is Apache-2.0 OR MIT, not MPL.
-4. gyan.dev has no LGPL FFmpeg build; BtbN does.
-5. libvips offers a restricted "web" Windows build (safe loaders only) and an "all" build; which one NetVips.Native resembles must be checked in Ticket 0. Matters because Kalei opens untrusted images.
+| libuiohook (kwhat; the only place this analysis is written, [ADR 0009](adr/0009-mouse-only-hook-and-sentinel.md) points here) | GPL-3.0 text (`COPYING.md`) **and** LGPL-3.0 text (`COPYING.LESSER.md`) in the repo, branch `1.2`; **no statement found about which applies and no GPL linking exception found** | Default build is a shared library. SharpHook builds from a fork (`TolikPylypchuk/libuiohook`, not read). Filee's notices describe it as "GPL-3.0 with linking exception / LGPL-3.0" (secondary, unconfirmed by the sources read). Decision: **write our own minimal `WH_MOUSE_LL` hook** (ADR 0009); no dependency, no licence question. |
 
 ## Platform support
 ### Sandbox mechanisms per OS

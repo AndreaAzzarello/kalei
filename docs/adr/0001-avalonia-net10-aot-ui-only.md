@@ -7,10 +7,10 @@ Kalei's UI uses Avalonia 12 on .NET 10, published with Native AOT for fast start
 
 ## Considered options
 
-- **WPF**: reuses Baton experience, but Windows-only and no AOT/trimming, so a bigger installer.
+- **WPF**: reuses the owner's experience from an earlier project called Baton (not described in these documents; the owner can add one line here), but Windows-only and no AOT/trimming, so a bigger installer; it also contradicts the multiplatform architecture of [ADR 0010](0010-multiplatform-architecture-windows-first.md).
 - **Tauri 2**: smallest installer (~5–10 MB, system WebView2), but adds Rust and a web frontend on the security-critical path (engines, sandbox) and extra WebView processes.
 
 ## Consequences
 
-- Core stays UI-independent pure .NET so macOS/Linux remain possible later.
+- Core stays UI-independent pure .NET with no OS API (see [ADR 0010](0010-multiplatform-architecture-windows-first.md)), so macOS and Linux remain possible; Avalonia itself runs on all three.
 - AOT/trimming compatibility of every library must be checked and recorded in the TRD.

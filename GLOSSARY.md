@@ -115,11 +115,11 @@ The **Donut** shown inside Kalei's own window when files are dragged over it.
 _Avoid_: Local donut
 
 **Global Donut**:
-The **Donut** shown at the cursor anywhere on screen, opened by the **Sentinel**; opt-in.
+The **Donut** shown at the cursor anywhere on screen, opened by the **Sentinel**; opt-in, only where the OS allows it (not on Wayland).
 _Avoid_: System donut
 
 **Sentinel**:
-The tiny separate process that watches the mouse for the global gesture and starts the overlay on request.
+The tiny separate process that watches the mouse for the global gesture and starts the overlay on request. It is resident while the user has enabled the **Global Donut**; "daemon" and "service" are avoided only because it is an ordinary user process, not an OS service.
 _Avoid_: Tray app, daemon, service
 
 ### Experience
