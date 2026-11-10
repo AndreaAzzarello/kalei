@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #26 — In-app Donut spike (ticket 04, W10)
+- Windows 11 dev PC, three monitors (100%, 300%, 100%), warm: overlay on the second frame after the first drag-enter in 24.5–30.2 ms median (max 31.4), 15 of 15 valid cold rows under the 100 ms limit; ring inside the window in 15 of 15, also with the window across two 100% screens. Not 10 valid runs per series, and not the reference VM.
+- Format known before the drop: file list and extension at drag-enter, header sniff of 16 bytes in 1–2 ms; unknown extension shows "analysing". Drop reported as Copy, source unchanged: 27 of 27.
+- Missing rows were a log bug, not the first run: a 1 s timer wrote the row and the window closed first after a quick drop. Fixed on `spike/04-donut` (row at the second frame, `enter` column, runs repeated until valid); re-entries had also lowered the first medians.
+- Open: VM (#47), 150% and 200%, window across screens with different scaling. ADR 0008 unchanged (no fallback); #5 stays open.
+
 ## 2026-11-10 #25 — Canary without Internet probes; CI ticket
 - Owner decision: the network canary makes no outbound connection to the Internet. Removed the probes to 1.1.1.1 and example.com and the DNS probe. Two TCP probes remain: `local` (the Core's listener on 127.0.0.1) and `net` (192.0.2.1:443, TEST-NET-1, RFC 5737). The verdict follows the Winsock code: `WSAEACCES` is blocked, timeout or unreachable is `unproven`, a connection is `leaked`; at most 1.2 s. Sources: RFC 5737 §3–4, Windows Sockets error codes, WFP ALE layer pages.
 - Not stated by Microsoft (so W20 measures it, also offline and with the adapter disabled): which layer gives which code, and whether the connect filter runs before route selection. Our reading that DNS is done by the DNS Client service is not stated in a page we read, so it is marked as such. The notice `NETWORK_ISOLATION_UNPROVEN` is neutral, at most once per session, and says that Conversions work normally.

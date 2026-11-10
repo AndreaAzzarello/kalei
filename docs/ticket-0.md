@@ -89,6 +89,22 @@ The tickets are in [tickets/README.md](tickets/README.md).
 ## Results
 Measured or read results, newest first. A row not listed here is still open.
 
+### W10 — In-app Donut spike (ticket 04, run 2026-11-10)
+Machine: **Windows 11 dev PC — to repeat on the reference VM (Hyper-V Win10 22H2, 2 vCPU, 4 GB), issue [#47](https://github.com/AndreaAzzarello/kalei/issues/47)**. Three monitors: index 0 1920×1080 at 100% (primary), index 1 3840×2160 at 300% (its right edge touches the left edge of index 0), index 2 1920×1080 at 100% (right of index 0). Avalonia 12.1.6, .NET 10. Code, 32 tests of the pure logic (pass) and scripts: branch `spike/04-donut` (not merged). Logs hold only extensions, Formats, sizes and timings.
+- **Latency (first drag-enter of each new process; warm file cache, not a rebooted machine; frame2 = second frame tick after the first drag-enter handler call, the figure compared with 100 ms)**:
+
+  | Series | Valid cold rows | frame2 median | frame2 max | frame1 median | ≤ 100 ms |
+  |---|---|---|---|---|---|
+  | monitor 0, 100% | 6 | 26.0 ms | 27.9 ms | 17.3 ms | 6/6 |
+  | monitor 1, 300% (window also over monitor 0) | 4 | 24.5 ms | 26.1 ms | 16.5 ms | 4/4 |
+  | window across the edge between monitors 0 and 2, both 100% | 5 | 30.2 ms | 31.4 ms | 20.6 ms | 5/5 |
+- **Missing rows explained (not "the first run is not logged")**: the first version wrote each row from a 1 s timer after the drag-enter, and with `--exit-after-drop` the window closed about 0.5 s after the drop, so a drop within roughly 0.5 s of the drag-enter exited before the row was written. Of the 10 + 5 + 12 processes, 15 left a row. Re-entries of the same process (7 rows, frame2 3–10 ms, warm) had been counted in the first summaries and lowered the medians; the table above excludes them. Fixed on the spike branch (row written at the second frame, column `enter`, `run-cold.ps1` repeats a run without a valid row, `-Exe` for a published build). The series above come from the first version; **no series has the 10 valid cold runs the criterion asks for**.
+- **Format known before the drop (pass)**: at drag-enter the window already gets the file list and names (`TryGetFiles`, about 7 ms), so the extension hint is ready in about 11 ms and a header sniff of 16 bytes (about 1–2 ms, after the overlay is up) already identifies the Format (it recognised a `.jpg` that is a PNG). An unknown extension shows the hub as "analysing". Nothing needs to wait for the drop.
+- **Drop is Copy and the source is untouched (pass)**: 27 of 27 drops in the three series report `Copy` and leave the first file unchanged (SHA-256 before and 500 ms after, size, last-write time).
+- **Placement**: ring fully inside the window in 15 of 15 rows, at 100%, at 300%, and across the edge of two screens at 100%. In the 300% series the window (2700×1860 px) also extends over the 100% monitor, but the drags were over the 300% part, so a drag over a window part on a screen with a different scale is **not verified**.
+- **Not verified**: the reference VM (Windows 10 22H2) and cold timings; 150% and 200% (an attempt tagged `win11-150-mon0` left 5 drops and no latency row and is not used); the window across screens with different scaling, with the cursor on the other screen; fewer than 10 valid runs per series.
+- **ADR 0008**: no fallback taken, unchanged. Ticket 04 and issue [#5](https://github.com/AndreaAzzarello/kalei/issues/5) stay open for criteria 1 and 3.
+
 ### W7, W8 and W9 — Build spike (ticket 03a, run 2026-11-10)
 Machine: **Windows 11 dev PC — to repeat cold on the reference VM (Hyper-V Win10 22H2, 2 vCPU, 4 GB), issue [#47](https://github.com/AndreaAzzarello/kalei/issues/47)**. Windows 11 build 26300, 16 logical CPUs, .NET SDK 10.0.402, Avalonia 12.1.6. Code and results: branch `spike/03a-build` (not merged).
 - **W7 not verified for Native AOT.** `dotnet publish -p:PublishAot=true` restores and compiles (AXAML and compiled bindings included) and stops at "Platform linker not found": the MSVC "Desktop development with C++" workload is not installed. Owner decision: do not install it; the AOT publish is to be tried on a GitHub Actions Windows runner in ticket [38](tickets/38-native-aot-trial.md) (analysis of the runtime advisory first, see the [TRD](TRD.md)), and [ADR 0001](adr/0001-avalonia-net10-aot-ui-only.md) stays as it is until then.
