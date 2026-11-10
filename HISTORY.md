@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #20 — Image engine content (ticket 02, W5 and W6)
+- Prebuilt libvips 8.18.7 writes AVIF (AV1) and GIF, plus WebP and TIFF; it has no BMP, ICO or HEVC. SVG loading can be disabled and BlockUntrusted works (checked by behaviour).
+- HEIC: WIC decoded a HEIC on the owner's Windows 11 PC, libvips could not. Required extensions, decode in the sandbox and Windows 10 not verified.
+- Matrix: BMP, ICO and HEIC leave 1.0 until tickets 17 and 18 (confirmed by the owner). Spike code stays on branch `spike/02-image-engine`, only results are in main.
+
 ## 2026-11-10 #19 — Licence and signing checks (ticket 03b, W18)
 - Inno Setup 7.1.1: licence permits use for any purpose at no cost; the site only asks commercial users to pay. Suitable.
 - SignPath Foundation: free for OSS but needs a public release, MFA, manual approval per release and a code signing policy page; the Foundation is the publisher. Owner decision: applies after the first public release, 1.0 may ship unsigned; requirements added to the TRD and ticket 32. Apply form and supported CI not verified.

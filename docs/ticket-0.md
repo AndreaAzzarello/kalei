@@ -85,6 +85,13 @@ The tickets are in [tickets/README.md](tickets/README.md).
 ## Results
 Measured or read results, newest first. A row not listed here is still open.
 
+### W5 and W6 — Image engine content (ticket 02, run 2026-11-10)
+Machine: owner's Windows 11 PC, .NET SDK 10.0.402, NetVips 3.2.0, NetVips.Native.win-x64 8.18.7 (libvips 8.18.7). Outside the sandbox. Code and run output: branch `spike/02-image-engine` (not merged into main). 17 tests, all pass; a missing feature is asserted as absent.
+- **W6 pass, with two losses.** Present and read back with pixels decoded: PNG, JPG, WebP, TIFF, GIF write (`gifsave`), AVIF write (AV1, brand `avif`). Absent: BMP, ICO (no native codec, so ticket 17 writes them), ImageMagick, JPEG 2000/XL, PDF.
+- **Blocking works**: SVG loader disabled by `Operation.Block` (checked by behaviour); `BlockUntrusted` blocks SVG and leaves trusted loaders; no other untrusted loader is compiled in.
+- **W5 partial**: WIC decodes a HEIC here (HEIF extension present); libvips cannot (no HEVC in libheif), so HEIC goes through WIC as planned. **Not verified**: the strictly required extensions, the decode in the sandbox, Windows 10 22H2.
+- Image Format set for 1.0 written into the [conversion matrix](conversion-matrix.md): BMP, ICO and HEIC leave 1.0 until tickets 17 and 18 confirm them.
+
 ### W18 — Installer licence and signing (ticket 03b, read 2026-11-10; no machine needed)
 - **Inno Setup 7.1.1**: licence read; use for any purpose is permitted, free; the site only asks commercial users to buy a licence. Pass. Owner decision: the installer counts as binary redistribution, so the Inno Setup copyright and web address go into THIRD-PARTY-NOTICES (ticket 30). Details and links: [TRD](TRD.md).
 - **SignPath Foundation**: terms read; requires an existing public release, MFA for all team members, manual approval of every release, a "Code signing policy" on the home page; the Foundation is the publisher and may refuse. Result: **needs the owner to apply**, after a first public release; the owner will apply then, and 1.0 may ship unsigned (requirements recorded in ticket 32). The `/apply` form and the supported CI are **not verified**.
