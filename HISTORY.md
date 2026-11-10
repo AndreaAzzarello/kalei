@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #22 — Sandbox spike (ticket 01, W1–W4)
+- On the owner's Windows 11 PC (to repeat on the reference VM, issue #47): AppContainer with no capabilities + Job Object + inherited handles converts PNG to AVIF and WebP; TCP, UDP, DNS and loopback all fail inside, all succeed outside (S5 holds here); filesystem by path denied; handles are seekable (TIFF, AVIF); memory cap, timeout, no child process and kill-on-close work; the install-folder ACL for ALL APPLICATION PACKAGES needs no admin.
+- ADR 0003 and ADR 0006 now accepted for Windows 11; Windows 10 22H2, cold timings, a stopped firewall service and HEIC through WIC in the sandbox not verified. Spike code stays on branch `spike/01-sandbox`.
+
 ## 2026-11-10 #21 — Ticket 03b criterion 4 marked superseded
 - Criterion 4 (original Mayenne Sans licence) now carries a "superseded" note: owner decision, only Bricolage Grotesque (OFL 1.1) is cited, Mayenne Sans is not needed. Issue #4 stays closed.
 
