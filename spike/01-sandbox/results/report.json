@@ -1,0 +1,187 @@
+{
+  "machine": "Windows 11 dev PC \u2014 to repeat on the reference VM (Hyper-V Win10 22H2, 2 vCPU, 4 GB)",
+  "os": "Microsoft Windows 10.0.26300",
+  "dotnet": "10.0.13",
+  "date": "2026-11-10",
+  "results": [
+    {
+      "Id": "ENV",
+      "Name": "Machine and conditions (read only)",
+      "Status": "INFO",
+      "Detail": "Microsoft Windows 10.0.26300; 16 logical CPUs; .NET 10.0.13; services and firewall profiles: BFE=Running,mpssvc=Running; Domain=True,Private=True,Public=True; loopback exemptions on this PC: 1 (none for the spike profile: True); third-party firewall or antivirus not inspected",
+      "Numbers": null
+    },
+    {
+      "Id": "W4-control",
+      "Name": "AppContainer cannot start the Worker before the ACL grant",
+      "Status": "INFO",
+      "Detail": "before grant: no report (exit 0x80008085, timeout=False) (informative: shows the ACL is what enables the launch)",
+      "Numbers": null
+    },
+    {
+      "Id": "W4",
+      "Name": "Worker, .NET runtime and libvips load from a per-user folder after ACL grant, no admin",
+      "Status": "PASS",
+      "Detail": "icacls exit 0; worked; libvips 8.18.7; runtime 10.0.13",
+      "Numbers": null
+    },
+    {
+      "Id": "W1-avif",
+      "Name": "PNG to AVIF in AppContainer \u002B Job from inherited handles",
+      "Status": "PASS",
+      "Detail": "control worked; sandbox worked; output checked by the launcher: avif 5075 bytes, 1600x1200, avg 127.0",
+      "Numbers": {
+        "convertMs": 83,
+        "hello": 46.742
+      }
+    },
+    {
+      "Id": "W1-avif-lpac",
+      "Name": "Same conversion in LPAC (variant for the matrix)",
+      "Status": "INFO",
+      "Detail": "icacls 0; worked",
+      "Numbers": null
+    },
+    {
+      "Id": "W1-webp",
+      "Name": "PNG to WEBP in AppContainer \u002B Job from inherited handles",
+      "Status": "PASS",
+      "Detail": "control worked; sandbox worked; output checked by the launcher: webp 9780 bytes, 1600x1200, avg 127.0",
+      "Numbers": {
+        "convertMs": 88,
+        "hello": 47.2406
+      }
+    },
+    {
+      "Id": "W1-webp-lpac",
+      "Name": "Same conversion in LPAC (variant for the matrix)",
+      "Status": "INFO",
+      "Detail": "icacls 0; worked",
+      "Numbers": null
+    },
+    {
+      "Id": "W3-tiff",
+      "Name": "Seek-heavy tiled pyramid TIFF read through an inherited handle",
+      "Status": "PASS",
+      "Detail": "control worked; sandbox worked; canSeek=True; seeks=887; regions=24; levels=128x128,256x256,512x512,1024x1024,2048x2048,4096x4096 (6 pages)",
+      "Numbers": null
+    },
+    {
+      "Id": "W3-avif",
+      "Name": "AVIF read through an inherited handle",
+      "Status": "PASS",
+      "Detail": "control worked; sandbox worked; canSeek=True; seeks=226",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-tcp",
+      "Name": "TCP connect to 1.1.1.1:443 must FAIL in the sandbox",
+      "Status": "PASS",
+      "Detail": "control (no sandbox) worked; AppContainer failed: AggregateException: One or more errors occurred. (Tentativo di accesso al socket con modalit\u00E0 non consentite dalle rispettive autorizzazioni di accesso.)",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-tcp-lpac",
+      "Name": "TCP connect to 1.1.1.1:443 (LPAC variant)",
+      "Status": "INFO",
+      "Detail": "failed: TypeInitializationException: The type initializer for \u0027System.Net.SocketProtocolSupportPal\u0027 threw an exception.",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-udp",
+      "Name": "UDP DNS query to 1.1.1.1:53 must FAIL in the sandbox",
+      "Status": "PASS",
+      "Detail": "control (no sandbox) worked; AppContainer failed: SocketException: Impossibile stabilire la connessione. Risposta non corretta della parte connessa dopo l\u0027intervallo di tempo oppure mancata risposta dall\u0027host collegato.",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-udp-lpac",
+      "Name": "UDP DNS query to 1.1.1.1:53 (LPAC variant)",
+      "Status": "INFO",
+      "Detail": "failed: SocketException: Chiamata di sistema non riuscita.",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-dns",
+      "Name": "DNS lookup of example.com through the system resolver must FAIL in the sandbox",
+      "Status": "PASS",
+      "Detail": "control (no sandbox) worked; AppContainer failed: SocketException: Host sconosciuto.",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-dns-lpac",
+      "Name": "DNS lookup of example.com through the system resolver (LPAC variant)",
+      "Status": "INFO",
+      "Detail": "failed: TypeInitializationException: The type initializer for \u0027System.Net.SocketProtocolSupportPal\u0027 threw an exception.",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-loopback",
+      "Name": "TCP connect to a listener on 127.0.0.1 must FAIL in the sandbox",
+      "Status": "PASS",
+      "Detail": "control (no sandbox) worked; AppContainer failed: timeout",
+      "Numbers": null
+    },
+    {
+      "Id": "W2-loopback-lpac",
+      "Name": "TCP connect to a listener on 127.0.0.1 (LPAC variant)",
+      "Status": "INFO",
+      "Detail": "failed: TypeInitializationException: The type initializer for \u0027System.Net.SocketProtocolSupportPal\u0027 threw an exception.",
+      "Numbers": null
+    },
+    {
+      "Id": "FS",
+      "Name": "Access by path outside the handles is denied (canary file, Source by path, profile listing, writes to temp, install folder and profile)",
+      "Status": "PASS",
+      "Detail": "control allowed 6/6; AppContainer allowed 0/6: readfile:denied, readfile:denied, listdir:denied, writefile:denied, writefile:denied, writefile:denied",
+      "Numbers": null
+    },
+    {
+      "Id": "JOB-mem",
+      "Name": "Memory cap of 2 GB stops an allocating Worker",
+      "Status": "PASS",
+      "Detail": "worked; allocatedMb=1472; stoppedBy=OutOfMemoryException; exit 0x0; job peak 1503 MB",
+      "Numbers": null
+    },
+    {
+      "Id": "JOB-timeout",
+      "Name": "A hung Worker is killed at the timeout",
+      "Status": "PASS",
+      "Detail": "timedOut=True; waited 4020 ms; exit 1",
+      "Numbers": null
+    },
+    {
+      "Id": "JOB-child",
+      "Name": "A Worker cannot start child processes (Job limit of 1 active process)",
+      "Status": "PASS",
+      "Detail": "control (no job limit) worked; sandbox failed: Win32Exception: An error occurred trying to start process \u0027cmd.exe\u0027 with working directory \u0027%USERPROFILE%\\AppData\\Local\\KaleiSpike\\worker\u0027. Non c\u0027\u00E8 abbastanza disponibilit\u00E0 per elaborare il comando.",
+      "Numbers": null
+    },
+    {
+      "Id": "KILL-normal-exit",
+      "Name": "Worker dies within 2 s when the app closes (normal-exit)",
+      "Status": "PASS",
+      "Detail": "alive before=True; gone after 0 ms",
+      "Numbers": null
+    },
+    {
+      "Id": "KILL-process-kill",
+      "Name": "Worker dies within 2 s when the app closes (process-kill)",
+      "Status": "PASS",
+      "Detail": "alive before=True; gone after 0 ms",
+      "Numbers": null
+    },
+    {
+      "Id": "MEASURE",
+      "Name": "Median of 10 runs, 1600x1200 PNG to AVIF in AppContainer \u002B Job (warm file cache, not a cold start)",
+      "Status": "INFO",
+      "Detail": "first message 46 ms; conversion 80 ms; process total 187 ms; peak private memory 119 MB",
+      "Numbers": {
+        "helloMs": 45.963499999999996,
+        "convertMs": 80,
+        "totalMs": 187.3039,
+        "peakMb": 118.904296875
+      }
+    }
+  ]
+}
