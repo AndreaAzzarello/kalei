@@ -1,6 +1,6 @@
 # Tickets for Kalei 1.0 (Windows)
 
-Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 46 tickets: 01–38 with a few split into a and b, and 07c added after the sandbox spike.
+Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 47 tickets: 01–39 with a few split into a and b, and 07c added after the sandbox spike.
 
 **Words used here**: "owner" is the owner of the repository; "agent" is an AI coding agent; WIC is the Windows Imaging Component; AOT is ahead-of-time compilation; n.v. is "not verified" (see the [TRD](../TRD.md)); "Ticket 0" in the other documents means the [feasibility spike document](../ticket-0.md) and the spike tickets that carry out its proofs (01–04 for Windows, 35 Linux, 36 macOS, 34 global gesture). "Main reference machine" is the Hyper-V Windows 10 VM and "Windows 11 PC" is the owner's desktop PC ([reference machines](../ticket-0.md#reference-machines)).
 
@@ -65,11 +65,12 @@ Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-sk
 ## Release
 | # | Title | Blocked by | Size | Rules | Status | Manual check |
 |---|---|---|---|---|---|---|
-| [30](30-portable-zip-sums-notices.md) · [#37](https://github.com/AndreaAzzarello/kalei/issues/37) | Portable ZIP, provisional SHA256SUMS, third-party notices and About | 03a, 10a | M | S6 | ready-for-agent | – |
+| [30](30-portable-zip-sums-notices.md) · [#37](https://github.com/AndreaAzzarello/kalei/issues/37) | Portable ZIP, provisional SHA256SUMS, third-party notices and About | 03a, 10a, 39 | M | S6 | ready-for-agent | – |
 | [31](31-per-user-installer.md) · [#38](https://github.com/AndreaAzzarello/kalei/issues/38) | Per-user installer, clean uninstall, final size and antivirus checks | 01, 03a, 03b, 07b, 30 | M | S1, S5 | needs-owner-hardware | – |
 | [32](32-code-signing-and-final-sums.md) · [#39](https://github.com/AndreaAzzarello/kalei/issues/39) | Code signing, only if confirmed, and the final SHA256SUMS | 31, 03b | S | none | needs-owner-hardware | – |
 | [33](33-final-verification.md) · [#40](https://github.com/AndreaAzzarello/kalei/issues/40) | Final verification: the S1–S12 gate and a release dry run | 07c, 13, 14b, 16, 17, 18, 22, 23, 25, 26, 27, 29, 32, 37 | L | S1–S12 | needs-owner-hardware | – |
-| [38](38-native-aot-trial.md) · [#51](https://github.com/AndreaAzzarello/kalei/issues/51) | Native AOT trial on a GitHub Actions Windows runner | 05, 30 | S | none | ready-for-agent | – |
+| [38](38-native-aot-trial.md) · [#51](https://github.com/AndreaAzzarello/kalei/issues/51) | Native AOT trial on a GitHub Actions Windows runner | 05, 30, 39 | S | none | ready-for-agent | – |
+| [39](39-ci-github-actions.md) · [#52](https://github.com/AndreaAzzarello/kalei/issues/52) | CI on GitHub Actions: build, test, format and trimming checks on every push and PR | 05 | S | S6, S10 | ready-for-agent | – |
 
 ## Not blocking 1.0
 | # | Title | Blocked by | Size | Rules | Status | Manual check |

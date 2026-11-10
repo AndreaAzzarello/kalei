@@ -109,8 +109,8 @@ The table in [architecture.md](docs/architecture.md#capability-table-per-os) tha
 _Avoid_: Compatibility matrix (that would be confused with the **Conversion matrix**)
 
 **Network canary**:
-A start-up check in which a sandboxed **Worker** tries a few fixed network connections that must all fail; the "no network" promise is shown only if they do ([architecture.md](docs/architecture.md#network-canary-s5)).
-_Avoid_: Network test, ping
+A start-up check in which a sandboxed **Worker** tries two fixed TCP connections (to the Core on this PC and to a non-routed documentation address) that must be refused by the sandbox; the "no network" promise is shown only if they are, and nothing is ever sent to the Internet on purpose ([architecture.md](docs/architecture.md#network-canary-s5)).
+_Avoid_: Network test, ping, connectivity check
 
 ### Donut
 
