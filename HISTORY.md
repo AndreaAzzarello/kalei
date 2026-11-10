@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #11 — 1.0 Windows spec
+- docs/spec/1.0-windows.md: problem, solution, 65 user stories, implementation decisions (components, formats and defaults, preselected targets, Batch rules), three test seams, out of scope.
+- Test seams: Core pipeline through the sandbox-launcher interface, the Worker IPC boundary, the pure Donut library.
+
 ## 2026-11-10 #10 — Reference machines and Baton note
 - Reference machines recorded: Hyper-V Windows 10 22H2 (2 vCPU, 4 GB) as the worst case, owner's Windows 11 desktop (two monitors) for Donut and DPI, Mac mini M1 for macOS, Ubuntu and Fedora VMs for Linux.
 - W12–W15 (global hook, Sentinel, false triggers, UIPI) moved out of the 1.0 blocking proofs into a 1.2 spike.
