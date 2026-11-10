@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #27 — Donut scaling proof (ticket 04, criterion 3 passes)
+- Second run on the Windows 11 dev PC with the fixed log: 150% (10 valid cold rows, frame2 median 36.0 ms, max 43.5), 200% (5 rows, 28.2 ms), and the window across the edge of two screens at 150%/100% (28.0 ms) and 200%/100% (26.3 ms), 5 rows each. 25 of 25 under 100 ms, ring inside the window 25 of 25, drops Copy and source unchanged 25 of 25, ring whole and centred by eye. The 150% series is the slowest, well under the limit; cause not measured.
+- The recorded screen index differs between series because the straddling window sits half on each screen; the ring is placed from the cursor in the window's own units, not from the screen. One pair (index 2, scale 2.00) is not explained.
+- Criterion 3 of ticket 04 passes; issue #5 stays open for criterion 1 only (latency on the reference VM, #47). ADR 0008 unchanged.
+- Ticket 10a (#13) gets a new criterion: initial and minimum window size fit 1366×768 at 100% and 1920×1080 at 200% with no clipped content (the 900×620 DIP spike window did not fit the latter).
+
 ## 2026-11-10 #26 — In-app Donut spike (ticket 04, W10)
 - Windows 11 dev PC, three monitors (100%, 300%, 100%), warm: overlay on the second frame after the first drag-enter in 24.5–30.2 ms median (max 31.4), 15 of 15 valid cold rows under the 100 ms limit; ring inside the window in 15 of 15, also with the window across two 100% screens. Not 10 valid runs per series, and not the reference VM.
 - Format known before the drop: file list and extension at drag-enter, header sniff of 16 bytes in 1–2 ms; unknown extension shows "analysing". Drop reported as Copy, source unchanged: 27 of 27.
