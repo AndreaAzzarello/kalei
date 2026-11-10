@@ -1,18 +1,18 @@
 # Kalei — Architecture
 
-Decisions behind this are in [docs/adr](adr/). Terms: [GLOSSARY.md](../GLOSSARY.md).
+Decisions behind this are in [docs/adr](adr/). Terms: [GLOSSARY.md](../GLOSSARY.md). Release numbers: [PRD](PRD.md#release-order-the-single-source-for-version-numbers-other-documents-point-here). Proofs still open: [ticket-0.md](ticket-0.md).
 
 ## Shape
 
 ```
 Kalei.App (Avalonia, Native AOT)        UI only: states, drop zone, accent, settings
    │ calls
-Kalei.Core (pure .NET, no UI)           format detection, queue, limits, module manager,
+Kalei.Core (pure .NET, no UI)           format detection (header only), queue, limits, module manager,
    │                                    output naming, temp/log policy, Broker
-   │ versioned IPC (pipes) + handles
-Kalei.Worker.* (one process per Conversion)   sandboxed; hosts one Module's Engines
-   ├─ Kalei.Worker.Core  (built-in: images, data, text)
-   └─ <optional module workers>              installed to %LOCALAPPDATA%\Kalei\modules
+   │ versioned IPC on inherited pipes + handles (ipc-spec.md)
+Kalei.Worker.* (one process per Conversion)   sandboxed; hosts one or more Modules' Engines
+   ├─ Kalei.Worker.Builtin  (built-in Modules: images, data, text)
+   └─ <optional module workers> (from 1.1)
 ```
 
 ```
@@ -21,46 +21,64 @@ Kalei.Sentinel (1.2 only, opt-in)       mouse hook + overlay launcher, ≤ 20 MB
 Kalei.App overlay host (global Donut)   same Donut component as the in-app host
 ```
 
+The Core contains no operating-system API. Everything that depends on the OS sits behind a **Platform adapter** (interfaces listed in [ADR 0010](adr/0010-multiplatform-architecture-windows-first.md)); the per-OS implementations are summarised in the capability table at the end of this document.
+
 ## Donut component (ADR 0008)
-`Kalei.Donut` is a UI-independent library: slice layout, angles, hit-testing, face logic (front/back), disabled-slice reasons, all unit-testable. A thin Avalonia control draws it. Two hosts: the **in-app host** (1.0) shows it as an overlay inside the main window during an OLE drag-over; the **global host** (1.2) shows it in a transparent, topmost, non-activating window. The Donut asks the Core which target Formats suit the dragged files (format detection from content once the first `DragEnter` delivers the file list) and which Modules are installed; it returns the chosen Format to the Core's queue, which starts the Conversion as usual. A drop is always reported to the file manager as *Copy*, so a source is never removed.
+`Kalei.Donut` is a UI-independent library: slice layout, angles, hit-testing, face logic (front/back), all unit-testable. A thin Avalonia control draws it. Two hosts: the **in-app host** (1.0) shows it as an overlay inside the main window during an OLE drag-over; the **global host** (1.2) shows it in a transparent, topmost, non-activating window. The Donut asks the Core which target Formats suit the dragged files and returns the chosen Format to the Core's queue, which starts the Conversion as usual. A drop is always reported to the file manager as *Copy*, so a source is never removed. Whether the Format of the files is known at the first drag event (before the drop) is a Ticket 0 check; until it is known the Donut shows an "analysing" state, and detection itself follows S3.
 
 ## Sentinel and hook (ADR 0009, 1.2)
-`Kalei.Sentinel` is a minimal separate process: a `WH_MOUSE_LL` hook and `GetAsyncKeyState` on the configured modifier while a drag is in progress. No keyboard hook, no keystroke recording, no network, nothing logged. On the gesture it starts the overlay host and hands it the cursor position over a local pipe restricted to the current user. Residency and start at sign-in are opt-in. Open measurements (Ticket 0): cold-start latency to a visible overlay, RAM at rest, wheel events during an OLE drag, antivirus behaviour.
-
-## Browser drops
-Only data the browser hands over as bytes (virtual file or its own temporary copy) is accepted, through the same Broker path as any file. A dropped link without bytes is refused with "Save the file first". No download code exists in Kalei apart from the approved Module install. The source's Mark of the Web is copied onto the Output file.
+`Kalei.Sentinel` is a minimal separate process: a mouse hook and the state of the configured modifier key while a drag is in progress (S11). No keyboard hook, no keystroke recording, no network, nothing logged. On the gesture it starts the overlay host and hands it the cursor position. Residency and start at sign-in are opt-in. Open proofs (Ticket 0): cold-start latency, RAM at rest, wheel events during a drag, false triggers, elevated windows, antivirus behaviour. The overlay host is started only after the Sentinel has checked that the executable is the installed one.
 
 ## Core responsibilities
-- **Format detection** by magic bytes and structure, never by extension alone; mismatches are reported to the user.
-- **Queue**: ordered Conversions of a Batch, bounded parallelism, cancellation, per-file result.
-- **Module manager**: reads each `module.json` (input/output Formats, Options, Limits, version), builds the Conversion matrix at runtime, handles install/uninstall and hash verification ([ADR 0004](adr/0004-optional-modules-embedded-hashes.md)).
+- **Format detection** (S3): the Core reads at most the first 64 KB and applies the signature table in [format-detection.md](format-detection.md); anything needing structure or content (deeper detection, previews, thumbnails) is asked of a Worker through `Probe` and `Preview` messages. Mismatches between content and extension are reported to the user.
+- **Queue**: ordered Conversions of a Batch, bounded parallelism (see Limits), cancellation, per-file result.
+- **Module manager**: reads each `module.json` ([module-manifest.md](module-manifest.md); formats, Options, version, never Limits), builds the Conversion matrix at runtime. From 1.1 it also installs and uninstalls Optional modules ([ADR 0004](adr/0004-optional-modules-embedded-hashes.md), S8).
 - **Broker**: opens the Source file read-only and creates the Output file; passes handles to the Worker; the Worker never sees a path ([ADR 0003](adr/0003-worker-sandbox-and-handle-passing.md)).
-- **Output naming**: sanitises names, rejects path traversal and reserved Windows names, resolves clashes to `name (1).ext`, never overwrites.
+- **Output naming**: sanitises names, rejects path traversal and reserved names, resolves clashes to `name (1).ext`, never overwrites.
 - **Limits** enforcement before and during Conversion.
+- **Conversion graph (after 1.0, not a security rule)**: conversions are modelled as a graph with at most 3 steps per route so multi-step conversions can be offered later; every step would run in its own Worker. In 1.0 every pair is direct and routing is a flat table.
 
 ## Conversion lifecycle
-1. Core detects the Format and checks Limits (size, count, depth).
-2. Core picks the Module; if Optional and missing, the user is asked (consent) — otherwise skip.
-3. Broker opens handles; Core starts a Worker in a Job Object + AppContainer with a timeout and memory cap.
-4. Worker converts over streams and reports progress/result over IPC.
-5. Core writes the Output file atomically (temporary name in the Output folder, then rename), or removes the partial file on cancel/error/timeout.
-6. Worker process is always terminated, success or not.
+1. Core reads the header (S3), detects the Format and checks Limits (size, count, depth).
+2. Core picks the Module. If it is an Optional module that is not installed (from 1.1), the user is asked for consent; otherwise the file is skipped with its reason.
+3. Broker opens handles; Core starts a Worker through the OS sandbox with a timeout and memory cap (S1, S5).
+4. Worker converts over streams and reports progress or result over IPC; the Core's watchdog kills a Worker that stops answering.
+5. The Output is created exclusively under a reserved name `.kalei-<guid>.tmp` in the Output folder, recorded in a journal in Kalei's own folder, and renamed to its final name without replacing anything (on a clash it retries with `name (n).ext`). On cancel, error or timeout the partial file is removed; after a crash, the journal tells the next start which partial files to delete.
+6. The Worker process is always terminated, success or not.
 
-## Security requirements (normative; mirrored in CLAUDE.md)
-1. Each Conversion runs in its own Worker process with timeout, memory cap and cancel.
-2. Limits on size and count; protection against zip bombs (expansion ratio, total size, nested archives, XLSX included) and malformed or malicious files.
-3. Real type from content; the extension is only a hint.
-4. Output names and paths sanitised; no traversal; no silent overwrite.
-5. No network access for Workers (AppContainer without network capability). The only allowed connection is the user-approved install of an Optional module from the fixed source with a verified hash.
-6. No automatic update without consent.
-7. Temporary files only in a dedicated Kalei folder; always deleted on end, error or cancel; stale ones removed at start-up.
-8. XML: DTD and external entities disabled. YAML: no arbitrary type instantiation. HTML output sanitised. CSV→XLSX never writes formulas.
-9. Logs: no paths, no file names.
-10. Input: never a keyboard hook; the global gesture uses a mouse hook plus the state of one chosen modifier key, and nothing typed is recorded (ADR 0009).
-11. Conversion graph: the Core models conversions as a graph (at most 3 steps per route) so multi-step conversions can be offered later; every step runs in its own Worker.
+## Security requirements (normative, the only place they are written)
+Other documents point here and do not repeat them. They hold for every operating system; how each OS meets them is in the capability table.
+- **S1** Each Conversion runs in its own Worker process with timeout, memory cap and cancel, and the Worker is killed when the app exits.
+- **S2** Limits on size and count; protection against zip bombs (expansion ratio, total size, nested archives, XLSX included) and malformed or malicious files, with the values in the Limits table.
+- **S3** The real type comes from content; the extension is only a hint. The Core reads headers only (at most 64 KB). Every parser of untrusted bytes runs in a Worker: structural detection, previews, thumbnails and the UI never decode untrusted content themselves.
+- **S4** Output names and paths are sanitised; no traversal; no silent overwrite; the Source file is never touched.
+- **S5 (release gate)** A Worker has no network access, enforced by the operating system's sandbox and not by the Worker's good behaviour. It is tested by a TCP connect and a DNS lookup from inside a Worker, which must both fail. **If this cannot be proved for an OS in Ticket 0, the promise "no network" is removed from PRD and README for that OS, and no weaker mechanism is sold as equivalent.** Weaker mechanisms (for example a restricted token) may remain only as defence in depth and are described as such.
+- **S6** No automatic update and no update check. "Check for updates" only opens the Releases page.
+- **S7** Temporary files live only in Kalei's own folder, always deleted at the end, on error and on cancel, and stale ones are removed at start-up. Two declared exceptions: the in-flight Output file (`.kalei-<guid>.tmp` in the Output folder, tracked by the journal) and spooled browser files (S12), kept in Kalei's own temporary folder.
+- **S8 (from 1.1)** Optional modules are first-party only. Every file of an installed module is hashed and compared with the hashes compiled into the app at install and at every load; Limits always come from the table in the app, never from `module.json`. A `.kmod` is verified (SHA-256 of the whole package) before extraction, on a private copy; extraction rejects `..`, absolute paths, links and reparse points, files not listed in the manifest, and sizes or ratios above the cap. Downloads go only to the fixed source's GitHub hosts.
+- **S9** XML: DTD and external entities disabled. YAML: no arbitrary type instantiation, limits on aliases and depth. HTML output: sanitised, with a Content-Security-Policy `default-src 'none'; img-src data:; style-src 'unsafe-inline'`, no remote resources. CSV and TSV output: cells starting with `=`, `+`, `-` or `@` are neutralised (default on, switch in Options). XLSX: never formulas; text is written as an explicit string cell.
+- **S10** Logs contain no paths and no file names; a test feeds sample paths through the app and scans the logs.
+- **S11 (from 1.2)** Never a keyboard hook; the global gesture uses a mouse hook plus the state of one chosen modifier key, and nothing typed is recorded ([ADR 0009](adr/0009-mouse-only-hook-and-sentinel.md)).
+- **S12** Drops from a browser: only the bytes the browser hands over are accepted; a link without bytes is refused ("Save the file first"); no download code exists except the approved Module install (from 1.1). A virtual file that arrives as a stream is spooled to Kalei's own temporary folder under the same Limits and removed afterwards. The Output keeps the origin mark of the source (Windows `Zone.Identifier`, macOS quarantine) but only the zone/quarantine flag, never the source URLs; where the destination cannot hold it (FAT, exFAT, network shares), the Conversion still runs and the user is told.
+
+## Limits
+Initial values, all to be validated in Ticket 0. The Core enforces them before and during a Conversion; the Worker's own limits come from this table, not from a manifest (S8).
+
+| Limit | Default | Enforced by | Error code |
+|---|---|---|---|
+| Source file size, images | 2 GB | Core (before) | `E_SIZE` |
+| Source file size, data and text | 200 MB | Core (before) | `E_SIZE` |
+| Pixels per image | 250 MP | Worker (header), Core confirms | `E_PIXELS` |
+| Files per Batch | 10,000 | Core | `E_COUNT` |
+| Folder depth | 32 | Core | `E_DEPTH` |
+| Worker memory | 2 GB | OS sandbox / watchdog | `E_MEM` |
+| Timeout per Conversion | 2 min + 1 min per 100 MB, at most 15 min | Core watchdog | `E_TIME` |
+| Parallel Workers | min(cores ÷ 2, 4, 4 GB ÷ Worker memory) | Queue | – |
+| XLSX / archives | expansion ratio ≤ 100:1, total uncompressed ≤ 1 GB, no nested archives | Worker, Core confirms | `E_BOMB` |
+| YAML | at most 100 aliases, depth 64 | Worker | `E_COMPLEX` |
+| JSON, XML | depth 64 | Worker | `E_COMPLEX` |
+
+Folder walk: links and junctions are not followed; hidden and system files are skipped; each skipped file shows its reason (unsupported format, over a limit, system or hidden, link, unreadable, clash declined). Result lists of large Batches are virtualised in the UI.
 
 ## IPC protocol
-Versioned messages over a named pipe created by the Core with an ACL restricted to the Worker's AppContainer SID: `Hello(version)`, `Convert(format pair, options)`, `Progress`, `Result`, `Error(code)`, `Cancel`. Unknown versions are refused. Message sizes are bounded. Details to be fixed in the spec of Ticket 0.
-
-## Risks to settle in Ticket 0
-AppContainer + .NET runtime + NetVips.Native + WIC all working together; handle passing into AppContainer; real installer size; AVIF writing and GIF (cgif) present in the prebuilt libvips.
+Versioned messages between the Core and each Worker on **inherited anonymous pipes** (no named pipe, so no shared name or SID that another process could open); file data travels as inherited handles, never as paths. Messages: `Hello`, `Probe`, `Preview`, `Convert`, `Progress`, `Result`, `Error`, `Cancel`. Unknown versions are refused, frame sizes are bounded, the Core's watchdog kills a Worker that stops sending `Progress` or a heartbeat. Full specification: [ipc-spec.md](ipc-spec.md).

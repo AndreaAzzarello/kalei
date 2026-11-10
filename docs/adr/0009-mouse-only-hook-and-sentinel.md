@@ -9,9 +9,9 @@ The hook lives in a **Sentinel**: a tiny, separate process (target at most 20 MB
 
 README wording (accurate, replaces "never reads the keyboard"): *"Kalei never records keystrokes. During a drag it only checks whether your chosen modifier key is held."*
 
-SharpHook (MIT) wraps libuiohook, whose repository contains both GPL-3.0 and LGPL-3.0 texts without a statement of which applies (checked 2026-11-10); that ambiguity is one more reason to write the small hook ourselves.
+We write the small hook ourselves rather than depend on SharpHook/libuiohook, whose licence is ambiguous (details in the [TRD](../TRD.md)).
 
-Status is *proposed* until Ticket 0 measures: gesture-to-overlay latency from a cold start (the hook sees the gesture, the files arrive only at the first `DragEnter` on the overlay), Sentinel RAM, whether wheel events reach the hook during an OLE drag, and antivirus behaviour. If cold start is too slow, a pre-started lightweight overlay is considered then.
+Status is *proposed* until Ticket 0 measures ([ticket-0.md](../ticket-0.md)): gesture-to-overlay latency from a cold start (the hook sees the gesture, the files arrive only at the first drag event on the overlay), Sentinel RAM, whether wheel events reach the hook during a drag, **false triggers** (the gesture also matches text selection and window dragging, and Windows gives no global "a file drag is in progress" signal), **elevated windows** (input to higher-privilege windows is invisible to a hook), hook-callback timeouts (the callback only posts a message to its own thread), and antivirus behaviour. The overlay opens before the file list is known, so it needs an "analysing" state. The Sentinel starts the overlay host only after checking that it is the installed executable. If cold start is too slow, a pre-started lightweight overlay is considered then.
 
 ## Consequences
 
