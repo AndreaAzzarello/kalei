@@ -50,7 +50,7 @@ Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-sk
 | [18](18-images-heic-via-wic.md) · [#24](https://github.com/AndreaAzzarello/kalei/issues/24) | Images: HEIC reading through WIC | 02, 09a | M | S3, S5 | ready-for-agent | – |
 | [19](19-text-like-detection.md) · [#25](https://github.com/AndreaAzzarello/kalei/issues/25) | Detection of text-like Formats in the Probe | 06, 07a | M | S3, S9 | ready-for-agent | – |
 | [20a](20a-data-csv-tsv.md) · [#26](https://github.com/AndreaAzzarello/kalei/issues/26) | Data: CSV and TSV | 07b, 19, 09a | M | S2, S9 | ready-for-agent | – |
-| [20b](20b-data-xlsx.md) · [#27](https://github.com/AndreaAzzarello/kalei/issues/27) | Data: XLSX with CSV and TSV | 20a | M | S2, S9 | ready-for-agent | – |
+| [20b](20b-data-xlsx.md) · [#27](https://github.com/AndreaAzzarello/kalei/issues/27) | Data: XLSX with CSV and TSV | 20a | M | S2, S9 | ready-for-agent | yes |
 | [21](21-data-tree.md) · [#28](https://github.com/AndreaAzzarello/kalei/issues/28) | Data: JSON, YAML and XML | 07b, 19, 09a | M | S2, S9 | ready-for-agent | – |
 | [22](22-json-tabular.md) · [#29](https://github.com/AndreaAzzarello/kalei/issues/29) | Data: JSON to and from tables | 20b, 21 | M | S9 | ready-for-agent | – |
 | [23](23-text-module.md) · [#30](https://github.com/AndreaAzzarello/kalei/issues/30) | Text: TXT, Markdown and HTML | 07b, 19, 09a | M | S9 | ready-for-agent | – |

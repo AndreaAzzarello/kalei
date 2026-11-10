@@ -3,7 +3,7 @@
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
 ## 2026-11-10 #24 — Build spike (ticket 03a, W7–W9)
-- Native AOT could not be tried: no MSVC linker on the dev PC (owner decision: not installed). It will be tried on a GitHub Actions Windows runner when CI exists; ADR 0001 stays unchanged until then. ReadyToRun + trimming works: window start-up median 418 ms warm, app 23.5 MB zipped (Windows 11 dev PC, to repeat cold on the VM, #47).
+- Native AOT could not be tried: no MSVC linker on the dev PC (owner decision: not installed). It will be tried on a GitHub Actions Windows runner (ticket 38, issue #51); ADR 0001 stays unchanged until then. The ILCompiler advisory (patched in 10.0.14) also covers the .NET runtime that app and Worker ship: release builds must use 10.0.14 or later. ReadyToRun + trimming works: window start-up median 418 ms warm, app 23.5 MB zipped (Windows 11 dev PC, to repeat cold on the VM, #47).
 - W9: the trimmed Worker passes with warnings as errors and a smoke test on the trimmed binary. Replacements: MiniExcel (3 trim warnings) by Sylvan.Data.Excel reader + own XLSX writer; YamlDotNet only through `YamlStream`. CSV library is Sep.
 - W8 first estimate: app + Worker 42.7 MB zipped (target 45). Spike code stays on branch `spike/03a-build`.
 
