@@ -45,7 +45,7 @@ Kalei is inspired by Filee (https://github.com/KnifeLemon/Filee, MIT), which pio
 The limits table (per Module, enforcing component, error code) lives in [architecture.md](architecture.md#limits); the values are defaults, changeable in Settings → Limits. Metadata: GPS removed by default; EXIF orientation applied to pixels; option to strip all metadata.
 
 ## Success criteria
-Thresholds, reference machine and measuring method are in [ticket-0.md](ticket-0.md).
+Thresholds and measuring method are in [ticket-0.md](ticket-0.md). **Reference machine**: a Hyper-V virtual machine with Windows 10 22H2, 2 vCPU, 4 GB RAM and a virtual SSD (the worst case, reproducible); startup, memory and Donut latency are measured there and confirmed on a Windows 11 desktop PC.
 - Installer: target ≤ 45 MB, acceptable ≤ 60 MB; above that the scope is reviewed. Cold start ≤ 1 s on the reference machine (otherwise ReadyToRun instead of Native AOT, ADR 0001).
 - A user converts a file in at most three actions (drop, check target, Convert).
 - **Conditional on gate S5:** a TCP connect and a DNS lookup from inside a Worker both fail (sandbox test); if the gate fails for an OS, this criterion and the matching README claim are removed for that OS.

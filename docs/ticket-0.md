@@ -2,7 +2,13 @@
 
 Ticket 0 proves, with measurements, the claims that the design cannot settle on paper. It writes **no product code**: spike code is throwaway, kept on a branch, and only the measured results and decisions return to the documents. Each test has a number to hit; below the "fail" line the stated fallback applies and the named ADR or requirement is changed. Nothing here is solved in words: a row stays open until it has a measured result recorded in `HISTORY.md` and the ADR it unblocks.
 
-**Reference machine**: the lowest-specification Windows PC the owner can test on; its CPU, RAM, disk and Windows build are written in the report. Timings: median of 10 runs, cold (after a reboot or with the file cache dropped for the first run). Sizes are measured on the final published artifact.
+## Reference machines
+- **Main (worst case, reproducible)**: Hyper-V virtual machine, Windows 10 22H2, 2 vCPU, 4 GB RAM, virtual SSD. The thresholds for start-up, memory and Donut latency are measured here.
+- **Windows 11**: the owner's desktop PC with two monitors; also used to try the Donut across screens and with different DPI.
+- **macOS**: the owner's Mac mini (Apple M1, 8 GB RAM), for M1–M6.
+- **Linux**: virtual machines with Ubuntu 24.04 and the current Fedora, for L1–L6.
+
+Timings are the median of 10 runs, cold (after a reboot, or with the file cache dropped for the first run); the machine, Windows build and run count go in the report. Sizes are measured on the final published artifact.
 
 ## Part A — Windows (blocks 1.0)
 
@@ -19,13 +25,20 @@ Ticket 0 proves, with measurements, the claims that the design cannot settle on 
 | W9 | Trimmed Worker | each library marked n.v. in the TRD publishes trimmed with warnings as errors | all pass | failing library replaced (e.g. CSV: Sep → CsvHelper) | TRD |
 | W10 | In-app Donut: drag over an Avalonia window | OLE drag-over opens an overlay; time from first drag event to visible Donut; whether format information is available before the drop | ≤ 100 ms to overlay; Format known before drop, or "analysing" state works | file list only at drop → Donut offers formats from extension as a hint, marked "analysing" | ADR 0008 |
 | W11 | Wheel during a drag | mouse-wheel events reach the Donut (in-app) and the hook (global) during an OLE drag | events arrive | not delivered → Face flip by Tab only in-app; global Donut has one Face | ADR 0008/0009 |
+| W16 | Watchdog and cancel | a hung Worker is killed within 5 s of missing heartbeat; cancel leaves no partial file; crash leaves none after the next start (journal) | all three | partial files remain → journal logic fixed before 1.0 | S1, S7 |
+| W17 | Antivirus behaviour | Defender and one more consumer AV on the Sentinel and the installer (SmartScreen, heuristics) | no detection, or documented | detections → code signing earlier than 1.2; document | PRD |
+| W18 | Installer licence and signing | Inno Setup licence text for the used version read; SignPath Foundation eligibility terms read | both documented | unsuitable → another installer; signing path chosen before 1.0 | TRD |
+
+## Part A2 — Windows global-gesture spike (for 1.2, does not block 1.0)
+Same table layout as Part A. W12–W15 moved here: they matter only for the Global Donut, which ships in 1.2. W11 stays in Part A for the in-app Donut; its global counterpart is the first row below.
+
+| ID | Test | Measure | Pass | Fail → fallback | Unblocks |
+|---|---|---|---|---|---|
+| W11g | Wheel events reach the hook during a drag | wheel events seen by the minimal hook while a file drag is in progress | events arrive | not delivered → the global Donut has one Face | ADR 0009 |
 | W12 | Minimal mouse hook + non-activating overlay | gesture → overlay latency, cold start | ≤ 300 ms | slower → pre-started lightweight overlay; else 1.2 reduced | ADR 0009 |
 | W13 | Sentinel resident memory | private working set at rest, after 10 minutes | ≤ 20 MB | > 20 MB → look for what holds memory; if not fixable, residency stays off by default and the figure is published | ADR 0009 |
 | W14 | False triggers | 50 text selections, 50 window drags and 50 file-manager drags with the modifier held | Donut opens on file drags only; 0 opens in the other 100 | opens on others → stricter gesture (longer threshold, file-drag detection), else the global Donut is cut | ADR 0009 |
 | W15 | Elevated windows and hook timeouts | drag onto/from an elevated window; callback deadline when the system is loaded | behaviour documented; hook not removed by the system in a 10-minute stress run | removed → hook callback only posts to its own thread | ADR 0009 |
-| W16 | Watchdog and cancel | a hung Worker is killed within 5 s of missing heartbeat; cancel leaves no partial file; crash leaves none after the next start (journal) | all three | partial files remain → journal logic fixed before 1.0 | S1, S7 |
-| W17 | Antivirus behaviour | Defender and one more consumer AV on the Sentinel and the installer (SmartScreen, heuristics) | no detection, or documented | detections → code signing earlier than 1.2; document | PRD |
-| W18 | Installer licence and signing | Inno Setup licence text for the used version read; SignPath Foundation eligibility terms read | both documented | unsuitable → another installer; signing path chosen before 1.0 | TRD |
 
 ## Part B — Linux spike (does not block 1.0)
 Goal: decide whether Linux can ship in 1.x and with which promise. Distros: Ubuntu 24.04, Fedora (current), Debian stable.
@@ -51,5 +64,17 @@ Goal: decide whether macOS can ship in 1.x without depending on an Apple account
 | M5 | Drag from Finder into the in-app Donut | works | drop zone only |
 | M6 | (Only if an Apple account is active) Developer ID signing and notarisation of the same build | works, and the sandbox result does not change | none: notarisation is only distribution |
 
-## Order of the tickets after Ticket 0
-Ticket 1 (solution skeleton, Core, Platform adapters for Windows, format detection, Broker, IPC, image Module, in-app Donut) needs W1–W7 and W10; the data and text Modules need W9; the installer needs W4, W8, W17, W18; the global Donut (1.2) needs W11–W15; Linux and macOS tickets need Parts B and C.
+## Which ticket runs which proof
+The tickets are in [tickets/README.md](tickets/README.md).
+
+| Proofs | Ticket |
+|---|---|
+| W1, W2, W3, W4, W16 | 01 Sandbox spike |
+| W5, W6 | 02 Image engine content |
+| W7, W8, W9, W17, W18 | 03 Build and size spike |
+| W10, W11 | 04 In-app Donut spike |
+| W11g, W12, W13, W14, W15 | 34 Global gesture spike (1.2) |
+| L1–L6 | 35 Linux spike |
+| M1–M6 | 36 macOS spike |
+
+Dependencies after the spikes: the solution skeleton needs 03; the sandbox launcher needs 01; the image Module needs 02; the in-app Donut needs 04; the installer needs 01 and 03.

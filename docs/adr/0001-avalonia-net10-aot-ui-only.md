@@ -7,7 +7,7 @@ Kalei's UI uses Avalonia 12 on .NET 10, published with Native AOT for fast start
 
 ## Considered options
 
-- **WPF**: reuses the owner's experience from an earlier project called Baton (not described in these documents; the owner can add one line here), but Windows-only and no AOT/trimming, so a bigger installer; it also contradicts the multiplatform architecture of [ADR 0010](0010-multiplatform-architecture-windows-first.md).
+- **WPF**: reuses the experience and C#/XAML patterns from Baton, the author's earlier app (a download manager in C#/WPF/.NET 10 with a browser extension, repository `AndreaAzzarello/baton`; Avalonia is close to WPF), but Windows-only and no AOT/trimming, so a bigger installer; it also contradicts the multiplatform architecture of [ADR 0010](0010-multiplatform-architecture-windows-first.md).
 - **Tauri 2**: smallest installer (~5–10 MB, system WebView2), but adds Rust and a web frontend on the security-critical path (engines, sandbox) and extra WebView processes.
 
 ## Consequences
