@@ -62,22 +62,47 @@ Check("System.Xml", () =>
     return $"{doc.Root!.Elements().Count()} element, DTD refused: {blocked}";
 });
 
-Check("YamlDotNet", () =>
+Check("YamlDotNet (YamlStream, no type reflection)", () =>
 {
-    var obj = new YamlDotNet.Serialization.DeserializerBuilder().Build().Deserialize<object>("a: 1\nb:\n  - x\n  - y\n");
-    var text = new YamlDotNet.Serialization.SerializerBuilder().Build().Serialize(new Dictionary<string, object> { ["k"] = "v" });
-    return $"{obj.GetType().Name}, wrote {text.Trim()}";
+    var ys = new YamlDotNet.RepresentationModel.YamlStream();
+    ys.Load(new StringReader("a: 1\nb:\n  - x\n  - y\n"));
+    var root = (YamlDotNet.RepresentationModel.YamlMappingNode)ys.Documents[0].RootNode;
+    var outDoc = new YamlDotNet.RepresentationModel.YamlStream(new YamlDotNet.RepresentationModel.YamlDocument(
+        new YamlDotNet.RepresentationModel.YamlMappingNode(new YamlDotNet.RepresentationModel.YamlScalarNode("k"), new YamlDotNet.RepresentationModel.YamlScalarNode("v"))));
+    var sw = new StringWriter();
+    outDoc.Save(sw, false);
+    return $"{root.Children.Count} keys read, wrote {sw.ToString().Trim().Split('\n')[0]}";
 });
 
-Check("MiniExcel", () =>
+Check("XLSX: own minimal writer + Sylvan.Data.Excel reader", () =>
 {
-    var rows = new List<Dictionary<string, object>> { new() { ["a"] = 1, ["b"] = "x" }, new() { ["a"] = 2, ["b"] = "y" } };
-    var ms = new MemoryStream();
-    MiniExcelLibs.MiniExcel.SaveAs(ms, rows);
-    ms.Position = 0;
-    var n = 0;
-    foreach (IDictionary<string, object> row in MiniExcelLibs.MiniExcel.Query(ms, useHeaderRow: true)) n += row.Count;
-    return $"XLSX {ms.Length} bytes, read {n} cells";
+    // Minimal writer: every text is an explicit string cell (S9), numbers are plain numbers, no formulas ever.
+    static byte[] WriteXlsx(string[][] rows)
+    {
+        var ms = new MemoryStream();
+        using (var zip = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+        {
+            void Entry(string name, string xml) { using var w = new StreamWriter(zip.CreateEntry(name).Open(), new UTF8Encoding(false)); w.Write(xml); }
+            Entry("[Content_Types].xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/></Types>");
+            Entry("_rels/.rels", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>");
+            Entry("xl/workbook.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><sheets><sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>");
+            Entry("xl/_rels/workbook.xml.rels", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/></Relationships>");
+            var sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData>");
+            foreach (var row in rows)
+            {
+                sb.Append("<row>");
+                foreach (var cell in row) sb.Append("<c t=\"inlineStr\"><is><t>").Append(System.Security.SecurityElement.Escape(cell)).Append("</t></is></c>");
+                sb.Append("</row>");
+            }
+            Entry("xl/worksheets/sheet1.xml", sb.Append("</sheetData></worksheet>").ToString());
+        }
+        return ms.ToArray();
+    }
+    var bytes = WriteXlsx([["a", "b"], ["=1+1", "x"], ["2", "y"]]);
+    using var edr = Sylvan.Data.Excel.ExcelDataReader.Create(new MemoryStream(bytes), Sylvan.Data.Excel.ExcelWorkbookType.ExcelXml);
+    var cells = 0; var formulaLike = "";
+    while (edr.Read()) { cells += edr.FieldCount; if (edr.GetString(0).StartsWith('=')) formulaLike = edr.GetString(0); }
+    return $"XLSX {bytes.Length} bytes written by hand, read {cells} cells; cell stayed text: '{formulaLike}'";
 });
 
 Check("Markdig", () => Markdig.Markdown.ToHtml("# Title\n\n*a* **b**").Trim().Replace("\n", ""));

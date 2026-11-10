@@ -1,0 +1,11 @@
+PASS NetVips: AVIF 543 bytes, read back 64x64, avg 150
+PASS Sep: read 2 rows (last y), wrote a,b|1,z
+PASS CsvHelper: read 2 rows (last y), wrote a,b
+PASS System.Text.Json: 2 objects, rewrote 33 bytes, source-generated {"k":1}
+PASS System.Xml: 1 element, DTD refused: True
+PASS YamlDotNet (YamlStream, no type reflection): 2 keys read, wrote k: v
+PASS XLSX: own minimal writer + Sylvan.Data.Excel reader: XLSX 1559 bytes written by hand, read 4 cells; cell stayed text: '=1+1'
+PASS Markdig: <h1>Title</h1><p><em>a</em> <strong>b</strong></p>
+PASS ReverseMarkdown: # Title||**x**
+PASS HtmlSanitizer: <p>hi</p>
+ALL PASS

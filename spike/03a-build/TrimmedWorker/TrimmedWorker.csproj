@@ -9,6 +9,7 @@
     <SelfContained>true</SelfContained>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
@@ -21,7 +22,7 @@
     <PackageReference Include="Sep" Version="0.17.1" />
     <PackageReference Include="CsvHelper" Version="34.0.0" />
     <PackageReference Include="YamlDotNet" Version="18.1.0" />
-    <PackageReference Include="MiniExcel" Version="1.46.0" />
+    <PackageReference Include="Sylvan.Data.Excel" Version="0.5.8" />
     <PackageReference Include="Markdig" Version="1.6.0" />
     <PackageReference Include="ReverseMarkdown" Version="6.3.0" />
     <PackageReference Include="HtmlSanitizer" Version="11.0.26" />
