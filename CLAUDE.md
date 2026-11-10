@@ -44,3 +44,17 @@ Zero telemetry.
 
 ## Design
 Read docs/design-brief.md before touching UI. Accent follows the file Category; keep WCAG AA contrast; respect Windows "Reduce animations".
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues of AndreaAzzarello/kalei (`gh` CLI). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five default roles plus project labels (status, size, group). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` and `docs/adr/` at the root. See `docs/agents/domain.md`.

@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #17 — Public repository and issue tracker setup
+- Commit authors rewritten to the GitHub noreply address before the first push; the public repository holds main only (the prototype branch stays local).
+- Private vulnerability reporting enabled; GitHub Issues chosen as tracker, with labels for triage roles, status, size and group (docs/agents/).
+- The 44 tickets are not published as issues yet.
+
 ## 2026-11-10 #16 — Raw-pixel previews and term clean-up
 - Previews travel as raw BGRA pixels (length checked as width x height x 4), so the app has no image decoder and S3 has no exception; preview size added to Limits.
 - "Ticket 0" in ADRs, TRD, PRD, matrix and architecture now says "the feasibility spike"; CLAUDE.md index lists spec and tickets.
