@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #18 — Tickets published as issues
+- The 44 tickets are GitHub issues #1–#44 in ticket order, with labels for status, size and group; "Blocked by" and the links between tickets use real issue numbers, links to the spec and feasibility document are absolute.
+- docs/tickets/README.md now lists the issue number next to each ticket file.
+
 ## 2026-11-10 #17 — Public repository and issue tracker setup
 - Commit authors rewritten to the GitHub noreply address before the first push; the public repository holds main only (the prototype branch stays local).
 - Private vulnerability reporting enabled; GitHub Issues chosen as tracker, with labels for triage roles, status, size and group (docs/agents/).
