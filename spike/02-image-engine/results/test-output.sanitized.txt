@@ -1,0 +1,83 @@
+﻿  Individuazione dei progetti da ripristinare...
+  Tutti i progetti sono aggiornati per il ripristino.
+  ImageEngineSpike.Tests -> <repo>\spike\02-image-engine\ImageEngineSpike.Tests\bin\Debug\net10.0-windows\ImageEngineSpike.Tests.dll
+Esecuzione dei test per <repo>\spike\02-image-engine\ImageEngineSpike.Tests\bin\Debug\net10.0-windows\ImageEngineSpike.Tests.dll (.NETCoreApp,Version=v10.0)
+Un totale di 1 file di test corrisponde al criterio specificato.
+<repo>\spike\02-image-engine\ImageEngineSpike.Tests\bin\Debug\net10.0-windows\ImageEngineSpike.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.13)
+[xUnit.net 00:00:00.05]   Discovering: ImageEngineSpike.Tests
+[xUnit.net 00:00:00.08]   Discovered:  ImageEngineSpike.Tests
+[xUnit.net 00:00:00.10]   Starting:    ImageEngineSpike.Tests
+  Superato ImageEngineSpike.Tests.HeicTests.Wic_registered_decoders_are_listed [3 ms]
+  Messaggi di output standard:
+ {41945702-8302-44A6-9445-AC98E8AFA086} | Microsoft Raw Image Decoder | image/3FR,image/ARI,image/ARW,image/BAY,image/CAP,image/CR2,image/CR3,image/CRW,image/DCS,image/DCR,image/DRF,image/EIP,image/ERF,image/FFF,image/IIQ,image/K25,image/KDC,image/MEF,image/MOS,image/MRW,image/NEF,image/NRW,image/ORF,image/ORI,image/PEF,image/PTX,image/PXN,image/RAF,image/RAW,image/RW2,image/RWL,image/SR2,image/SRF,image/SRW,image/X3F,image/DNG | .3FR,.ARI,.ARW,.BAY,.CAP,.CR2,.CR3,.CRW,.DCS,.DCR,.DRF,.EIP,.ERF,.FFF,.IIQ,.K25,.KDC,.MEF,.MOS,.MRW,.NEF,.NRW,.ORF,.ORI,.PEF,.PTX,.PXN,.RAF,.RAW,.RW2,.RWL,.SR2,.SRF,.SRW,.X3F,.DNG
+ {fc6ceece-aef5-4a23-96ec-5984ffb486d9} | Microsoft JPEG XL Decoder | image/JXL | .JXL
+  Superato ImageEngineSpike.Tests.EngineContentTests.Avif_is_written_with_the_av1_codec_by_heifsave [33 ms]
+  Messaggi di output standard:
+ ftyp brand = avif, 704 bytes
+  Superato ImageEngineSpike.Tests.EngineContentTests.Block_untrusted_keeps_trusted_loaders_working [5 ms]
+  Messaggi di output standard:
+ Untrusted-class loaders compiled in: none
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".avif") [10 ms]
+  Messaggi di output standard:
+ .avif: wrote 704 bytes, read back 64x64, bands=4, loader=heifload_buffer, mean=114,5
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".png") [2 ms]
+  Messaggi di output standard:
+ .png: wrote 459 bytes, read back 64x64, bands=4, loader=pngload_buffer, mean=114,5
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".webp") [3 ms]
+  Messaggi di output standard:
+ .webp: wrote 330 bytes, read back 64x64, bands=4, loader=webpload_buffer, mean=114,6
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".jpg") [2 ms]
+  Messaggi di output standard:
+ .jpg: wrote 865 bytes, read back 64x64, bands=3, loader=jpegload_buffer, mean=54,7
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".tif") [1 ms]
+  Messaggi di output standard:
+ .tif: wrote 65774 bytes, read back 64x64, bands=4, loader=tiffload_buffer, mean=114,5
+[xUnit.net 00:00:00.34]   Finished:    ImageEngineSpike.Tests
+  Superato ImageEngineSpike.Tests.EngineContentTests.Roundtrip_via_buffer_writes_and_reads_back(suffix: ".gif") [1 ms]
+  Messaggi di output standard:
+ .gif: wrote 129 bytes, read back 64x64, bands=4, loader=gifload_buffer, mean=146,2
+  Superato ImageEngineSpike.Tests.EngineContentTests.Bmp_and_ico_are_not_handled_natively(suffix: ".bmp") [< 1 ms]
+  Messaggi di output standard:
+ .bmp write: fails: unable to write to buffer
+ source: bad seek to 1024
+VipsForeignSave: ".bmp" is not a known buffer format; magicksave present: False; magickload present: False
+  Superato ImageEngineSpike.Tests.EngineContentTests.Bmp_and_ico_are_not_handled_natively(suffix: ".ico") [< 1 ms]
+  Messaggi di output standard:
+ .ico write: fails: unable to write to buffer
+ VipsForeignSave: ".ico" is not a known buffer format; magicksave present: False; magickload present: False
+  Superato ImageEngineSpike.Tests.EngineContentTests.Gif_saver_is_present [< 1 ms]
+  Messaggi di output standard:
+ gifsave present: True
+  Superato ImageEngineSpike.Tests.EngineContentTests.Svg_loader_can_be_disabled [1 ms]
+  Messaggi di output standard:
+ svgload present: True
+ after block: refused: unable to load from buffer
+ VipsForeignLoad: buffer is not in a known format
+  Superato ImageEngineSpike.Tests.EngineContentTests.Inventory_lists_loaders_savers_and_version [1 ms]
+  Messaggi di output standard:
+ libvips 8.18.7
+ LOADERS: jpegload=yes, pngload=yes, webpload=yes, tiffload=yes, gifload=yes, nsgifload=NO, heifload=yes, svgload=yes, jp2kload=NO, jxlload=NO, pdfload=NO, magickload=NO, openslideload=NO, ppmload=NO, radload=NO, vipsload=yes, fitsload=NO, matload=NO, niftiload=NO, analyzeload=NO, openexrload=NO, csvload=yes, matrixload=yes, rawload=yes
+ SAVERS: jpegsave=yes, pngsave=yes, webpsave=yes, tiffsave=yes, gifsave=yes, heifsave=yes, jp2ksave=NO, jxlsave=NO, magicksave=NO, ppmsave=NO, radsave=NO, vipssave=yes, fitssave=NO, matrixsave=yes, csvsave=yes, rawsave=yes, dzsave=yes, pdfsave=NO
+ SUFFIXES: .csv .csv .mat .mat .mat .raw .raw .raw .v .vips .v .vips .gif .gif .gif .dz .szi .dz .szi .dz .szi .png .png .png .jpg .jpeg .jpe .jfif .jpg .jpeg .jpe .jfif .jpg .jpeg .jpe .jfif .jpg .jpeg .jpe .jfif .webp .webp .webp .webp .tif .tiff .tif .tiff .tif .tiff .heic .heif .avif .heic .heif .heic .heif .avif
+  Superato ImageEngineSpike.Tests.HeicTests.Wic_decodes_heic_and_libvips_does_or_does_not [213 ms]
+  Messaggi di output standard:
+ WIC wrote a HEIC sample, 586 bytes, ftyp=heic
+ WIC DECODE OK: 64x64, decoder=Microsoft HEIF Decoder
+ libvips decode of the same HEIC: fails at pixel decode (libheif has no HEVC decoder): unable to call avg
+ source: bad seek to 1024
+heif: Error while loading plugin: Support for this compression format has not been built in: HEVC (a suitable decoder plugin is libde265) (11.6003)
+heifload_buffer: load error
+heifload_buffer: load error
+heifload_buffer: load error
+  Superato ImageEngineSpike.Tests.HeicTests.Libvips_heif_backend_cannot_write_hevc [< 1 ms]
+  Messaggi di output standard:
+ heifsave hevc: fails: unable to call heifsave_buffer
+ heifsave: Unsupported compression
+  Superato ImageEngineSpike.Tests.HeicTests.Block_untrusted_effect_on_svg_and_heif_is_recorded [3 ms]
+  Messaggi di output standard:
+ with BlockUntrusted=true: svg blocked, heif/avif still loads
+L'esecuzione dei test Ã¨ riuscita.
+Totale test: 17
+     Superati: 17
+ Tempo totale: 0,7203 Secondi
