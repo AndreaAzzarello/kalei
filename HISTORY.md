@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #24 — Build spike (ticket 03a, W7–W9)
+- Native AOT could not be tried: no MSVC linker on the dev PC (owner decision: not installed). It will be tried on a GitHub Actions Windows runner when CI exists; ADR 0001 stays unchanged until then. ReadyToRun + trimming works: window start-up median 418 ms warm, app 23.5 MB zipped (Windows 11 dev PC, to repeat cold on the VM, #47).
+- W9: the trimmed Worker passes with warnings as errors and a smoke test on the trimmed binary. Replacements: MiniExcel (3 trim warnings) by Sylvan.Data.Excel reader + own XLSX writer; YamlDotNet only through `YamlStream`. CSV library is Sep.
+- W8 first estimate: app + Worker 42.7 MB zipped (target 45). Spike code stays on branch `spike/03a-build`.
+
 ## 2026-11-10 #23 — Network canary (S5) and the firewall dependency
 - Microsoft's pages (WFP sublayer "Windows Application Isolation", "UWP default" and "AppContainer loopback" block filters, BFE) show the AppContainer network block is done by WFP filters; none says what happens with the Windows Firewall service or BFE stopped, profiles off, or an allow rule. ADR 0003 now says so, with the quotes.
 - New: architecture section "Network canary" (three fixed probes, verdicts, when it runs, at most 1.5 s, promise shown only if `isolated`, log event without personal data), ipc-spec messages `Canary` and `CanaryResult` and notice `NETWORK_ISOLATION_UNPROVEN`, glossary term, proofs W19 (VM, five firewall states) and W20 (canary notices it), ticket 07c (issue #50). The two external probes need the owner's confirmation before they ship.
