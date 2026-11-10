@@ -13,6 +13,8 @@ At the start of every session read the last 3 entries of `HISTORY.md`.
 - [docs/design-brief.md](docs/design-brief.md): palette, type, icon, motion
 - [docs/architecture.md](docs/architecture.md): Core, Modules, Workers, IPC
 - [docs/ticket-0.md](docs/ticket-0.md): feasibility spike, measured pass/fail per proof
+- [docs/spec/](docs/spec/): 1.0 Windows spec ([1.0-windows.md](docs/spec/1.0-windows.md)), [settings.md](docs/spec/settings.md), [release-pipeline.md](docs/spec/release-pipeline.md)
+- [docs/tickets/](docs/tickets/README.md): 44 tickets for 1.0 with dependencies, sizes, rules and story traceability
 - [docs/ipc-spec.md](docs/ipc-spec.md): Core ↔ Worker protocol
 - [docs/module-manifest.md](docs/module-manifest.md): `module.json` and `.kmod`
 - [docs/format-detection.md](docs/format-detection.md): signatures and detection rules
@@ -20,7 +22,7 @@ At the start of every session read the last 3 entries of `HISTORY.md`.
 - [HISTORY.md](HISTORY.md): dated log of changes; [assets/icon/](assets/icon/): icon sources
 
 ## Commands
-Run through the Bash tool without full paths: `dotnet build`, `dotnet test`. Lint/format: `dotnet format --verify-no-changes`. (Solution does not exist yet; created in Ticket 0/1.)
+Run through the Bash tool without full paths: `dotnet build`, `dotnet test`. Lint/format: `dotnet format --verify-no-changes`. (Solution does not exist yet; created by the build spike, ticket 03a, and the skeleton, ticket 05.)
 
 ## Security requirements (non-negotiable)
 The only place they are written is [docs/architecture.md](docs/architecture.md#security-requirements-normative-the-only-place-they-are-written) (S1–S12). Do not copy their text elsewhere; use this checklist:

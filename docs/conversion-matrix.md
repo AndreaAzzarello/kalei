@@ -6,7 +6,7 @@ Pairs not listed are not offered in the UI. Input is recognised from content, no
 
 ## Images — Module `images` (1.0, built-in, libvips + WIC)
 
-**Every image pair below ships in 1.0 only if the Ticket 0 spike confirms the engine can do it** (AVIF writing, GIF via cgif, BMP and ICO codecs, HEIC; see [ticket-0.md](ticket-0.md)). Formats not confirmed move to a later release. Category: **image**.
+**Every image pair below ships in 1.0 only if the feasibility spike confirms the engine can do it** (AVIF writing, GIF via cgif, BMP and ICO codecs, HEIC; see [ticket-0.md](ticket-0.md)). Formats not confirmed move to a later release. Category: **image**.
 
 | From ↓ / To → | PNG | JPG | WebP | GIF | BMP | TIFF | ICO | AVIF |
 |---|---|---|---|---|---|---|---|---|
@@ -20,7 +20,7 @@ Pairs not listed are not offered in the UI. Input is recognised from content, no
 | AVIF | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – |
 | HEIC (read only, best effort via WIC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-Decided behaviour: animated inputs (GIF, WebP, AVIF) convert their first frame only, and the Donut/target list shows a note "first frame only" for them; transparency converted to JPG/BMP is flattened onto white; ICO output holds the sizes 16, 32, 48 and 256 px (smaller ones are not upscaled; an image smaller than 16 px is stored once, at its own size; an input larger than 256 px is scaled down), and as an input the largest image of the ICO is used; HEIC is input only and works when the user's Windows has the required WIC extensions (which extensions are needed is checked in Ticket 0), otherwise a clear message is shown. Options: quality, max size/resolution, metadata (GPS removed by default; orientation applied to pixels).
+Decided behaviour: animated inputs (GIF, WebP, AVIF) convert their first frame only, and the Donut/target list shows a note "first frame only" for them; transparency converted to JPG/BMP is flattened onto white; ICO output holds the sizes 16, 32, 48 and 256 px (smaller ones are not upscaled; an image smaller than 16 px is stored once, at its own size; an input larger than 256 px is scaled down), and as an input the largest image of the ICO is used; HEIC is input only and works when the user's Windows has the required WIC extensions (which extensions are needed is checked in the feasibility spike), otherwise a clear message is shown. Options: quality, max size/resolution, metadata (GPS removed by default; orientation applied to pixels).
 
 ## Data — Module `data` (1.0, built-in)
 

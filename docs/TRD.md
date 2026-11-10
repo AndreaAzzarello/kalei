@@ -6,7 +6,7 @@ Shape and security rules: [architecture.md](architecture.md). Decisions: [adr/](
 .NET 10, Avalonia 12 (12.1.6 on NuGet, MIT). UI app published with Native AOT; Workers are self-contained, trimmed, not AOT ([ADR 0001](adr/0001-avalonia-net10-aot-ui-only.md)). Installer on Windows: Inno Setup, per-user (`PrivilegesRequired=lowest`); portable ZIP. Other systems and their packaging: see Platform support below and [ADR 0010](adr/0010-multiplatform-architecture-windows-first.md). Tests: xUnit via `dotnet test`. Build: `dotnet build`.
 
 ## Engines and licences
-Data from primary sources (NuGet pages, official repos), checked 2026-11-10 by a research pass. **n.v.** = not verified; the check is a to-do in Ticket 0 or in the ticket that adds the library. Sizes are NuGet package sizes, not final installed size.
+Data from primary sources (NuGet pages, official repos), checked 2026-11-10 by a research pass. **n.v.** = not verified; the check is a to-do in the feasibility spike or in the ticket that adds the library. Sizes are NuGet package sizes, not final installed size.
 
 ### 1.0 (built-in)
 
@@ -14,9 +14,9 @@ Data from primary sources (NuGet pages, official repos), checked 2026-11-10 by a
 |---|---|---|---|---|---|---|
 | App | Avalonia | MIT | 12.1.6 | 9.7 MB pkg | AOT documented by Avalonia (needs `IsAotCompatible`, trimmer roots) | |
 | Images | NetVips | MIT | 3.2.0 | 0.26 MB | n.v. | wrapper |
-| Images | NetVips.Native.win-x64 (libvips) | **LGPL-3.0-or-later** (libvips itself: LGPL-2.1+) | 8.18.7 | 7.7 MB | n.v. | dynamic link; ship licence + source offer. Declares JPEG, PNG, WebP, AVIF, TIFF, GIF, SVG(in). **Not declared: BMP and ICO.** The SVG loader is not in the 1.0 matrix, so it must be disabled (attack surface). **Not confirmed:** AVIF encode, GIF via cgif, HEIF/HEVC backend, `vips_block_untrusted_set`, which loaders are compiled in (all checked in Ticket 0, W6) |
+| Images | NetVips.Native.win-x64 (libvips) | **LGPL-3.0-or-later** (libvips itself: LGPL-2.1+) | 8.18.7 | 7.7 MB | n.v. | dynamic link; ship licence + source offer. Declares JPEG, PNG, WebP, AVIF, TIFF, GIF, SVG(in). **Not declared: BMP and ICO.** The SVG loader is not in the 1.0 matrix, so it must be disabled (attack surface). **Not confirmed:** AVIF encode, GIF via cgif, HEIF/HEVC backend, `vips_block_untrusted_set`, which loaders are compiled in (all checked in the feasibility spike, W6) |
 | Images | BMP and ICO codecs | own code (MIT) | – | small | – | small decoders/encoders inside the Worker, with fuzz tests, unless W6 shows an engine that does them; if neither, the format leaves the 1.0 matrix |
-| Images | WIC (Windows) | OS component | – | 0 | – | HEIC read only, best effort. Reported to need the HEIF **and** the HEVC extensions of the user's Windows (not verified; Ticket 0, W5) |
+| Images | WIC (Windows) | OS component | – | 0 | – | HEIC read only, best effort. Reported to need the HEIF **and** the HEVC extensions of the user's Windows (not verified; the feasibility spike, W5) |
 | Data | Sep | MIT | 0.17.1 | n.v. | README: trimmable + AOT | candidate CSV |
 | Data | CsvHelper | MS-PL OR Apache-2.0 | 34.0.0 | 1.1 MB | `IsTrimmable` + `IsAotCompatible` (net8/net10) | candidate CSV; avoid `dynamic`/Linq |
 | Data | System.Text.Json, System.Xml | MIT (BCL) | .NET 10 | 0 | trim-safe with source generators for JSON | DTD/external entities off |
@@ -50,8 +50,8 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 | Archives | 7-Zip 26.06 (7za) | LGPL-2.1+ with unRAR restriction | no RAR |
 | Vector | resvg | Apache-2.0 OR MIT | no .NET binding found: separate binary |
 | 3D | Assimp | BSD-3-Clause (modified; SPDX n.v.) | |
-| Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify **before 1.0**, because 1.0 and 1.1 would otherwise ship unsigned (Ticket 0, W18) |
-| Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used before the installer ticket (Ticket 0, W18); alternative if unsuitable |
+| Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify **before 1.0**, because 1.0 and 1.1 would otherwise ship unsigned (the feasibility spike, W18) |
+| Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used before the installer ticket (the feasibility spike, W18); alternative if unsuitable |
 | CI | GitHub Actions | free for public repositories with standard GitHub-hosted runners (verified 2026-11-10 on docs.github.com/en/billing/concepts/product-billing/github-actions; larger runners are billed there and are not used) | the page does not mention Windows runners separately: check the first workflow run on the billing page; if anything is charged, stop and ask |
 
 ### PDF module — proposed plan (decided when the module is scheduled)
