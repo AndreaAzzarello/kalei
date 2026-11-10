@@ -82,4 +82,12 @@ The tickets are in [tickets/README.md](tickets/README.md).
 | L1–L4, L6 | 35 Linux spike |
 | M1–M3, M5, M6 | 36 macOS spike |
 
+## Results
+Measured or read results, newest first. A row not listed here is still open.
+
+### W18 — Installer licence and signing (ticket 03b, read 2026-11-10; no machine needed)
+- **Inno Setup 7.1.1**: licence read; use for any purpose is permitted, free; the site only asks commercial users to buy a licence. Pass. Open: whether the compiled installer counts as "binary redistribution" (owner decides). Details and links: [TRD](TRD.md).
+- **SignPath Foundation**: terms read; requires an existing public release, MFA for all team members, manual approval of every release, a "Code signing policy" on the home page; the Foundation is the publisher and may refuse. Result: **needs the owner to apply**, after a first public release. The `/apply` form and the supported CI are **not verified**. Until then 1.0 ships unsigned (fallback already stated in W17).
+- **Mayenne Sans**: original `OFL.txt` **not found**; handed to the owner (TRD, "Open technical checks").
+
 Dependencies after the spikes: the solution skeleton needs 03a; the sandbox launcher needs 01; the image Module needs 02; the in-app Donut host needs 04; the installer needs 01, 03a and 03b.

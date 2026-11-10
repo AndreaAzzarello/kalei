@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #19 — Licence and signing checks (ticket 03b, W18)
+- Inno Setup 7.1.1: licence permits use for any purpose at no cost; the site only asks commercial users to pay. Suitable.
+- SignPath Foundation: free for OSS but needs a public release, MFA, manual approval per release and a code signing policy page; the Foundation is the publisher. Verdict: the owner must apply after a first release; apply form and supported CI not verified.
+- Mayenne Sans original OFL.txt not found (only the archived Studio Triple page is left, to open by hand); nothing about it goes in README or notices yet.
+
 ## 2026-11-10 #18 — Tickets published as issues
 - The 44 tickets are GitHub issues #1–#44 in ticket order, with labels for status, size and group; "Blocked by" and the links between tickets use real issue numbers, links to the spec and feasibility document are absolute.
 - docs/tickets/README.md now lists the issue number next to each ticket file.
