@@ -12,7 +12,12 @@ At the start of every session read the last 3 entries of `HISTORY.md`.
 - [docs/app-flow.md](docs/app-flow.md): screens and states
 - [docs/design-brief.md](docs/design-brief.md): palette, type, icon, motion
 - [docs/architecture.md](docs/architecture.md): Core, Modules, Workers, IPC
+- [docs/ticket-0.md](docs/ticket-0.md): feasibility spike, measured pass/fail per proof
+- [docs/ipc-spec.md](docs/ipc-spec.md): Core ↔ Worker protocol
+- [docs/module-manifest.md](docs/module-manifest.md): `module.json` and `.kmod`
+- [docs/format-detection.md](docs/format-detection.md): signatures and detection rules
 - [docs/adr/](docs/adr/): architecture decisions
+- [HISTORY.md](HISTORY.md): dated log of changes; [assets/icon/](assets/icon/): icon sources
 
 ## Commands
 Run through the Bash tool without full paths: `dotnet build`, `dotnet test`. Lint/format: `dotnet format --verify-no-changes`. (Solution does not exist yet; created in Ticket 0/1.)

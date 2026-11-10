@@ -76,12 +76,9 @@ Chosen mechanisms, sources and limits: [ADR 0010](adr/0010-multiplatform-archite
 - **Linux** (decided in the Linux spike): **Flatpak/Flathub** gives a built-in sandbox, with "no access to the network" by default, but needs the Flatpak runtime ([docs](https://docs.flatpak.org/en/latest/sandbox-permissions.html)). **AppImage** needs no installation but needs FUSE; Ubuntu 24.04 needs the `libfuse2t64` package, and `--appimage-extract-and-run` is "a last resort" ([AppImage docs](https://docs.appimage.org/user-guide/troubleshooting/fuse.html)); a bwrap inside it probably fails on Ubuntu 24.04 (see ADR 0010). **.deb** can carry its own AppArmor profile that allows user namespaces and installs to `/usr`, but needs root and covers only Debian and Ubuntu (not verified against a primary source). Proposal: Flatpak as the main format, AppImage as the secondary one (with the base sandbox only).
 - **macOS**: `.dmg`, Developer ID signed and notarised when an account exists (`notarytool`, `stapler`); otherwise an ad-hoc signed `.dmg` with the "Open Anyway" instructions (plan B, ADR 0010). The sandbox does not depend on either.
 
-## Open technical checks (go to Ticket 0 or the owning ticket)
-- AppContainer + .NET runtime + NetVips.Native + WIC working together; handle passing into AppContainer.
-- NetVips.Native content: AVIF write, GIF via cgif, HEVC absent, loaders list, block-untrusted API.
-- Real installer size against the PRD target (~45 MB).
-- Trimming test for each library marked n.v.
-- Ticket 0 additions (Round 4): in-app Donut (OLE drag over an Avalonia window + radial overlay), Sentinel RAM at rest (target ≤ 20 MB), gesture-to-overlay latency, wheel events during an OLE drag, Native AOT with Avalonia + Skia (Filee uses ReadyToRun, not AOT).
-- PDF: rendered test PDF from SKDocument (selectable text, Italian accents, size with and without a bundled font).
-- Original Mayenne Sans `OFL.txt` (ask the author or use the archived Studio Triple page by hand).
+## Open technical checks
+All open proofs, with measures, pass/fail thresholds and fallbacks, are in [ticket-0.md](ticket-0.md) (Windows blocking 1.0; Linux and macOS spikes not blocking). Checks that belong to a later ticket, not repeated there:
+- Trimming test for each library marked n.v. (W9 covers the 1.0 ones).
+- Original `OFL.txt` of Mayenne Sans (ask the author or use the archived Studio Triple page by hand).
+- PDF: a rendered test PDF from `SKDocument` (selectable text, Italian accents, size with and without a bundled font), when the PDF module is scheduled.
 - Redistribution notices: THIRD-PARTY-NOTICES generated at build, shown in About.
