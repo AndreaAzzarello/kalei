@@ -2,7 +2,7 @@
 
 - **Status**: ready-for-agent
 - **Size**: M
-- **Blocked by**: [03a](03a-build-spike.md), [10a](10a-main-window-file-card.md)
+- **Blocked by**: [03a](03a-build-spike.md), [10a](10a-main-window-file-card.md), [39](39-ci-github-actions.md)
 - **Rules**: S6
 - **Stories**: 62, 63, 64 ([user stories](../spec/1.0-windows.md#user-stories))
 - **Spec**: [1.0 Windows spec](../spec/1.0-windows.md)

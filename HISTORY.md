@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #25 — Canary without Internet probes; CI ticket
+- Owner decision: the network canary makes no outbound connection to the Internet. Removed the probes to 1.1.1.1 and example.com and the DNS probe. Two TCP probes remain: `local` (the Core's listener on 127.0.0.1) and `net` (192.0.2.1:443, TEST-NET-1, RFC 5737). The verdict follows the Winsock code: `WSAEACCES` is blocked, timeout or unreachable is `unproven`, a connection is `leaked`; at most 1.2 s. Sources: RFC 5737 §3–4, Windows Sockets error codes, WFP ALE layer pages.
+- Not stated by Microsoft (so W20 measures it, also offline and with the adapter disabled): which layer gives which code, and whether the connect filter runs before route selection. Our reading that DNS is done by the DNS Client service is not stated in a page we read, so it is marked as such. The notice `NETWORK_ISOLATION_UNPROVEN` is neutral, at most once per session, and says that Conversions work normally.
+- New ticket 39 (issue #52): CI on GitHub Actions (build, test, format, trimming warnings; actions pinned by SHA; `contents: read`; SDK 10.0.14 or later). Tickets 30 and 38 now depend on it. Tickets are now 47. Remote branches `docs/01-sandbox-results` and `docs/03a-build-results` deleted (owner authorisation).
+
 ## 2026-11-10 #24 — Build spike (ticket 03a, W7–W9)
 - Native AOT could not be tried: no MSVC linker on the dev PC (owner decision: not installed). It will be tried on a GitHub Actions Windows runner (ticket 38, issue #51); ADR 0001 stays unchanged until then. The ILCompiler advisory (patched in 10.0.14) also covers the .NET runtime that app and Worker ship: release builds must use 10.0.14 or later. ReadyToRun + trimming works: window start-up median 418 ms warm, app 23.5 MB zipped (Windows 11 dev PC, to repeat cold on the VM, #47).
 - W9: the trimmed Worker passes with warnings as errors and a smoke test on the trimmed binary. Replacements: MiniExcel (3 trim warnings) by Sylvan.Data.Excel reader + own XLSX writer; YamlDotNet only through `YamlStream`. CSV library is Sep.
