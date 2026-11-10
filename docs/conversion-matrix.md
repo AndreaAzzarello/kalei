@@ -49,7 +49,7 @@ The Donut ([ADR 0008](adr/0008-radial-donut-component.md)) shows, for each Categ
 
 | Module | Formats | Notes |
 |---|---|---|
-| `pdf` | PDF ↔ images, text → PDF | PDFium, qpdf; PDF creation library to be chosen (PDFsharp is AGPL, see [TRD](TRD.md)) |
+| `pdf` | PDF ↔ images, text → PDF | PDFium (render), SkiaSharp `SKDocument` (images → PDF), qpdf (merge/optimise); text → PDF is an open choice (SKDocument embeds whole fonts; PDFsharp > 6.2.x is AGPL), see [TRD](TRD.md) |
 | `av` | MP3, WAV, FLAC, OGG/Opus, AAC, MP4, WebM, MKV, GIF | FFmpeg LGPL build |
 | `documents` | DOCX, ODT, RTF, EPUB, MD, HTML | pandoc; LibreOffice only if already installed |
 | `archives` | ZIP, TAR, GZ, 7Z (create/extract) | ratio and size limits |

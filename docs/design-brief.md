@@ -72,6 +72,19 @@ Content is left-aligned except the Drop zone message (centred). After a drop, th
 - **Logotype**: variant A, Bricolage Grotesque 600, lowercase "kalei", embedded in the app (OFL, see [TRD](TRD.md)).
 - **Icon**: Bloom (B). *App icon* (exe, installer, taskbar, favicon, `.ico` 16/24/32/48/256): Bloom inside the rounded-square container of Tile, petals/background contrast checked on light and dark taskbars. *In-app header*: Bloom without container. The **centre dot takes the current Category accent** (instant when "Colour transition" is off or Windows "Reduce animations" is on). 16/24 px get hand-tuned geometry (narrower, more spaced petals) if petals blur together.
 
+## App icon contrast (fix, 2026-11-10)
+Problem: the first container `#4B3FD1` had 2.27:1 on a dark taskbar, under WCAG 1.4.11 (3:1). The `.ico` cannot follow the theme, so **one** container colour must work on both. Taskbar colours used are **assumptions, not measurements** (Windows 11 taskbars are translucent and depend on wallpaper and accent): dark `#202020`, light `#F3F3F3`, plus a sweep dark `#101010`–`#2B2B2B` and light `#E6E6E6`–`#FFFFFF`.
+
+| | Before `#4B3FD1` | After `#6C5FF1` |
+|---|---|---|
+| vs dark taskbar `#101010` / `#202020` / `#2B2B2B` | 2.66 / **2.27** / **1.98** | 4.12 / 3.53 / **3.06** |
+| vs light taskbar `#E6E6E6` / `#F3F3F3` / `#FFFFFF` | 5.74 / 6.46 / 7.17 | 3.70 / 4.16 / 4.62 |
+| White petals / container (needs ≥ 4.5) | 7.17 | 4.62 |
+| Dot / container (needs ≥ 3) | 4.26 (`#FFB0DC`) | 3.58 (`#FFE08A`) |
+| Dot / white petals | 1.68 (**problem**) | 1.29, solved by a container-coloured halo around the dot |
+
+The feasible window is narrow: white petals need container luminance ≤ 0.183 and the lightest dark taskbar in the sweep needs ≥ 0.173; `#6C5FF1` sits at 0.177, so the worst case (`#2B2B2B`) is 3.06:1, just above 3:1. The first design also hid a flaw: the pink dot sat directly on white petals (1.68:1); the new icon draws the dot on a ring of container colour so the dot is always seen against the container. The other option, a darker container, fails the petal contrast; a lighter one fails the dark taskbar; there is no wider margin with white petals. Sources: `assets/icon/kalei-app-icon.svg` (32/48/256 px) and `kalei-app-icon-small.svg` (hand-tuned 16/24 px), packed into `assets/icon/kalei.ico` by `assets/icon/build-icon.mjs`.
+
 ## Layout and Donut (Round 4)
 - **Main window layout: A "Quiet"** (neutral surfaces, only the accent changes). A tinted drop zone is not worth it where the Donut overlay must stay legible over arbitrary content.
 - **Donut**: ring of up to 8 Slices; neutral Slices (surface colour + 1 px border), only the Slice under the cursor takes the Category accent; hub shows the Bloom without container with the centre dot in the Category accent; labels in Bricolage Grotesque, so the embedded subset must cover the format names (uppercase letters and digits, not just "kalei"). Disabled Slices at 40% opacity with the reason as text, never colour alone. Opening: scale/fade from the cursor in 160 ms (instant with "Reduce animations" or when the transition is off); Face flip: 200 ms turn about the vertical axis (instant when reduced). Contrast rules as for the rest of the app (≥ 4.5:1 text, ≥ 3:1 graphics).

@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 — Icon contrast fix and .ico
+- App icon container changed from #4B3FD1 (2.27:1 on a dark taskbar) to #6C5FF1 (worst case 3.06:1 over a taskbar sweep; petals 4.62:1).
+- The accent dot now sits on a container-coloured halo (it had only 1.68:1 against white petals).
+- Added assets/icon: two SVG sources, kalei.ico (16/24/32/48/256) and its build script.
+- PDF/hook/font research recorded in the TRD (SKDocument does not subset fonts; Mayenne Sans licence still unverified).
+
 ## 2026-11-10 — Round 4 decisions recorded
 - After studying Filee (read only, nothing copied): Kalei stays independent (ADR 0007).
 - Donut in 1.0 as an in-app overlay (ADR 0008); global Donut in 1.2, opt-in, signed build (ADR 0009).
