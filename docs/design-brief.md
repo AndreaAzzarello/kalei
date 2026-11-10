@@ -68,7 +68,11 @@ The set must remain distinguishable for common colour-vision deficiencies; icon 
 ```
 Content is left-aligned except the Drop zone message (centred). After a drop, the Drop zone shrinks into a file card (name, real Format, size, preview) and the target row appears below. In a Batch the card becomes a list with one status per row.
 
-## Icon: three variants (all legible at 16×16)
+## Chosen brand (2026-11-10)
+- **Logotype**: variant A, Bricolage Grotesque 600, lowercase "kalei", embedded in the app (OFL, see [TRD](TRD.md)).
+- **Icon**: Bloom (B). *App icon* (exe, installer, taskbar, favicon, `.ico` 16/24/32/48/256): Bloom inside the rounded-square container of Tile, petals/background contrast checked on light and dark taskbars. *In-app header*: Bloom without container. The **centre dot takes the current Category accent** (instant when "Colour transition" is off or Windows "Reduce animations" is on). 16/24 px get hand-tuned geometry (narrower, more spaced petals) if petals blur together.
+
+## Icon: three variants (all legible at 16×16) — original options
 Rule: at 16 px at most three shapes, no feature thinner than 2 px; the accent colour fills the icon.
 
 - **A. Prism** — six 60° mirrored wedges in a hexagon, alternating accent and a lighter tint of it. At 16 px collapses to three accent wedges. Rotates in 60° steps. *Recommended: the most literal kaleidoscope, and the symmetry makes the colour-change rotation seamless.*
