@@ -11,8 +11,8 @@
 The user sees a preview of the file on the file card, produced by a sandboxed Worker.
 
 ## Acceptance criteria
-1. Probe and Preview are answered as specified in IPC v1; the preview is returned as bounded PNG data (at most 4 MB).
+1. Probe and Preview are answered as specified in IPC v1; the preview is returned as raw BGRA pixels whose width and height do not exceed the maximum preview size declared in the Limits table.
 2. Images show a thumbnail on the file card (the first lines of text and data files are added by tickets [20a](20a-data-csv-tsv.md), [21](21-data-tree.md) and [23](23-text-module.md)).
-3. The app decodes only that bounded PNG, checking its size and dimensions before decoding; the dependency test of ticket [05](05-solution-skeleton.md) shows that no other image or document decoder or parser is referenced.
+3. The app checks that the length equals width × height × 4 (otherwise the Worker is ended with E_PROTOCOL) and shows the pixels with no decoder; the dependency test of ticket [05](05-solution-skeleton.md) shows that the app references no image or document decoder or parser.
 4. Previews run under the same sandbox and Limits as a Conversion; a failed preview shows a neutral icon, not an error.
 5. Preview requests are debounced by 150 ms and at most 2 Preview Workers run at once; the others wait.

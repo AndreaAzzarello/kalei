@@ -85,7 +85,7 @@ A request from the **Core** to a **Worker** to look inside a **Source file** bey
 _Avoid_: Scan, analysis
 
 **Preview**:
-A request from the **Core** to a **Worker** for a small picture of a **Source file**, returned as bounded PNG data.
+A request from the **Core** to a **Worker** for a small picture of a **Source file**, returned as raw uncompressed pixels (BGRA, 8 bits), so the app needs no image decoder.
 _Avoid_: Thumbnail (a thumbnail is one use of a **Preview**)
 
 **Origin mark**:

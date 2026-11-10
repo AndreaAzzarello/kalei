@@ -10,16 +10,16 @@ Contract between the Core and a Worker. It is internal to Kalei (not a plugin AP
 
 ## Framing and encoding
 - A frame is a 4-byte little-endian length followed by a UTF-8 JSON object with a `type` field. Maximum frame size **1 MB**; a larger frame is a protocol error and the Worker is killed.
-- Binary payloads (preview or probe images) are sent as the single exception: type `PreviewData`, a frame header with the byte length, then at most 4 MB of PNG bytes on the same pipe.
+- Binary payloads are sent as the single exception: type `PreviewData`, a frame header with `width`, `height` and the byte length, then the raw pixels (BGRA, 8 bits per channel, uncompressed, no container) on the same pipe. `width` and `height` must not exceed the maximum preview size declared in the Limits; the Core accepts the payload only if the length equals `width × height × 4` and otherwise ends the Worker with `E_PROTOCOL`. The app shows the pixels without any image decoder (S3).
 
 ## Messages
 | Type | Direction | Fields (draft) |
 |---|---|---|
 | `Hello` | Worker→Core, then Core→Worker | `protocol` (integer), `worker` (build id), `modules` (ids and versions); the Core answers with the protocol it will use. Handshake timeout 5 s |
 | `Probe` | Core→Worker | `handle` (index of the inherited Source handle), `candidate` (from header detection); answer `ProbeResult`: `format`, `confidence`, `properties` (size, pixels, sheets…) or `Error` |
-| `Preview` | Core→Worker | `handle`, `maxSize`; answer `PreviewData` (bounded PNG) or `Error` |
+| `Preview` | Core→Worker | `handle`, `maxSize`; answer `PreviewData` (raw BGRA pixels) or `Error` |
 | `ProbeResult` | Worker→Core | answer to `Probe` (fields as listed under `Probe`) |
-| `PreviewData` | Worker→Core | answer to `Preview`: frame header with the byte length, then the PNG bytes (see Framing) |
+| `PreviewData` | Worker→Core | answer to `Preview`: frame header with `width`, `height` and the byte length, then the raw BGRA pixels (see Framing) |
 | `Convert` | Core→Worker | `from`, `to`, `options` (key/value, validated against the module manifest), `source` and `output` handle indexes, `limits` (copied by the Core from its own table) |
 | `Progress` | Worker→Core | `fraction` (0–1) or `bytes`, or neither (then it is a pure heartbeat); sent at least every 2 s while a request is open, doubles as heartbeat |
 | `Result` | Worker→Core | `ok`, `outputBytes`, `warnings` (codes, e.g. `FIRST_FRAME_ONLY`) |
