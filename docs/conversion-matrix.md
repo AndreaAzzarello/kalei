@@ -41,6 +41,10 @@ Rules: CSV separator (`,` `;` tab) and encoding (UTF-8/BOM, Windows-1252) auto-d
 | MD | ✓ | – | ✓ (full page, minimal CSS, sanitised) |
 | HTML | ✓ | ✓ | – |
 
+## Donut faces
+
+The Donut ([ADR 0008](adr/0008-radial-donut-component.md)) shows, for each Category, up to 8 **common** target Formats on the front Face and the remaining supported targets on the back Face (the set comes from the tables above; the split is fixed per Category and decided in the spec: for images, front WebP, PNG, JPG, AVIF, GIF, TIFF, BMP, ICO is the starting proposal).
+
 ## Later modules (not in v1; not final)
 
 | Module | Formats | Notes |

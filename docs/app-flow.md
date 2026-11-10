@@ -18,11 +18,23 @@ One window. The **Drop zone** is the centre of every state. Terms: see [GLOSSARY
 | 9 | **Batch** | List of files with per-file status (queued, converting, done, error, skipped), one target Format per Category, overall progress, count of done/failed. | Change target per Category, Convert all, Cancel all, retry failed, Show in folder. |
 | 10 | **Name clash** (only when "ask every time") | Dialog with two choices, **Keep both** (saves as `name (1).ext`) or **Skip**, plus "Apply to all". Replace is never offered. | Choose, tick "Apply to all". |
 
+## In-app Donut states ([ADR 0008](adr/0008-radial-donut-component.md))
+
+| # | State | User sees | User can |
+|---|---|---|---|
+| D1 | **Dragging over the window** | The Donut opens at the cursor: front Face with up to 8 common target Formats for the files' Category (most common marked); disabled Slices show the reason (e.g. "needs the Video module"); hub shows the Bloom in the Category accent and "Mouse wheel: more formats". | Move over a Slice (it takes the accent); turn the mouse wheel or press Tab to flip to the back Face; move away or press Esc to close. |
+| D2 | **Release on a Slice** | Donut closes; a small progress ring appears where it was, then the normal toast/Done state. No window needed. | Cancel from the ring or the toast. |
+| D3 | **Release outside the Slices** | Donut closes; normal "File dropped" state (2). | Continue as usual. |
+| D4 | **Release on a disabled Slice** | If the Module is missing: the consent card (state 3). Otherwise a short notice with the reason. Nothing is downloaded before consent. | Install, install from file, cancel. |
+| D5 | **Mixed Categories** | Donut offers only Formats valid for all files; with none, the Donut does not open and the Batch state (9) is used. | As in 9. |
+
+Keyboard and screen-reader users reach the same Format list in the main window (state 2) and, from 1.1, in the Explorer menu. The Donut honours Windows "Reduce animations" and Kalei's "Colour transition" switch (the hub dot changes colour instantly when off).
+
 ## Transitions
 Empty → (drop) → File dropped (or Batch if several files/a folder) → (Convert) → Converting → Done | Error. Module missing appears between "File dropped" and "Target chosen" when the target Format needs an Optional module. Done and Error return to Empty via "Convert another"/dismiss.
 
 ## Settings (single page)
-Language (System/English/Italiano), Theme (System/Light/Dark), Colour transition on/off, Output folder (next to source / chosen), Name clash behaviour (rename / ask), Limits (Advanced), Installed modules (size, uninstall), Open log folder, Check for updates (opens the Releases page; the only manual network-related action), About and licenses.
+Language (System/English/Italiano), Theme (System/Light/Dark), Colour transition on/off, Output folder (next to source / chosen), Name clash behaviour (rename / ask), Limits (Advanced), Installed modules (size, uninstall), Open log folder, Check for updates (opens the Releases page; the only manual network-related action), About and licenses. From 1.2: Global Donut (off by default), modifier key, start at sign-in (off by default); enabling the Global Donut explains the resident Sentinel and the mouse-only hook before turning it on.
 
 ## Accessibility
 Full keyboard operation; visible focus; screen-reader names for the Drop zone, states and progress; colour is never the only signal (Category name and icon always shown); WCAG AA contrast in both themes; respects Windows "Reduce animations".

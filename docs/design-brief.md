@@ -72,6 +72,10 @@ Content is left-aligned except the Drop zone message (centred). After a drop, th
 - **Logotype**: variant A, Bricolage Grotesque 600, lowercase "kalei", embedded in the app (OFL, see [TRD](TRD.md)).
 - **Icon**: Bloom (B). *App icon* (exe, installer, taskbar, favicon, `.ico` 16/24/32/48/256): Bloom inside the rounded-square container of Tile, petals/background contrast checked on light and dark taskbars. *In-app header*: Bloom without container. The **centre dot takes the current Category accent** (instant when "Colour transition" is off or Windows "Reduce animations" is on). 16/24 px get hand-tuned geometry (narrower, more spaced petals) if petals blur together.
 
+## Layout and Donut (Round 4)
+- **Main window layout: A "Quiet"** (neutral surfaces, only the accent changes). A tinted drop zone is not worth it where the Donut overlay must stay legible over arbitrary content.
+- **Donut**: ring of up to 8 Slices; neutral Slices (surface colour + 1 px border), only the Slice under the cursor takes the Category accent; hub shows the Bloom without container with the centre dot in the Category accent; labels in Bricolage Grotesque, so the embedded subset must cover the format names (uppercase letters and digits, not just "kalei"). Disabled Slices at 40% opacity with the reason as text, never colour alone. Opening: scale/fade from the cursor in 160 ms (instant with "Reduce animations" or when the transition is off); Face flip: 200 ms turn about the vertical axis (instant when reduced). Contrast rules as for the rest of the app (≥ 4.5:1 text, ≥ 3:1 graphics).
+
 ## Icon: three variants (all legible at 16×16) — original options
 Rule: at 16 px at most three shapes, no feature thinner than 2 px; the accent colour fills the icon.
 

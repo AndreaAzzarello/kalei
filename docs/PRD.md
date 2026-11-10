@@ -17,6 +17,8 @@ General, non-technical users who need a quick, trustworthy conversion (a photo t
 
 ## MVP scope (v1, Windows x64)
 - Built-in Modules: **Images** (PNG, JPG, WebP, GIF, BMP, TIFF, ICO, AVIF read+write; HEIC best effort via the user's own WIC HEVC extension), **Data** (CSV, TSV, JSON, XML, YAML, XLSX), **Text** (TXT, MD, HTML).
+- **In-app Donut**: dragging files over Kalei's window opens a ring of Slices at the cursor with only the suitable target Formats; releasing on a Slice converts with no further window ([ADR 0008](adr/0008-radial-donut-component.md)). Releasing elsewhere in the window gives the normal drop-zone flow. Always has a keyboard/screen-reader equivalent in the main window.
+- Files dragged from a browser: only the bytes the browser itself hands over are accepted. Kalei never downloads a link ("Save the file first"). Converted files inherit the source's Mark of the Web (Windows `Zone.Identifier`).
 - Single and **Batch** conversion, including dropped folders (recursive, structure preserved).
 - Only sensible target Formats offered, most common preselected.
 - Preview of the Source file and approximate size Estimate before converting; progress bar; clear errors; cancel at any time.
@@ -26,8 +28,17 @@ General, non-technical users who need a quick, trustworthy conversion (a photo t
 - Optional-module install flow (consent, size, fixed source, hash check, offline `.kmod`, uninstall).
 - Installer (per-user, no admin) and portable ZIP on GitHub Releases.
 
-## Out of scope for v1
-PDF, audio/video, Office, ebooks, archives, vector, 3D, fonts (all later Modules, roughly in that order); macOS/Linux; Explorer context menu; command-line interface; automatic updates; deleting or moving Source files; cloud features of any kind; batch renaming; OCR; editing files.
+## Release order
+- **1.0**: window + Drop zone + In-app Donut (this document's MVP scope).
+- **1.1**: Explorer context-menu entry and the `kalei` command line (both reuse the Core and the sandbox); recent conversions with local thumbnails (can be turned off).
+- **1.2**: Global Donut at the cursor, opt-in, only in a code-signed build ([ADR 0009](adr/0009-mouse-only-hook-and-sentinel.md)).
+- After 1.2: crop before converting, watch folders (opt-in), further Modules.
+
+## Out of scope for 1.0
+PDF, audio/video, Office, ebooks, archives, vector, 3D, fonts (all later Modules, roughly in that order); macOS/Linux; Global Donut, resident tray process and start at sign-in (1.2); Explorer context menu and command-line interface (1.1); automatic updates; deleting or moving Source files; cloud features of any kind; batch renaming; OCR; editing files; annotate/background/metadata editing tools; downloading links from a browser.
+
+## Differences from similar tools
+Kalei is inspired by Filee (https://github.com/KnifeLemon/Filee, MIT), which pioneered the radial drop-to-convert gesture ([ADR 0007](adr/0007-independent-from-filee.md)). The README may claim only what can be checked: parsing in sandboxed Workers without network (once Ticket 0 proves it), no connection started by Kalei except an approved Module install, no automatic update check, only permissive or LGPL engines in the install. For the global gesture: *"Kalei never records keystrokes. During a drag it only checks whether your chosen modifier key is held."* Italian-friendly data (decimal commas, Windows-1252, `;` separators) is a quality feature, not a slogan.
 
 ## Defaults and limits
 Per-Conversion limits (changeable in Settings → Advanced): 2 GB per file, 250 megapixels, 10,000 files per Batch, folder depth 32, 2 GB RAM per Worker, 2-minute timeout for images and data. Metadata: GPS removed by default; EXIF orientation applied to pixels; option to strip all metadata.

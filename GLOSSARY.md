@@ -84,6 +84,32 @@ _Avoid_: Jail, container
 A `.kmod` file containing an **Optional module**, installable online or offline.
 _Avoid_: Bundle, archive
 
+### Donut
+
+**Donut**:
+The ring of **Slices** that opens at the cursor while files are dragged; dropping on a **Slice** starts the **Conversion** without opening a window.
+_Avoid_: Radial menu, wheel, pie
+
+**Slice**:
+One segment of the **Donut**, standing for one target **Format** (or, disabled, for a **Format** whose **Module** is missing).
+_Avoid_: Button, option
+
+**Face**:
+One of the two sides of a **Donut**: the front with common **Formats**, the back with less common ones.
+_Avoid_: Page, mode
+
+**In-app Donut**:
+The **Donut** shown inside Kalei's own window when files are dragged over it.
+_Avoid_: Local donut
+
+**Global Donut**:
+The **Donut** shown at the cursor anywhere on screen, opened by the **Sentinel**; opt-in.
+_Avoid_: System donut
+
+**Sentinel**:
+The tiny separate process that watches the mouse for the global gesture and starts the overlay on request.
+_Avoid_: Tray app, daemon, service
+
 ### Experience
 
 **Drop zone**:
@@ -103,4 +129,6 @@ _Avoid_: Prediction
 - A **Batch** contains one or more **Conversions**.
 - Each **Conversion** runs in exactly one **Worker**, which belongs to exactly one **Module**.
 - A **Module** wraps one or more **Engines** and declares which **Format** pairs it supports; the **Conversion matrix** is the union of those declarations.
+- A **Donut** has two **Faces**, each a ring of **Slices**; the same **Donut** component is hosted in-app (1.0) or globally (1.2).
+- The **Sentinel** only exists for the **Global Donut**; the **In-app Donut** needs no extra process.
 - The **Broker** is the only component that touches **Source files** and **Output files**; a **Worker** receives handles, never paths.
