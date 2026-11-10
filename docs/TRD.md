@@ -68,6 +68,14 @@ Images→PDF with SKDocument; render with PDFium; merge/optimise with qpdf (sepa
 4. gyan.dev has no LGPL FFmpeg build; BtbN does.
 5. libvips offers a restricted "web" Windows build (safe loaders only) and an "all" build; which one NetVips.Native resembles must be checked in Ticket 0. Matters because Kalei opens untrusted images.
 
+## Platform support
+### Sandbox mechanisms per OS
+Chosen mechanisms, sources and limits: [ADR 0010](adr/0010-multiplatform-architecture-windows-first.md); per-OS table of every OS-dependent element: [architecture.md](architecture.md#capability-table-per-os). New libraries are not needed for them: Landlock, seccomp, App Sandbox and AppContainer are called through OS APIs from the platform adapters (P/Invoke or small native shims, to be sized in the spikes).
+
+### Future distribution
+- **Linux** (decided in the Linux spike): **Flatpak/Flathub** gives a built-in sandbox, with "no access to the network" by default, but needs the Flatpak runtime ([docs](https://docs.flatpak.org/en/latest/sandbox-permissions.html)). **AppImage** needs no installation but needs FUSE; Ubuntu 24.04 needs the `libfuse2t64` package, and `--appimage-extract-and-run` is "a last resort" ([AppImage docs](https://docs.appimage.org/user-guide/troubleshooting/fuse.html)); a bwrap inside it probably fails on Ubuntu 24.04 (see ADR 0010). **.deb** can carry its own AppArmor profile that allows user namespaces and installs to `/usr`, but needs root and covers only Debian and Ubuntu (not verified against a primary source). Proposal: Flatpak as the main format, AppImage as the secondary one (with the base sandbox only).
+- **macOS**: `.dmg`, Developer ID signed and notarised when an account exists (`notarytool`, `stapler`); otherwise an ad-hoc signed `.dmg` with the "Open Anyway" instructions (plan B, ADR 0010). The sandbox does not depend on either.
+
 ## Open technical checks (go to Ticket 0 or the owning ticket)
 - AppContainer + .NET runtime + NetVips.Native + WIC working together; handle passing into AppContainer.
 - NetVips.Native content: AVIF write, GIF via cgif, HEVC absent, loaders list, block-untrusted API.

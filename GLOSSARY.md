@@ -88,6 +88,14 @@ _Avoid_: Jail, container
 A `.kmod` file containing an **Optional module**, installable online or offline.
 _Avoid_: Bundle, archive
 
+**Platform adapter**:
+An interface in the **Core** with one implementation per operating system (sandbox launcher, system image codec, global pointer hook, paths, shell integration, file origin, installer layout). The **Core** never calls an OS API directly.
+_Avoid_: Driver, plugin
+
+**Capability table**:
+The table in [architecture.md](docs/architecture.md#capability-table-per-os) that says, for each OS-dependent element, how each operating system provides it or that it is not available.
+_Avoid_: Compatibility matrix (that would be confused with the **Conversion matrix**)
+
 ### Donut
 
 **Donut**:

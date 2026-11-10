@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #7 — Multiplatform architecture, Windows first
+- ADR 0010: no OS API in the Core; Platform adapters per OS; 1.0 Windows only, Linux and macOS in 1.x, each after its own spike and with the no-network gate.
+- Sandbox proposed per OS with primary sources: Windows AppContainer; Linux seccomp + Landlock (bubblewrap/Flatpak as extra layer); macOS App Sandbox (works ad-hoc signed per Apple DTS; network block still to prove).
+- macOS plan B without an Apple account: ad-hoc build, Open Anyway, same sandbox; notarisation is distribution only.
+- Capability table per OS added to architecture; future distribution options added to the TRD; glossary: Platform adapter, Capability table.
+
 ## 2026-11-10 #6 — Security: one source of truth, no-network release gate
 - architecture.md now holds the only copy of the security rules (S1–S12); CLAUDE.md keeps a one-line checklist with the same numbers.
 - S5: no network for Workers is a release gate per OS; if not proved, the promise is removed, no fallback is sold as equivalent.
