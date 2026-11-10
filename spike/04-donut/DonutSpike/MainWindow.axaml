@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DonutSpike.MainWindow"
+        Title="Kalei Donut spike (W10)" Width="900" Height="620" MinWidth="360" MinHeight="300"
+        WindowStartupLocation="CenterScreen">
+  <Panel>
+    <Border Margin="24" CornerRadius="16" BorderThickness="2" BorderBrush="#6C5FF1">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="Drag files from Explorer over this window" FontSize="20" HorizontalAlignment="Center" />
+        <TextBlock x:Name="Status" Text="Waiting for a drag" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="700" />
+        <TextBlock x:Name="Info" FontSize="12" Opacity="0.7" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="700" />
+      </StackPanel>
+    </Border>
+    <!-- Overlay: never takes pointer input, so the drag target stays the window. -->
+    <Canvas x:Name="Overlay" IsVisible="False" IsHitTestVisible="False" />
+  </Panel>
+</Window>

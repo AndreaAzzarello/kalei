@@ -94,3 +94,33 @@ public static class LatencyStats
         return a.Length == 0 ? double.NaN : a.Count(v => v <= limit) / (double)a.Length;
     }
 }
+
+/// <summary>Targets the in-app Donut would offer (docs/design-brief.md, "Donut faces"): up to 8, most common first.</summary>
+public static class Targets
+{
+    private static readonly string[] Images = ["webp", "png", "jpg", "avif", "gif", "tiff", "bmp", "ico"];
+    private static readonly string[] Sheets = ["csv", "xlsx", "json", "tsv"];
+    private static readonly string[] DataDocs = ["json", "yaml", "xml", "csv", "tsv", "xlsx"];
+    private static readonly string[] TextDocs = ["txt", "md", "html"];
+
+    private static string[] Candidates(Hint h) => h.Category switch
+    {
+        "image" => Images,
+        "spreadsheet" => Sheets,
+        "document" when h.Format is "json" or "yaml" or "xml" => DataDocs,
+        "document" => TextDocs,
+        _ => [],
+    };
+
+    public static IEnumerable<string> For(IEnumerable<Hint> hints)
+    {
+        var list = hints.ToList();
+        if (list.Count == 0 || list.Any(h => !h.Known)) return [];
+        IEnumerable<string> common = Candidates(list[0]);
+        foreach (var h in list.Skip(1)) common = common.Intersect(Candidates(h));
+        var sources = list.Select(h => h.Format).Distinct().ToList();
+        // A single source Format is excluded; with several Formats each stays (every file either converts to it or already is it).
+        if (sources.Count == 1) common = common.Where(f => f != sources[0]);
+        return common.Take(8).ToList();
+    }
+}

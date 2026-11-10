@@ -138,3 +138,39 @@ public class LatencyStatsTests
         Assert.Equal(1000, LatencyStats.ToMs(System.Diagnostics.Stopwatch.Frequency), 3);
     }
 }
+
+public class TargetsTests
+{
+    private static string[] T(params string[] names) => Targets.For(names.Select(FormatHint.FromName)).ToArray();
+
+    [Fact]
+    public void Png_offers_image_formats_without_itself_most_common_first()
+        => Assert.Equal(["webp", "jpg", "avif", "gif", "tiff", "bmp", "ico"], T("a.png"));
+
+    [Fact]
+    public void Csv_offers_the_other_spreadsheet_and_json_formats()
+        => Assert.Equal(["xlsx", "json", "tsv"], T("a.csv"));
+
+    [Fact]
+    public void Same_format_files_behave_like_one()
+        => Assert.Equal(T("a.png"), T("a.png", "b.png"));
+
+    [Fact]
+    public void Images_of_different_formats_keep_the_common_targets_including_the_sources()
+    {
+        var r = T("a.png", "b.jpg");
+        Assert.Contains("png", r);
+        Assert.Contains("jpg", r);
+        Assert.Contains("webp", r);
+    }
+
+    [Fact]
+    public void Mixed_categories_offer_nothing() => Assert.Empty(T("a.png", "b.csv"));
+
+    [Fact]
+    public void An_unknown_file_offers_nothing_and_is_analysing() => Assert.Empty(T("a.xyz"));
+
+    [Fact]
+    public void Never_more_than_eight()
+        => Assert.True(Targets.For([FormatHint.FromName("a.png"), FormatHint.FromName("b.jpg")]).Count() <= 8);
+}
