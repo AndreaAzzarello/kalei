@@ -1,0 +1,11 @@
+﻿{
+    "variant":  "r2r",
+    "runs":  10,
+    "firstRunMs":  489,
+    "medianMs":  418,
+    "minMs":  408,
+    "maxMs":  489,
+    "folderMB":  54.9,
+    "zipMB":  23.5,
+    "os":  "Microsoft Windows 11 Pro 26300"
+}

@@ -1,0 +1,11 @@
+PASS NetVips: AVIF 543 bytes, read back 64x64, avg 150
+PASS Sep: read 2 rows (last y), wrote a,b|1,z
+PASS CsvHelper: read 2 rows (last y), wrote a,b
+PASS System.Text.Json: 2 objects, rewrote 33 bytes, source-generated {"k":1}
+PASS System.Xml: 1 element, DTD refused: True
+PASS YamlDotNet: Dictionary`2, wrote k: v
+PASS MiniExcel: XLSX 4712 bytes, read 4 cells
+PASS Markdig: <h1>Title</h1><p><em>a</em> <strong>b</strong></p>
+PASS ReverseMarkdown: # Title||**x**
+PASS HtmlSanitizer: <p>hi</p>
+ALL PASS

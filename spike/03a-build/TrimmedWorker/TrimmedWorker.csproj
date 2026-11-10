@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- THROWAWAY spike for ticket 03a (W9, first size estimate). Not part of the product.
+       Publish: dotnet publish -c Release -r win-x64 (trimming is on; warnings as errors with -p:TreatWarningsAsErrors=true). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AssemblyName>TrimmedWorker</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetVips" Version="3.2.0" />
+    <PackageReference Include="NetVips.Native.win-x64" Version="8.18.7" />
+    <PackageReference Include="Sep" Version="0.17.1" />
+    <PackageReference Include="CsvHelper" Version="34.0.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+    <PackageReference Include="MiniExcel" Version="1.46.0" />
+    <PackageReference Include="Markdig" Version="1.6.0" />
+    <PackageReference Include="ReverseMarkdown" Version="6.3.0" />
+    <PackageReference Include="HtmlSanitizer" Version="11.0.26" />
+  </ItemGroup>
+
+</Project>
