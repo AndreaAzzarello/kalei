@@ -7,25 +7,25 @@ One window. The **Drop zone** is the centre of every state. Terms: see [GLOSSARY
 | # | State | User sees | User can |
 |---|---|---|---|
 | 1 | **Empty** | Neutral Kalei icon, Drop zone with "Drop files or folders here", **Choose files** button (keyboard reachable), gear (Settings). | Drop, Choose files (Enter/Space), open Settings. |
-| 2 | **File dropped** | Icon and Accent switch to the file's Category; file name, detected real Format, size, preview; target Format list with the most common preselected. If the extension disagrees with the content, a notice "This looks like PNG, not JPG". | Pick target Format, open Advanced, change Output folder, Convert, remove file, add more files. |
+| 2 | **File dropped** | Icon and Accent switch to the file's Category; file name, detected real Format, size, preview; target Format list with the most common preselected. If the extension disagrees with the content, a notice "This looks like PNG, not JPG". Animated images (GIF, WebP, AVIF) show the note "first frame only". | Pick target Format, open Advanced, change Output folder, Convert, remove file, add more files. |
 | 3 | *(reserved: Module missing, from 1.1, see below)* | – | – |
 | 4 | **Target chosen** | Same as 2, with Convert enabled. | Convert, change anything. |
-| 5 | **Advanced options** | Panel with only the Options valid for this Format pair (quality, resolution, metadata, CSV separator/encoding, sheets…) and a "Reset to defaults". | Edit, reset, close. |
-| 6 | **Converting** | Progress bar in the Accent colour; Cancel. | Cancel (Worker is killed, temp output removed). |
+| 5 | **Advanced options** | Panel with only the Options valid for this Format pair (quality, maximum size, metadata, CSV separator and encoding…) and a "Reset to defaults". | Edit, reset, close. |
+| 6 | **Converting** | Progress bar in the Accent colour; Cancel. | Cancel (the Worker is asked to stop and is killed after 3 s if it does not; the partial Output file is removed). |
 | 7 | **Done** | "Converted", output name and real size (there is no size estimate before converting), **Show in folder**, **Convert another**. | Show in folder, open file, convert another. |
 | 8 | **Error** | Plain-language message and short code (e.g. "The file is damaged", "File too large (limit 2 GB)", "Out of memory limit"); no partial output left behind. | Retry, change options, dismiss, Open log folder. |
-| 9 | **Batch** | List of files with per-file status (queued, converting, done, error, skipped with its reason), **one target Format for the whole Batch** (1.0), overall progress, count of done/failed. If the files share no target Format: "These files have no format in common. Convert them in separate groups." | Change the target, Convert all, Cancel all, retry failed, Show in folder. |
+| 9 | **Batch** | List of files with per-file status (queued, converting, done, error, skipped with its reason), **one target Format for the whole Batch** (1.0), overall progress, count of done/failed. If the files share no target Format: "These files have no format in common. Convert them in separate groups." A file already in the chosen target Format is skipped with the reason "already in this format". | Change the target, Convert all, Cancel all, retry failed, Show in folder. |
 | 10 | **Name clash** (only when "ask every time") | Dialog with two choices, **Keep both** (saves as `name (1).ext`) or **Skip**, plus "Apply to all". Replace is never offered. | Choose, tick "Apply to all". |
 
 ## In-app Donut states ([ADR 0008](adr/0008-radial-donut-component.md))
 
 | # | State | User sees | User can |
 |---|---|---|---|
-| D1 | **Dragging over the window** | The Donut opens at the cursor with the target Formats for the files (source Format excluded), the most common marked; the hub (centre of the ring) shows the Bloom in the Category accent and "Mouse wheel: more formats" **only if a back Face exists**. If the file list or Format is not yet known when the Donut opens, it shows an "analysing" state and fills in. | Move over a Slice (it takes the accent); turn the mouse wheel or press Tab to flip to the back Face; move away or press Esc to close. |
+| D1 | **Dragging over the window** | The Donut opens at the cursor with the target Formats for the files (source Format excluded; TXT keeps TXT, the only same-Format pair), the most common marked; the hub (centre of the ring) shows the Bloom in the Category accent. There is no back Face in 1.0 (at most 8 targets exist), so no flip hint. If the file list or Format is not yet known when the Donut opens, it shows an "analysing" state and fills in. | Move over a Slice (it takes the accent); move away or press Esc to close. |
 | D2 | **Release on a Slice** | Donut closes; a small progress ring appears where it was, then the normal toast/Done state. No window needed. | Cancel from the ring or the toast. |
 | D3 | **Release outside the Slices** | Donut closes; normal "File dropped" state (2). | Continue as usual. |
 | D4 | *(reserved: disabled Slice, from 1.1, see below)* | – | – |
-| D5 | **Mixed Categories** | Donut offers only Formats valid for all files; with none, the Donut does not open and the Batch state (9) shows the "separate groups" message. | As in 9. |
+| D5 | **Mixed files** | Donut offers only the Formats that every file can be converted to or already is (those files are skipped); with none, the Donut does not open and the Batch state (9) shows the "separate groups" message. | As in 9. |
 
 Keyboard and screen-reader users reach the same Format list in the main window (state 2) and, from 1.1, in the Explorer menu. When Kalei's "Colour transition" is off or Windows "Reduce animations" is on, colour changes are instant (the stricter setting wins). The Donut honours Windows "Reduce animations" and Kalei's "Colour transition" switch (the hub dot changes colour instantly when off).
 
@@ -40,7 +40,7 @@ Not in 1.0. States added with the first Optional module ([PRD](PRD.md#release-or
 Empty → (drop) → File dropped (or Batch if several files/a folder) → (Convert) → Converting → Done | Error. Done and Error return to Empty via "Convert another"/dismiss.
 
 ## Settings (single page)
-Language (System/English/Italiano), Theme (System/Light/Dark), Colour transition on/off, Output folder (next to source / chosen), Name clash behaviour (rename / ask), Limits (the editable limits; per-Conversion Options stay in the Advanced panel of a Conversion), Installed modules (from 1.1: size, uninstall), Open log folder, Check for updates (opens the Releases page; the only manual network-related action), About and licenses. *From 1.2 only (not shown in 1.0):* Global Donut (off by default), modifier key, start at sign-in (off by default); enabling the Global Donut explains the resident Sentinel and the mouse-only hook before turning it on.
+Language (System/English/Italiano), Theme (System/Light/Dark), Colour transition on/off, Output folder (next to source / chosen), Name clash behaviour (rename / ask), Limits (the editable limits; per-Conversion Options stay in the Advanced panel of a Conversion), Installed modules (from 1.1: size, uninstall), Open log folder, Open Releases page (opens the project's GitHub Releases page in the browser; the only manual network-related action), About and licenses. *From 1.2 only (not shown in 1.0):* Global Donut (off by default), modifier key, start at sign-in (off by default); enabling the Global Donut explains the resident Sentinel and the mouse-only hook before turning it on.
 
 ## Accessibility
 Full keyboard operation; visible focus; screen-reader names for the Drop zone, states and progress; colour is never the only signal (Category name and icon always shown); WCAG AA contrast in both themes; respects Windows "Reduce animations".

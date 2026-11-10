@@ -29,10 +29,10 @@ The extension may only break a tie **among text-like candidates** (for example T
 | TXT | valid text with no other rule matching | Probe | – |
 
 ## Text encoding
-A BOM decides first (UTF-8, UTF-16 LE/BE). Without a BOM: strict UTF-8 if the whole probed part is valid UTF-8, otherwise Windows-1252. The result is shown in Advanced and can be overridden. CSV delimiter, encoding and decimal separator (`1.234,56`) are detected in the Probe and overridable.
+A BOM decides first (UTF-8, UTF-16 LE/BE; UTF-16 is read, and the output is UTF-8 unless another encoding is chosen). Without a BOM: strict UTF-8 if the whole probed part is valid UTF-8, otherwise Windows-1252. The result is shown in Advanced and can be overridden. CSV delimiter, encoding and decimal separator (`1.234,56`) are detected in the Probe and overridable.
 
 ## Unknown or ambiguous
-"Cannot be determined" → Category **other**, with the message "Kalei doesn't recognise this file" and no conversion offered. An ambiguous text-like file is shown with the candidate chosen and a way to pick another in the target list's "Treat as…" option (decided in the spec).
+"Cannot be determined" → Category **other**, with the message "Kalei doesn't recognise this file" and no conversion offered. An ambiguous text-like file is shown with the candidate chosen and a notice; there is no way to pick another candidate in 1.0.
 
 ## Acceptance
 `tests/samples/` holds, for every Format, at least one valid file, one truncated, one with the wrong extension, and one generated large file (not committed); the detection test asserts the Format, and for failures the exact error code ([ipc-spec.md](ipc-spec.md#error-codes)).

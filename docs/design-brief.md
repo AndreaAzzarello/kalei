@@ -77,7 +77,7 @@ Content is left-aligned except the Drop zone message (centred). After a drop, th
 ## Donut
 - Ring of Slices; neutral Slices (surface colour + 1 px border), only the Slice under the cursor takes the Category accent; the hub (centre of the ring) shows the Bloom without container with its centre dot in the Category accent. Labels in Bricolage Grotesque.
 - Disabled Slices (from 1.1, Module missing) at 40% opacity with the reason as text, never colour alone.
-- Opening: scale/fade from the cursor in 160 ms; Face flip: 200 ms turn about the vertical axis. Both instant under the precedence rule above.
+- Opening: scale/fade from the cursor in 160 ms; Face flip (only when a back Face exists, not in 1.0): 200 ms turn about the vertical axis. Both instant under the precedence rule above.
 - Contrast rules as for the rest of the app (≥ 4.5:1 text, ≥ 3:1 graphics).
 
 ### Donut faces
@@ -89,7 +89,7 @@ Targets are taken from the [matrix](conversion-matrix.md) with the Source Format
 | spreadsheet | CSV, XLSX, JSON, TSV | none |
 | document | for JSON, YAML, XML: JSON, YAML, XML, CSV, TSV, XLSX (JSON only for the tabular ones); for TXT, MD, HTML: TXT, MD, HTML | none |
 
-Mixed Categories: only the targets valid for every file. The back Face and its rotation arrive with the larger Modules (audio, video).
+Mixed files: only the Formats that every file can be converted to or already is. The back Face and its rotation arrive with the larger Modules (audio, video).
 
 ## App icon contrast (fix, 2026-11-10)
 Problem: the first container `#4B3FD1` had 2.27:1 on a dark taskbar, under WCAG 1.4.11 (3:1). The `.ico` cannot follow the theme, so **one** container colour must work on both. Taskbar colours used are **assumptions, not measurements** (Windows 11 taskbars are translucent and depend on wallpaper and accent): dark `#202020`, light `#F3F3F3`, plus a sweep dark `#101010`–`#2B2B2B` and light `#E6E6E6`–`#FFFFFF`.

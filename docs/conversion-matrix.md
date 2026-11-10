@@ -20,7 +20,7 @@ Pairs not listed are not offered in the UI. Input is recognised from content, no
 | AVIF | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – |
 | HEIC (read only, best effort via WIC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-Decided behaviour: animated inputs (GIF, WebP, AVIF) convert their first frame only, and the Donut/target list shows a note "first frame only" for them; transparency converted to JPG/BMP is flattened onto white; ICO output holds the sizes 16, 32, 48 and 256 px (smaller ones are not upscaled; an input larger than 256 px is scaled down), and as an input the largest image of the ICO is used; HEIC is input only and works when the user's Windows has the required WIC extensions (which extensions are needed is checked in Ticket 0), otherwise a clear message is shown. Options: quality, max size/resolution, metadata (GPS removed by default; orientation applied to pixels).
+Decided behaviour: animated inputs (GIF, WebP, AVIF) convert their first frame only, and the Donut/target list shows a note "first frame only" for them; transparency converted to JPG/BMP is flattened onto white; ICO output holds the sizes 16, 32, 48 and 256 px (smaller ones are not upscaled; an image smaller than 16 px is stored once, at its own size; an input larger than 256 px is scaled down), and as an input the largest image of the ICO is used; HEIC is input only and works when the user's Windows has the required WIC extensions (which extensions are needed is checked in Ticket 0), otherwise a clear message is shown. Options: quality, max size/resolution, metadata (GPS removed by default; orientation applied to pixels).
 
 ## Data — Module `data` (1.0, built-in)
 
@@ -33,7 +33,7 @@ Two groups. Within a group every pair is supported.
 
 Across groups: **JSON ↔ CSV / TSV / XLSX** only (JSON must be an array of objects when going to tabular; nested values flattened with dot notation, arrays as `a.0`, `a.1` or joined with a configurable separator). YAML and XML to tabular are not offered in v1.
 
-Rules: CSV separator (`,` `;` tab) and encoding (UTF-8/BOM, Windows-1252) auto-detected, overridable in Advanced; Italian numbers (`1.234,56`) understood when converting to JSON/XLSX; XLSX default first sheet, option "all sheets" (one CSV per sheet); XLSX formulas export the cached value; anything written into XLSX is a value or text, never a formula; XML convention `@attribute` / `#text`; XML DTD and external entities rejected. JSON going to tabular must be an array of objects (an array of plain values becomes one column named `value`; a ragged set of objects gives the union of keys with empty cells); CSV/TSV output neutralises cells starting with `=`, `+`, `-` or `@` (default on, switch in Options, see S9 in [architecture](architecture.md)); Windows-1252 output replaces characters it cannot hold with `?` and warns.
+Rules: CSV separator (`,` `;` tab) and encoding (UTF-8 with or without BOM, Windows-1252; UTF-16 with a BOM is read too, output is UTF-8 or the chosen encoding) auto-detected, overridable in Advanced; Italian numbers (`1.234,56`) understood when converting to JSON/XLSX; XLSX uses the first sheet only (the "all sheets" option, one CSV per sheet, needs Conversions with several Output files and comes in 1.1); XLSX formulas export the cached value; anything written into XLSX is a value or text, never a formula; XML convention `@attribute` / `#text`; XML DTD and external entities rejected. JSON going to tabular must be an array of objects (an array of plain values becomes one column named `value`; a ragged set of objects gives the union of keys with empty cells); CSV/TSV output neutralises text cells starting with `=`, `+`, `-` or `@`, while number cells are left as they are (default on, switch in Options, see S9 in [architecture](architecture.md)); Windows-1252 output replaces characters it cannot hold with `?` and warns.
 
 ## Text — Module `text` (1.0, built-in)
 
@@ -47,7 +47,7 @@ Category: **document** for TXT, MD and HTML.
 
 ## Donut faces
 
-The Donut ([ADR 0008](adr/0008-radial-donut-component.md)) takes its targets from the tables above, excluding the Source format. The split between front and back Face is a UI decision and lives in the [design brief](design-brief.md#donut-faces).
+The Donut ([ADR 0008](adr/0008-radial-donut-component.md)) takes its targets from the tables above, excluding the Source format (the one exception is TXT → TXT, re-encoding and line endings: the only same-Format pair). The split between front and back Face is a UI decision and lives in the [design brief](design-brief.md#donut-faces).
 
 ## Later modules (not in v1; not final)
 

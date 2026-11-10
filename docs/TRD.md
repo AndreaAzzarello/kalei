@@ -26,7 +26,7 @@ Data from primary sources (NuGet pages, official repos), checked 2026-11-10 by a
 | Text | ReverseMarkdown | MIT | 6.3.0 | 0.53 MB | declared AOT/trimming ready | |
 | Text | HtmlSanitizer | MIT | 11.0.26 | 0.18 MB | n.v. | depends on AngleSharp |
 
-CSV choice: **Sep** if it passes the trimming publish test (fast, MIT, AOT-friendly), else CsvHelper. Decided in the data ticket.
+CSV choice: **Sep** if it passes the trimming publish test (fast, MIT, AOT-friendly), else CsvHelper. Decided by the trimming test W9 in ticket 03a.
 Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trimming and warnings-as-errors before it is adopted.
 
 ### Brand assets
@@ -52,6 +52,7 @@ Every "n.v." trimming entry must pass a `dotnet publish` of the Worker with trim
 | 3D | Assimp | BSD-3-Clause (modified; SPDX n.v.) | |
 | Signing | SignPath Foundation | free for OSS (claimed) | eligibility terms **not read**: verify **before 1.0**, because 1.0 and 1.1 would otherwise ship unsigned (Ticket 0, W18) |
 | Installer | Inno Setup | permissive licence text, but the site asks commercial users to buy a licence | verify the exact `LICENSE.TXT` of the version used before the installer ticket (Ticket 0, W18); alternative if unsuitable |
+| CI | GitHub Actions | free for public repositories with standard GitHub-hosted runners (verified 2026-11-10 on docs.github.com/en/billing/concepts/product-billing/github-actions; larger runners are billed there and are not used) | the page does not mention Windows runners separately: check the first workflow run on the billing page; if anything is charged, stop and ask |
 
 ### PDF module — proposed plan (decided when the module is scheduled)
 Images→PDF with SKDocument; render with PDFium; merge/optimise with qpdf (separate process). Text→PDF is the open point: either SKDocument with one small bundled text font (embedded whole in every file) and our own simple line wrapping, or the pinned PDFsharp 6.2.x fallback. Decide with a test PDF check: selectable text, Italian accents, file size. Not to be chosen before that test.

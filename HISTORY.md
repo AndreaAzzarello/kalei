@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #14 — Review fixes to spec and tickets
+- Five reviewers read spec, tickets and the feasibility document with empty context; every finding was checked against the text (none false; three partial). The owner approved all fixes and eight product choices.
+- Product choices: XLSX "all sheets" moves to 1.1; no back Face or wheel flip in 1.0; no saved conversion defaults; no "Treat as…"; the releases button lives in Settings as "Open Releases page"; Cancel is cooperative with a kill after 3 s; watchdog 10 s with progress every 2 s; UTF-16 accepted as input.
+- Batch rule is now by Format (a file already in the target is skipped); TXT → TXT is the only same-Format pair; limits table gained editable and hard-maximum columns; notices are separate from error codes.
+- Tickets regenerated: 44 (03, 07, 09, 10, 12, 14, 20 split into a and b, new ticket 37 for the Advanced panel); each has stories, manual-check line and numbered criteria; the README has a story-to-ticket table.
+
 ## 2026-11-10 #13 — Tickets for 1.0
 - docs/tickets: 36 local tickets as vertical slices with blocking edges, size, rules S1–S12 and numbered acceptance criteria; index with starting points and critical path.
 - Groups: Windows spike 01–04, core and first flow 05–12, rest of 1.0 13–29, release 30–33, non-blocking spikes 34–36 (global gesture, Linux, macOS).

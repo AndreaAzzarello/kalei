@@ -1,20 +1,20 @@
-# 35 — Spike: Linux sandbox, Donut and packaging (L1–L6)
+# 35 — Spike: Linux sandbox, In-app Donut and packaging (L1–L4, L6)
 
 - **Status**: needs-owner-hardware
 - **Size**: L
-- **Blocked by**: none
+- **Blocked by**: –
 - **Rules**: S1, S5
-- **Proofs**: L1, L2, L3, L4, L5, L6 ([ticket-0](../ticket-0.md))
-- **Spec**: [1.0 Windows](../spec/1.0-windows.md)
+- **Stories**: none (constraint, spike or infrastructure)
+- **Proofs**: L1, L2, L3, L4, L6 ([ticket-0](../ticket-0.md))
+- **Spec**: [ticket-0, Part B](../ticket-0.md#part-b--linux-spike-does-not-block-10)
 
 ## What to build
-Decide whether Linux can ship in 1.x and with which promise, by testing the sandbox, the Donut and the packaging on Ubuntu 24.04 and the current Fedora.
+Decide whether Linux can ship in 1.x and with which promise, by testing the sandbox, the In-app Donut and the packaging on Ubuntu 24.04 and the current Fedora (virtual machines). The global hook (L5) is in ticket [34](34-global-gesture-spike.md).
 
 ## Acceptance criteria
-1. L1: a Worker with `no_new_privs`, a seccomp filter allowing only local sockets and Landlock with no paths converts a PNG to WebP; a TCP connect, a UDP send and a DNS lookup all fail; opening any path outside the inherited descriptors fails.
+1. L1: a Worker with no_new_privs, a seccomp filter allowing only local sockets and Landlock with no paths converts a PNG to WebP; a TCP connect, a UDP send and a DNS lookup all fail; opening any path outside the inherited descriptors fails.
 2. L2: the .NET runtime and libvips work under those restrictions, and the start-up order is documented.
 3. L3: bubblewrap as an extra layer is tried as a system program, inside Flatpak and from an AppImage on Ubuntu 24.04; failure is detected and falls back to L1.
 4. L4: the In-app Donut opens under X11 and Wayland; a drag from the file manager gives a usable file list.
-5. L5: the global hook works on X11 and is clearly unavailable on Wayland.
-6. L6: Flatpak and AppImage builds start on clean VMs; sizes and the FUSE need are recorded.
-7. The decision for each distribution is recorded, and where the network block cannot be shown the "no network" promise is dropped for Linux.
+5. L6: Flatpak and AppImage builds start on clean VMs; sizes and the FUSE need are recorded.
+6. The decision for each distribution is recorded, and where the network block cannot be shown the "no network" promise is dropped for Linux.

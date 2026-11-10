@@ -31,7 +31,7 @@ A group of **Formats** shown with one accent colour and icon: image, audio, vide
 _Avoid_: Family (that is a **Module** concept), kind
 
 **Batch**:
-A set of **Source files** (including those found in dropped folders) converted in one go. In 1.0 it has one target **Format** for all its files; from 1.1, one per **Category**.
+A set of **Source files** (including those found in dropped folders) converted in one go; a single dropped file is a **Batch** of one **Conversion**. In 1.0 it has one target **Format** for all its files; from 1.1, one per **Category**.
 _Avoid_: Bulk, queue (the queue is the internal ordering of a **Batch**)
 
 **Conversion matrix**:
@@ -43,7 +43,7 @@ The per-**Conversion** settings (quality, resolution, bitrate, sheets…) shown 
 _Avoid_: Settings (those are app-wide; the editable **Limits** live in Settings → Limits)
 
 **Limits**:
-The maximum file size, pixel count, file count, folder depth, memory and time a **Conversion** may use.
+The maximum file size, pixel count, file count, folder depth, memory and time a **Conversion** may use. Some can be changed in Settings → Limits, up to a hard maximum; the bomb limits (a "bomb" is a file that expands enormously when read, such as a zip bomb) and the complexity limits are fixed.
 _Avoid_: Quotas
 
 ### Architecture
@@ -57,7 +57,7 @@ A logical converter for one family of **Formats**: a manifest plus one or more *
 _Avoid_: Plugin, extension, add-on
 
 **Worker executable**:
-The binary that hosts one or more **Modules**; it is started once per **Conversion**, and that running process is a **Worker**.
+The binary that hosts one or more **Modules**; it is started once per **Conversion**, **Probe** or **Preview**, and that running process is a **Worker**.
 _Avoid_: Module (a Module is the logical converter, not the file)
 
 **Built-in module**:
@@ -73,15 +73,27 @@ A third-party library or binary (libvips, FFmpeg, pandoc…) that a **Module** u
 _Avoid_: Backend, codec
 
 **Worker**:
-The running, sandboxed process, one per **Conversion**, started from a **Worker executable**.
+The running, sandboxed process, one per **Conversion**, **Probe** or **Preview**, started from a **Worker executable**.
 _Avoid_: Child process, converter process
 
 **Broker**:
 The part of the **Core** that opens **Source file** and **Output file** handles and passes them to a **Worker**.
 _Avoid_: Proxy, host
 
+**Probe**:
+A request from the **Core** to a **Worker** to look inside a **Source file** beyond its header (deeper **Format** detection, properties). The **Core** itself reads only the header.
+_Avoid_: Scan, analysis
+
+**Preview**:
+A request from the **Core** to a **Worker** for a small picture of a **Source file**, returned as bounded PNG data.
+_Avoid_: Thumbnail (a thumbnail is one use of a **Preview**)
+
+**Origin mark**:
+The operating-system flag that says a file came from the internet (on Windows `Zone.Identifier` with the zone only). It is copied to the **Output file** without the address of the source.
+_Avoid_: Mark of the Web (the Windows name), quarantine flag
+
 **Sandbox**:
-The set of OS restrictions on a **Worker**: no network, no filesystem access, bounded memory and time.
+The set of OS restrictions on a **Worker**: no network, no access to the user's files (it reads only its own program files and the handles it is given), bounded memory and time.
 _Avoid_: Jail, container
 
 **Module package**:
@@ -107,7 +119,7 @@ One segment of the **Donut**, standing for one target **Format** (or, disabled, 
 _Avoid_: Button, option
 
 **Face**:
-One of the two sides of a **Donut**: the front with common **Formats**, the back with less common ones.
+One of the two sides of a **Donut**: the front with common **Formats**, the back with less common ones. In 1.0 only the front exists (a **Donut** shows at most 8 **Slices**); the back comes with the first **Module** that has more targets.
 _Avoid_: Page, mode
 
 **In-app Donut**:
@@ -147,8 +159,8 @@ _Avoid_: Centre button
 ## Relationships
 
 - A **Batch** contains one or more **Conversions**.
-- Each **Conversion** runs in exactly one **Worker**, which belongs to exactly one **Module**.
+- Each **Conversion**, **Probe** or **Preview** runs in exactly one **Worker**, which serves one **Module** at a time, chosen from the **Format** pair; a **Worker executable** may host several **Modules**.
 - A **Module** wraps one or more **Engines** and declares which **Format** pairs it supports; the **Conversion matrix** is the union of those declarations.
-- A **Donut** has one or two **Faces** (the back exists only when there are more targets than fit on the front), each a ring of **Slices**; the same **Donut** component is hosted in-app (1.0) or globally (1.2).
+- A **Donut** has one or two **Faces** (the back exists only when there are more targets than fit on the front, never in 1.0), each a ring of **Slices**; the same **Donut** component is hosted in-app (1.0) or globally (1.2).
 - The **Sentinel** only exists for the **Global Donut**; the **In-app Donut** needs no extra process.
 - The **Broker** is the only component that touches **Source files** and **Output files**; a **Worker** receives handles, never paths.
