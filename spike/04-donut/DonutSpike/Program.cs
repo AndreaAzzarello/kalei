@@ -29,5 +29,5 @@ internal static class Program
     }
 
     private static string DefaultLog() =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KaleiSpike04", "latency.csv");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KaleiSpike04", "latency-v2.csv");
 }

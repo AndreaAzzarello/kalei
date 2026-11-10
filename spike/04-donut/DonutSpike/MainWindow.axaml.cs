@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     private readonly Options _opt;
     private readonly string _runId = DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
     private int _seq;
+    private Action<string?>? _flushPending;
     private bool _overlayOn;
     private Border? _ring;
     private (long Size, DateTime Mtime, string? Path)? _firstFile;
@@ -68,7 +69,8 @@ public partial class MainWindow : Window
         e.DragEffects = DragDropEffects.Copy;
         if (_overlayOn) return; // child enter/leave churn: measure only the first one of a drag
         _overlayOn = true;
-        _seq++;
+        var seq = ++_seq;     // captured at enter (the row is written later)
+        var enterNo = seq;    // 1 = first drag-enter of this process = the cold one
 
         var files = e.DataTransfer.TryGetFiles() ?? [];
         var tNames = Stopwatch.GetTimestamp();
@@ -82,20 +84,33 @@ public partial class MainWindow : Window
         var tShown = Stopwatch.GetTimestamp();
 
         double t1 = double.NaN, t2 = double.NaN;
-        var done = false;
+        string headerFormat = "-";
+        var headerMs = double.NaN;
+        var written = false;
+        // The row is written as soon as the second frame is measured (or at drop / after 1 s, whichever comes first),
+        // so a quick drop followed by an exit cannot lose it (the earlier version wrote it from a 1 s timer).
+        void Flush(string? flag)
+        {
+            if (written) return;
+            written = true;
+            _flushPending = null;
+            Append(_opt.LogPath, flag, pos, files.Length, hints, headerFormat,
+                LatencyStats.ToMs(tNames - t0), LatencyStats.ToMs(tExt - t0), LatencyStats.ToMs(tShown - t0), t1, t2, headerMs, seq, enterNo);
+            Status.Text = $"enter #{seq}: overlay {t1:F1} ms, frame {t2:F1} ms, formats {string.Join("+", hints.Select(h => h.Format).Distinct())}, header {headerFormat}";
+        }
+        _flushPending = Flush;
         RequestAnimationFrame(_ =>
         {
             t1 = LatencyStats.ToMs(Stopwatch.GetTimestamp() - t0);
             RequestAnimationFrame(_ =>
             {
                 t2 = LatencyStats.ToMs(Stopwatch.GetTimestamp() - t0);
-                done = true;
+                Flush(null);
             });
         });
 
         // Header sniff of the first file, after the overlay is up and timed apart (S3: headers only, 16 bytes).
         var tH0 = Stopwatch.GetTimestamp();
-        string headerFormat = "-";
         var first = files.FirstOrDefault();
         if (first?.TryGetLocalPath() is { } p && File.Exists(p))
         {
@@ -112,16 +127,14 @@ public partial class MainWindow : Window
             }
             catch (Exception ex) { headerFormat = "error:" + ex.GetType().Name; }
         }
-        var headerMs = LatencyStats.ToMs(Stopwatch.GetTimestamp() - tH0);
+        headerMs = LatencyStats.ToMs(Stopwatch.GetTimestamp() - tH0);
 
         // Watchdog: if no frame arrives within 1 s the render loop is starved during the drag; record that.
         var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
         timer.Tick += (_, _) =>
         {
             timer.Stop();
-            Append(_opt.LogPath, "latency", done ? null : "NO_FRAME_IN_1S", pos, files.Length, hints, headerFormat,
-                LatencyStats.ToMs(tNames - t0), LatencyStats.ToMs(tExt - t0), LatencyStats.ToMs(tShown - t0), t1, t2, headerMs);
-            Status.Text = $"enter #{_seq}: overlay {t1:F1} ms, frame {t2:F1} ms, formats {string.Join("+", hints.Select(h => h.Format).Distinct())}, header {headerFormat}";
+            Flush("NO_FRAME_IN_1S"); // no-op when the row was already written
         };
         timer.Start();
     }
@@ -139,6 +152,7 @@ public partial class MainWindow : Window
     {
         e.DragEffects = DragDropEffects.Copy;
         var effectReported = e.DragEffects;
+        _flushPending?.Invoke("NO_FRAME_BEFORE_DROP"); // drop before the second frame: keep the row anyway
         HideOverlay();
         var first = _firstFile;
         _ = Task.Run(async () =>
@@ -233,8 +247,8 @@ public partial class MainWindow : Window
         return b;
     }
 
-    private void Append(string path, string kind, string? flag, Point cursor, int count, List<Hint> hints, string headerFormat,
-        double namesMs, double extMs, double shownMs, double t1, double t2, double headerMs)
+    private void Append(string path, string? flag, Point cursor, int count, List<Hint> hints, string headerFormat,
+        double namesMs, double extMs, double shownMs, double t1, double t2, double headerMs, int seq, int enterNo)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var screen = Screens.ScreenFromVisual(this);
@@ -246,11 +260,11 @@ public partial class MainWindow : Window
         var inside = rl >= 0 && rt >= 0 && rl + RingDiameter <= Bounds.Width && rt + RingDiameter <= Bounds.Height;
         var inv = CultureInfo.InvariantCulture;
         string F(double v) => double.IsNaN(v) ? "NaN" : v.ToString("F2", inv);
-        var header = "run,seq,tag,flag,renderScaling,screenIdx,screenScaling,screens,windowStraddles,files,formats,headerFormat,namesMs,extHintMs,overlayShownMs,frame1Ms,frame2Ms,headerMs,ringInsideWindow";
+        var header = "run,seq,tag,flag,renderScaling,screenIdx,screenScaling,screens,windowStraddles,files,formats,headerFormat,namesMs,extHintMs,overlayShownMs,frame1Ms,frame2Ms,headerMs,ringInsideWindow,enter";
         if (!File.Exists(path)) File.WriteAllText(path, header + Environment.NewLine);
-        var row = string.Join(",", _runId, _seq, _opt.Tag, flag ?? "ok", RenderScaling.ToString("F2", inv), idx,
+        var row = string.Join(",", _runId, seq, _opt.Tag, flag ?? "ok", RenderScaling.ToString("F2", inv), idx,
             (screen?.Scaling ?? 0).ToString("F2", inv), all.Count, straddles, count,
-            string.Join("+", hints.Select(h => h.Format).Distinct()), headerFormat, F(namesMs), F(extMs), F(shownMs), F(t1), F(t2), F(headerMs), inside);
+            string.Join("+", hints.Select(h => h.Format).Distinct()), headerFormat, F(namesMs), F(extMs), F(shownMs), F(t1), F(t2), F(headerMs), inside, enterNo);
         File.AppendAllText(path, row + Environment.NewLine);
     }
 }

@@ -22,3 +22,13 @@ dotnet test .\DonutSpike.Tests          # 32 tests on the pure logic
 ```
 
 `run-cold.ps1` starts a new process for each run (a cold first drag), waits for you to drag the sample files over the window and drop them once, and the window closes by itself. Options: `-Screen n` opens the window centred on screen n (index as shown in the window text after the first drag), `-Straddle` with `-Screen n` puts the window centre on the right edge of screen n.
+
+## Log fix (second version)
+The first version wrote each latency row from a 1 s timer after the drag-enter. With `--exit-after-drop` the window closes about 0.5 s after the drop, so a drop within roughly 0.5 s of the drag-enter exited before the row was written (one row lost in most series). It also read the sequence number at write time and counted re-entries in the same process (warm) next to the cold first drag. Now the row is written at the second frame (or at the drop, flag `NO_FRAME_BEFORE_DROP`, or after 1 s, flag `NO_FRAME_IN_1S`), the sequence is captured at enter, and the column `enter` is 1 for the first drag-enter of a process. `summarize.ps1` uses only `enter=1`; `run-cold.ps1` repeats a run that left no valid cold row.
+
+## Run on a machine without the SDK (the reference VM)
+```powershell
+dotnet publish .\DonutSpike -c Release -r win-x64 --self-contained -o ..\..\artifacts\donut
+# copy artifacts\donut, run-cold.ps1, summarize.ps1 and the samples to the VM, then there:
+.\run-cold.ps1 -Exe .\donut\DonutSpike.exe -Tag vm-win10 -Runs 10
+```
