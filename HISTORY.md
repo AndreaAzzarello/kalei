@@ -2,6 +2,9 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #21 — Ticket 03b criterion 4 marked superseded
+- Criterion 4 (original Mayenne Sans licence) now carries a "superseded" note: owner decision, only Bricolage Grotesque (OFL 1.1) is cited, Mayenne Sans is not needed. Issue #4 stays closed.
+
 ## 2026-11-10 #20 — Image engine content (ticket 02, W5 and W6)
 - Prebuilt libvips 8.18.7 writes AVIF (AV1) and GIF, plus WebP and TIFF; it has no BMP, ICO or HEVC. SVG loading can be disabled and BlockUntrusted works (checked by behaviour).
 - HEIC: WIC decoded a HEIC on the owner's Windows 11 PC, libvips could not. Required extensions, decode in the sandbox and Windows 10 not verified.

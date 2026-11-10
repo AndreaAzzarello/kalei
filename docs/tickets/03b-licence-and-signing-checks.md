@@ -16,3 +16,4 @@ Read the licence and eligibility terms that gate the installer and signing, so t
 2. W18: the SignPath Foundation eligibility terms are read and summarised; whether the project qualifies is recorded as yes, no, or "needs the owner to apply".
 3. If either is unsuitable, an alternative is proposed to the owner and not adopted without their approval.
 4. The original licence text of the logotype font (Mayenne Sans, see the TRD to-do) is obtained, or the question is handed to the owner with what is missing.
+   - **Superseded (2026-11-10)**: owner decision — only Bricolage Grotesque (OFL 1.1) is cited and Mayenne Sans is not needed (see the [TRD](../TRD.md) and HISTORY #19). This criterion no longer applies; issue #4 stays closed.
