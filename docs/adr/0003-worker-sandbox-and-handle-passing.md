@@ -1,5 +1,5 @@
 ---
-status: accepted (proved on the owner's Windows 11 PC, ticket 01; the Windows 10 22H2 repeat is tracked in issue #47)
+status: accepted per Windows 11; Windows 10 22H2 pending #47
 ---
 # Workers run in an OS sandbox without network and receive handles, not paths
 
@@ -18,6 +18,14 @@ Windows 11 dev PC (build 10.0.26300), .NET 10.0.13, libvips 8.18.7; code on the 
 - **Install folder (W4)**: before the grant the Worker did not start (host exit code `0x80008085`); after `icacls … /grant *S-1-15-2-1:(OI)(CI)RX` on a folder the user owns, the Worker, the .NET runtime and libvips loaded. Nothing else was granted.
 - **Not verified**: Windows 10 22H2 (issue #47); behaviour with the Windows Firewall services stopped or a third-party firewall (here BFE and the firewall service run and all profiles are on); HEIC through WIC inside the sandbox (still ticket 18); cold-start timings (the run measured warm: 46 ms to the first message, about 80 ms to convert, 119 MB peak, median of 10).
 - **For ticket 09a**: libvips sniffs the format from the stream's current position, so a stream reused for a second image must be rewound first.
+
+## What enforces the network block (Microsoft documentation, read 2026-11-10)
+
+The block is not a property of the process alone: it is done by Windows Filtering Platform (WFP) filters.
+- WFP has a sublayer for it: "Windows Application Isolation filters are added to this sublayer. These filters apply to applications running in an App-Container and requires App-Container network capabilities." (`FWPM_SUBLAYER_MPSSVC_APP_ISOLATION`, [filtering sublayer identifiers](https://learn.microsoft.com/en-us/windows/win32/fwp/management-filtering-sublayer-identifiers)). The sublayer is named after the Windows Firewall service (MPSSVC); that the service creates it is our reading of the name, not a stated fact.
+- The firewall's own drop log names the filters involved: "UWP default" inbound and outbound block filters (drops "often caused by" an app "missing the correct capability tokens") and an "AppContainer loopback" block filter; "Packet drops from firewall are explicitly dropped by default block filters created by the Windows Firewall service or a firewall rule" ([filter origin audit log](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/filter-origin-documentation), updated 2026-10-08).
+- The Base Filtering Engine (BFE) manages the filters: "The principal tasks performed by BFE are adding and removing filters from the system" ([WFP architecture](https://learn.microsoft.com/en-us/windows/win32/fwp/windows-filtering-platform-architecture-overview)). The older description of "Windows Store apps" isolation says the same in other words: "This network isolation prevents an app from accessing a network and a connection type" not configured for it, and Group Policy can define the isolation settings ([Isolating Windows Store Apps on Your Network](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/hh831418(v=ws.11))).
+- **Not stated anywhere we read**: what happens to an AppContainer's network access when the Windows Firewall service or the BFE is stopped, when the firewall profiles are off, or when a policy or rule allows the traffic. So S5 is proved here for a normal PC only, and two things follow: the VM proof W19/W20 in [ticket-0](../ticket-0.md) tests those states, and the app checks at start-up that the block holds on the PC it runs on (the [network canary](../architecture.md#network-canary-s5), ticket 07c).
 
 ## Considered options
 

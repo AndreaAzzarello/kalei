@@ -1,5 +1,5 @@
 ---
-status: accepted (engine content proved in ticket 02, sandbox in ticket 01 on the owner's Windows 11 PC; the Windows 10 22H2 repeat is tracked in issue #47)
+status: accepted per Windows 11; Windows 10 22H2 pending #47
 ---
 # libvips (via NetVips) as the image engine
 

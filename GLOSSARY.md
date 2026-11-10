@@ -108,6 +108,10 @@ _Avoid_: Driver, plugin
 The table in [architecture.md](docs/architecture.md#capability-table-per-os) that says, for each OS-dependent element, how each operating system provides it or that it is not available.
 _Avoid_: Compatibility matrix (that would be confused with the **Conversion matrix**)
 
+**Network canary**:
+A start-up check in which a sandboxed **Worker** tries a few fixed network connections that must all fail; the "no network" promise is shown only if they do ([architecture.md](docs/architecture.md#network-canary-s5)).
+_Avoid_: Network test, ping
+
 ### Donut
 
 **Donut**:
