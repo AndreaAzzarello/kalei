@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #12 — Settings and release pipeline specs
+- docs/spec/settings.md: data locations (installed and portable), settings schema with atomic write, migration and corrupt-file handling, Limits page rules, localisation rules, error catalogue test, log format and rotation.
+- docs/spec/release-pipeline.md: build to draft release in order, sandbox set-up at install time, portable behaviour, uninstall, CI cost check.
+
 ## 2026-11-10 #11 — 1.0 Windows spec
 - docs/spec/1.0-windows.md: problem, solution, 65 user stories, implementation decisions (components, formats and defaults, preselected targets, Batch rules), three test seams, out of scope.
 - Test seams: Core pipeline through the sandbox-launcher interface, the Worker IPC boundary, the pure Donut library.
