@@ -1,0 +1,31 @@
+# Backups made by editing scripts
+*.bak-*
+
+# .NET build output
+bin/
+obj/
+publish/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+*.log
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Avalonia
+.avalonia-build-tasks/
+
+# Generated test samples (large files are generated, never committed)
+tests/samples/generated/
+tests/samples/**/*.large.*
+
+# Local scratch
+.scratch/
+*.tmp

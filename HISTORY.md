@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #15 — Repository setup files
+- Added LICENSE (MIT), README (English with an Italian section; every claim marked planned or conditional on the S5 release gate), SECURITY.md (private vulnerability reporting, scope, SHA256SUMS check) and .gitignore (.NET, Avalonia, backups, generated samples).
+- Branch renamed master to main (local only; no remote, no push).
+- GitHub Actions free plan for public repositories with standard runners checked on the primary source and recorded in the TRD and the release pipeline; Windows runners are not named on that page, so the first run is checked on the billing page.
+
 ## 2026-11-10 #14 — Review fixes to spec and tickets
 - Five reviewers read spec, tickets and the feasibility document with empty context; every finding was checked against the text (none false; three partial). The owner approved all fixes and eight product choices.
 - Product choices: XLSX "all sheets" moves to 1.1; no back Face or wheel flip in 1.0; no saved conversion defaults; no "Treat as…"; the releases button lives in Settings as "Open Releases page"; Cancel is cooperative with a kill after 3 s; watchdog 10 s with progress every 2 s; UTF-16 accepted as input.
