@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-10 #5 — Narrow 1.0 scope after the EGM review
+- Review by five fresh reviewers gave 24 findings; all accepted and checked against the real text (none false).
+- 1.0 now: Windows 10 22H2/11 x64, in-app Donut kept, only formats confirmed by the spike, one target format per Batch, no size Estimate, no module installer.
+- Module installer, per-Category targets, Explorer menu, CLI and recent conversions move to 1.1; Linux/macOS to 1.x; global Donut stays 1.2.
+- Formats now map to one Category each (JSON/YAML/XML count as document); PRD Release order is the single source for version numbers.
+
 ## 2026-11-10 — Icon contrast fix and .ico
 - App icon container changed from #4B3FD1 (2.27:1 on a dark taskbar) to #6C5FF1 (worst case 3.06:1 over a taskbar sweep; petals 4.62:1).
 - The accent dot now sits on a container-coloured halo (it had only 1.68:1 against white petals).

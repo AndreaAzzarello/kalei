@@ -27,11 +27,11 @@ A concrete file type such as PNG or CSV, recognised from file content and not fr
 _Avoid_: Extension, type
 
 **Category**:
-A group of **Formats** shown with one accent colour and icon: image, audio, video, document, spreadsheet, archive, other.
+A group of **Formats** shown with one accent colour and icon: image, audio, video, document, spreadsheet, archive, other. Each **Format** belongs to exactly one **Category** (table in the [conversion matrix](docs/conversion-matrix.md)); the **Module** does not decide it. "Other" is also the neutral colour of an empty window.
 _Avoid_: Family (that is a **Module** concept), kind
 
 **Batch**:
-A set of **Source files** (including those found in dropped folders) converted in one go, with one target **Format** per **Category**.
+A set of **Source files** (including those found in dropped folders) converted in one go. In 1.0 it has one target **Format** for all its files; from 1.1, one per **Category**.
 _Avoid_: Bulk, queue (the queue is the internal ordering of a **Batch**)
 
 **Conversion matrix**:
@@ -39,8 +39,8 @@ The documented table of every supported *from Format → to Format* pair and the
 _Avoid_: Support table
 
 **Options**:
-The per-**Conversion** settings (quality, resolution, bitrate, sheets…) shown in the "Advanced" panel.
-_Avoid_: Settings (those are app-wide)
+The per-**Conversion** settings (quality, resolution, bitrate, sheets…) shown in the "Advanced" panel of a **Conversion**.
+_Avoid_: Settings (those are app-wide; the editable **Limits** live in Settings → Limits)
 
 **Limits**:
 The maximum file size, pixel count, file count, folder depth, memory and time a **Conversion** may use.
@@ -53,8 +53,12 @@ The light part of Kalei that detects **Formats**, owns the queue, enforces secur
 _Avoid_: Engine, backend
 
 **Module**:
-A separately packaged converter for one family of **Formats**, run as its own process and described by a manifest.
+A logical converter for one family of **Formats**: a manifest plus one or more **Engines**. The built-in Modules are hosted together in one **Worker executable**; each Optional module (from 1.1) has its own.
 _Avoid_: Plugin, extension, add-on
+
+**Worker executable**:
+The binary that hosts one or more **Modules**; it is started once per **Conversion**, and that running process is a **Worker**.
+_Avoid_: Module (a Module is the logical converter, not the file)
 
 **Built-in module**:
 A **Module** shipped inside the installer (in the MVP: images, data, text).
@@ -69,7 +73,7 @@ A third-party library or binary (libvips, FFmpeg, pandoc…) that a **Module** u
 _Avoid_: Backend, codec
 
 **Worker**:
-The separate, sandboxed process in which a **Module** runs one **Conversion**.
+The running, sandboxed process, one per **Conversion**, started from a **Worker executable**.
 _Avoid_: Child process, converter process
 
 **Broker**:
@@ -121,14 +125,22 @@ The colour and icon of the interface, taken from the **Category** of the dropped
 _Avoid_: Theme (light/dark is the theme)
 
 **Estimate**:
-The approximate output size shown before converting, computed by converting a small sample.
+The approximate output size shown before converting. Not in 1.0; undecided for later.
 _Avoid_: Prediction
+
+**Bloom**:
+Kalei's icon: three petals around a centre dot that takes the **Accent**. Bare inside the app, in a rounded container as the app icon.
+_Avoid_: Logo (the logotype is the word "kalei")
+
+**Hub**:
+The centre of the **Donut**, showing the Bloom and the hint to flip the **Face**.
+_Avoid_: Centre button
 
 ## Relationships
 
 - A **Batch** contains one or more **Conversions**.
 - Each **Conversion** runs in exactly one **Worker**, which belongs to exactly one **Module**.
 - A **Module** wraps one or more **Engines** and declares which **Format** pairs it supports; the **Conversion matrix** is the union of those declarations.
-- A **Donut** has two **Faces**, each a ring of **Slices**; the same **Donut** component is hosted in-app (1.0) or globally (1.2).
+- A **Donut** has one or two **Faces** (the back exists only when there are more targets than fit on the front), each a ring of **Slices**; the same **Donut** component is hosted in-app (1.0) or globally (1.2).
 - The **Sentinel** only exists for the **Global Donut**; the **In-app Donut** needs no extra process.
 - The **Broker** is the only component that touches **Source files** and **Output files**; a **Worker** receives handles, never paths.
