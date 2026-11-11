@@ -31,6 +31,7 @@ internal static class StartupMarks
         Ticks[i] = DateTime.UtcNow.Ticks;
     }
 
+    // Counts ReadFile-style I/O only: memory-mapped image loads (DLLs, R2R code) are not counted, so this is NOT disk traffic.
     [DllImport("kernel32.dll")]
     private static extern bool GetProcessIoCounters(IntPtr process, out IoCounters counters);
 

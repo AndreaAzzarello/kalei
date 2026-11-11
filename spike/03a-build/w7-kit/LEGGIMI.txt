@@ -1,0 +1,86 @@
+KALEI - W7: DOVE VA IL TEMPO NELL'AVVIO A FREDDO (ticket 03c, issue #56)
+=========================================================================
+VM: Hyper-V "Kalei-Win10-Ref" (Windows 10 22H2, 2 vCPU, 4 GB). Il kit NON richiede l'SDK .NET: e' tutto self-contained.
+Questo kit e' NUOVO e separato da quello di #47 (E:\KaleiVM): non lo usa e non lo tocca.
+
+COSA FA
+  Misura l'avvio a freddo (dopo un riavvio) di SEI varianti della stessa finestra Avalonia, tutte ReadyToRun + trimming:
+    a  baseline di #47 (con i marcatori di fase)
+    b  finestra subito con contenuto minimo, vista completa dopo il secondo frame
+    c  avvio snello: senza Avalonia.Desktop, font predefinito esplicito, ComboBox riempita dopo
+    d  opzioni del runtime: ReadyToRun composite, TieredPGO off, GC non concorrente, chiavi di risorsa di sistema
+    e  rendering software (senza ANGLE/EGL): serve a capire quanto pesa la GPU sulla VM
+    f  combinazione di b + c + d
+  Per ogni avvio registra i tempi di fase (processo -> runtime -> Main -> Avalonia -> primo layout -> primo frame -> secondo
+  frame), CPU, byte letti da disco e assembly caricati. Il secondo frame e' la metrica W7 (soglia 1000 ms).
+  Piano: 10 round. Round 1-5: tutte le 6 varianti; round 6-10: solo a, b, c, d. Totale 50 avvii a freddo (e ed f ne fanno 5).
+  L'ordine delle varianti ruota a ogni round. Prima del primo riavvio ogni variante gira una volta NON contata (scansione
+  dell'antivirus sui file nuovi). Ogni avvio: riavvio, 150 s di assestamento dall'avvio, UNA misura, riavvio.
+
+DURATA
+  Circa 3 ore e un quarto (50 avvii x 3,5-4 minuti + preparazione). Dopo 5 round (30 avvii, circa 1 h 50) hai gia' 5 avvii
+  per ogni variante.
+  Per accorciare: .\avvia.ps1 -Ridotto al PRIMO lancio toglie la variante c dai round 6-10 (45 avvii, circa 2 h 50).
+  Si decide solo al primo lancio; dopo, il piano e' fisso.
+
+PRIMA DI COMINCIARE
+  - Apri la VM con SESSIONE AVANZATA e condividi il disco E: (Risorse locali). Nella VM comparira' come \\tsclient\E.
+  - Le prove vanno lanciate da una PowerShell NORMALE (non "Esegui come amministratore").
+  - La VM puo' stare offline: questo kit non usa la rete.
+
+PASSO PER PASSO
+ 1) Copia il kit nella VM, su disco LOCALE (non lanciare da \\tsclient: l'avvio a freddo misurerebbe la rete):
+        Copy-Item -Path '\\tsclient\E\KaleiVM-W7' -Destination 'C:\KaleiW7' -Recurse
+    (circa 350 MB; il percorso di destinazione NON deve contenere spazi.)
+
+ 2) Start > "Windows PowerShell" (clic normale) e scrivi:
+        cd C:\KaleiW7
+        Set-ExecutionPolicy -Scope Process Bypass
+        .\avvia.ps1
+    (oppure .\avvia.ps1 -Ridotto, vedi sopra. Rispondi S alla conferma dell'ExecutionPolicy se te la chiede.)
+
+ 3) Lo script mostra l'ambiente e fa UNA domanda: "Attivo l'accesso automatico?". Rispondi S.
+      Si apre UNA finestra UAC (premi Si): lo script chiede la password dell'account, la verifica e la salva SOLO come segreto
+      LSA cifrato (come Sysinternals Autologon), mai in chiaro nel registro. Serve perche' dopo ogni riavvio Windows si
+      fermerebbe alla schermata di accesso. Se rispondi N funziona uguale, ma la password va inserita a ogni riavvio (50 volte).
+    Poi fa da solo i 6 avvii di riscaldamento e inizia i riavvii. Puoi allontanarti.
+
+ 4) Durante le misure NON aprire altre app e non usare la VM (falseresti i tempi). Se dopo l'accesso vedi una finestra
+    PowerShell che si apre da sola e' normale: e' lo script che riprende.
+
+ 5) A fine misure lo script aspetta (fino a 3 minuti) che un task di sistema tolga l'accesso automatico, verifica, scrive il
+    report e lo copia da solo nel disco E: del PC (E:\KaleiVM-W7\risultati). Se la copia non riesce, copia a mano dalla VM:
+        C:\KaleiW7\risultati\report-w7.json, report-w7.txt  e  C:\KaleiW7\stato\misure.jsonl   ->   E:\KaleiVM-W7\risultati\
+    Il report NON contiene percorsi personali, nome utente o nome del computer (se la sanificazione fallisce non lo scrive).
+    Controlla che nel report ci sia "pulizia: ok"; se dice "NON confermata", torna subito al checkpoint.
+
+ 6) Quando i file sono sul PC, scrivimi nella chat di Claude:
+        "Ho il report W7, leggi E:\KaleiVM-W7\risultati\report-w7.json"
+
+ 7) SOLO DOPO aver messo al sicuro il report: torna al checkpoint "aggiornato". Sul PC host, PowerShell come amministratore:
+        Get-VMCheckpoint -VMName 'Kalei-Win10-Ref' | Select-Object Name, CreationTime
+        Restore-VMCheckpoint -VMName 'Kalei-Win10-Ref' -Name 'aggiornato' -Confirm:$false
+        Start-VM -Name 'Kalei-Win10-Ref'
+    ATTENZIONE: il checkpoint e' precedente alla copia, quindi cancella anche C:\KaleiW7 e il report dentro la VM.
+
+SE QUALCOSA VA STORTO
+  - Interrompere/riprendere: puoi chiudere la finestra e rilanciare .\avvia.ps1: riparte dal punto giusto. Lo stato e' in
+    C:\KaleiW7\stato\ e le misure sono solo aggiunte a stato\misure.jsonl: lo script non cancella mai nulla li'.
+    Una misura iniziata e non finita viene registrata come "interrotta" e rifatta.
+  - Fermarsi prima della fine (es. dopo il round 5): .\avvia.ps1 -Annulla (PowerShell normale). Ferma le misure, fa togliere
+    l'accesso automatico e scrive il report con quello che c'e'. Poi controlla "pulizia: ok" e salva i file come sopra.
+  - Solo rigenerare il report dai dati raccolti: .\avvia.ps1 -Report
+  - "Questa PowerShell e' ELEVATA": chiudila e apri una PowerShell normale.
+  - Password sbagliata nella finestra UAC: non si attiva nulla; rilancia .\avvia.ps1 e riprova (o rispondi N).
+  - Tre tentativi di fila senza una misura valida, o piu' di 58 tentativi in tutto: lo script si ferma da solo e scrive il report.
+  - Se il report dice che l'accesso automatico NON e' confermato come rimosso: torna subito al checkpoint "aggiornato".
+
+COSA NON SI PUO' CONCLUDERE
+  Il report non sceglie fra AOT (ticket 38), soglia rivista e ottimizzazioni: da' i numeri, la decisione e' tua.
+  I tempi della baseline possono non coincidere con #47 (1122,7 ms): qui c'e' l'avvio di riscaldamento e i marcatori; il report
+  dice se il primo avvio contato di ogni variante e' ancora il piu' lento.
+
+CHI TOCCA COSA SULLA VM
+  Lo script scrive solo in C:\KaleiW7, nella voce RunOnce "KaleiW7" (rimossa a fine misure) e, per l'accesso automatico, in due task
+  di sistema (KaleiW7-*), nel segreto LSA, nei valori Winlogon e in C:\ProgramData\KaleiW7-cleanup (tutto rimosso e verificato
+  a fine misure). Dopo il ritorno al checkpoint non resta nulla.
