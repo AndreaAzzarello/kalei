@@ -1,6 +1,6 @@
 # Tickets for Kalei 1.0 (Windows)
 
-Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 47 tickets: 01–39 with a few split into a and b, and 07c added after the sandbox spike.
+Local tickets, written as vertical slices (each one delivers something that can be run or checked end to end) from the [1.0 spec](../spec/1.0-windows.md). They are published as GitHub issues #1–#44 (the first number in each row is the file, the second the issue; the issue carries the same text with real issue numbers in "Blocked by"). The files stay as the source for the text. There are 48 tickets: 01–39 with a few split into a and b, 07c added after the sandbox spike and 03c (issue #56) after the reference-VM results.
 
 **Words used here**: "owner" is the owner of the repository; "agent" is an AI coding agent; WIC is the Windows Imaging Component; AOT is ahead-of-time compilation; n.v. is "not verified" (see the [TRD](../TRD.md)); "Ticket 0" in the other documents means the [feasibility spike document](../ticket-0.md) and the spike tickets that carry out its proofs (01–04 for Windows, 35 Linux, 36 macOS, 34 global gesture). "Main reference machine" is the Hyper-V Windows 10 VM and "Windows 11 PC" is the owner's desktop PC ([reference machines](../ticket-0.md#reference-machines)).
 
@@ -9,7 +9,7 @@ Local tickets, written as vertical slices (each one delivers something that can 
 **Rules**: the security requirements of [architecture](../architecture.md#security-requirements-normative-the-only-place-they-are-written), in short:
 S1 one Worker per Conversion · S2 limits and bomb protection · S3 type from content, Core reads headers only, parsers run in Workers · S4 safe output names, no overwrite, Source untouched · S5 no network for Workers (release gate) · S6 no automatic update or check · S7 temporary files only in Kalei's folder · S8 module integrity · S9 safe parsers and writers · S10 logs without paths · S11 mouse-only hook · S12 browser drops.
 
-Starting points (nothing blocks them): [01](01-sandbox-spike.md), [02](02-image-engine-content.md), [03a](03a-build-spike.md), [03b](03b-licence-and-signing-checks.md), [04](04-in-app-donut-spike.md), [35](35-linux-spike.md), [36](36-macos-spike.md).
+Starting points (nothing blocks them): [01](01-sandbox-spike.md), [02](02-image-engine-content.md), [03a](03a-build-spike.md), [03b](03b-licence-and-signing-checks.md), [03c](03c-w7-cold-start-breakdown.md), [04](04-in-app-donut-spike.md), [35](35-linux-spike.md), [36](36-macos-spike.md).
 Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-skeleton.md) → [07a](07a-ipc-protocol-and-worker-host.md) → [07b](07b-windows-sandbox-launcher.md) → [09a](09a-images-module-core.md) → [10a](10a-main-window-file-card.md) → [10b](10b-main-window-convert.md) → [15](15-name-clash-and-output-folder.md) → [14a](14a-batch-engine.md) → [14b](14b-batch-window.md) → [25](25-localisation-and-error-catalogue.md) → [33](33-final-verification.md). Tickets 34, 35 and 36 do not block 1.0.
 
 ## Windows spike (blocks 1.0)
@@ -41,6 +41,7 @@ Longest chain of dependencies: [03a](03a-build-spike.md) → [05](05-solution-sk
 ## Rest of 1.0
 | # | Title | Blocked by | Size | Rules | Status | Manual check |
 |---|---|---|---|---|---|---|
+| [03c](03c-w7-cold-start-breakdown.md) · [#56](https://github.com/AndreaAzzarello/kalei/issues/56) | W7 cold start: where the time goes | – | S | none | needs-owner-hardware | – |
 | [13](13-probe-and-preview.md) · [#18](https://github.com/AndreaAzzarello/kalei/issues/18) | Probe and Preview in the Worker: safe previews and thumbnails | 07a, 10a | M | S2, S3 | ready-for-agent | – |
 | [15](15-name-clash-and-output-folder.md) · [#21](https://github.com/AndreaAzzarello/kalei/issues/21) | Name clash choice and Output folder choice | 08, 10b | S | S4 | ready-for-agent | – |
 | [14a](14a-batch-engine.md) · [#19](https://github.com/AndreaAzzarello/kalei/issues/19) | Batch engine: folder walk, skip reasons, scheduling | 07b, 08, 15 | M | S2, S4 | ready-for-agent | – |
