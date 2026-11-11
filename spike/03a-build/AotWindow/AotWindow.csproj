@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- THROWAWAY spike for ticket 03a (W7). Not part of the product. -->
-  <!-- Publish variants: see measure.ps1 (Native AOT, and ReadyToRun plus trimming as the fallback). -->
+  <!-- THROWAWAY spike for tickets 03a and 03c (W7). Not part of the product. -->
+  <!-- Variants (03c): -p:Variant=a|b|c|d|e|f, see README.md and build-variants.ps1. Default a = the baseline measured in #47. -->
   <PropertyGroup>
+    <Variant Condition="'$(Variant)' == ''">a</Variant>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -13,12 +14,42 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <IsAotCompatible>true</IsAotCompatible>
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <DefineConstants>$(DefineConstants);VARIANT_$(Variant.ToUpperInvariant())</DefineConstants>
+  </PropertyGroup>
+
+  <!-- b, f: window shown at once with minimal content, the full view is loaded after the second frame. -->
+  <PropertyGroup Condition="'$(Variant)' == 'b' Or '$(Variant)' == 'f'">
+    <DefineConstants>$(DefineConstants);DEFERRED</DefineConstants>
+  </PropertyGroup>
+  <!-- c, f: only the Windows platform and Skia are referenced (no Avalonia.Desktop), explicit default font, ComboBox filled after the first frame. -->
+  <PropertyGroup Condition="'$(Variant)' == 'c' Or '$(Variant)' == 'f'">
+    <DefineConstants>$(DefineConstants);LEAN</DefineConstants>
+  </PropertyGroup>
+  <!-- d, f: runtime options. Microsoft's pages state no start-up gain for these (see README): they are hypotheses to measure. -->
+  <PropertyGroup Condition="'$(Variant)' == 'd' Or '$(Variant)' == 'f'">
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+    <TieredPGO>false</TieredPGO>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.6" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Variant)' != 'c' And '$(Variant)' != 'f'">
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Variant)' == 'c' Or '$(Variant)' == 'f'">
+    <PackageReference Include="Avalonia.Win32" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.6" />
+    <PackageReference Include="Avalonia.HarfBuzz" Version="12.1.6" />
+  </ItemGroup>
+
+  <!-- FullView only exists where the full content is loaded late. -->
+  <ItemGroup Condition="'$(Variant)' != 'b' And '$(Variant)' != 'f'">
+    <AvaloniaXaml Remove="FullView.axaml" />
+    <Compile Remove="FullView.axaml.cs" />
   </ItemGroup>
 
 </Project>

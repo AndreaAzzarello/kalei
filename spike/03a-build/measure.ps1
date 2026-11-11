@@ -17,7 +17,7 @@ foreach ($v in $Variants) {
         if (Test-Path $f) { Remove-Item $f }
         $p = Start-Process $exe -ArgumentList '--out', $f -PassThru
         if (-not $p.WaitForExit(30000)) { $p.Kill(); throw "$v run $i did not finish" }
-        $times += [double](Get-Content $f -Raw)
+        $times += [double](([IO.File]::ReadAllText($f) | ConvertFrom-Json).marks.frame2)
         Remove-Item $f
     }
     $sorted = $times | Sort-Object
