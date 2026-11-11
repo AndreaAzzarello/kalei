@@ -15,7 +15,7 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 Edit the "Label in our tracker" column to match whatever vocabulary you actually use.
 
 ## Project labels (Kalei)
-Besides the five roles above, the 47 tickets of [docs/tickets/](../tickets/README.md) carry:
+Besides the five roles above, the 48 tickets of [docs/tickets/](../tickets/README.md) carry:
 - Status: `ready-for-agent` (same string as the role) and `needs-owner-hardware` (needs the owner's VMs or devices).
 - Size: `size:S`, `size:M`, `size:L`.
 - Group: `group:spike`, `group:core`, `group:1.0`, `group:release`, `group:non-blocking` (the sections of the tickets index).

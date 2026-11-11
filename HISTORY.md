@@ -2,6 +2,13 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-11 #28 — Reference VM results (issue #47): W1–W4, W8, W10 pass, W7 fails
+- Hyper-V VM, Windows 10 Pro 22H2 build 19045.6456, 2 vCPU, 4 GB, host disk a SATA SSD; firewall services and profiles on, Defender only, no third-party firewall. **W1–W4 pass** (15 pass, 0 fail): the sandbox converts PNG to AVIF and WebP, TCP, UDP, DNS and loopback fail inside and succeed outside, handles are seekable, no admin needed; **W8 pass** (trimmed Worker 10 of 10). ADR 0003 and 0006 are now accepted for Windows 11 and Windows 10 22H2; the stopped-firewall states stay open (W19, W20).
+- **W7 fails** with ReadyToRun + trimming: median 1122.7 ms over 10 cold starts (min 1020.8, max 1614.8) against 1000 ms. ADR 0001 unchanged, decision open: new ticket 03c (issue #56) breaks the start into phases and tries optimisations without AOT before the owner chooses between AOT (ticket 38), a revised threshold and optimisation. Tickets are now 48.
+- **W10 passes** (criterion 1 of ticket 04): 10 valid cold rows, frame2 median 32.2 ms, max 53.5 ms, 10 of 10 under 100 ms, drops Copy and source unchanged 10 of 10. One file per drop and one screen at 100%; the first round (31.4 ms by eye) was lost when the kit restarted the phase. Issue #5 closes.
+- The kit's final script hung in the W10 phase: `Get-Content` lines in the JSON expand to a huge object tree in Windows PowerShell 5.1 (`PSPath`, `PSDrive`), so `w10.json` was never written and a restart repeated W10. Reproduced on the host; the sanitised report was composed there from the raw files. The firewall kit (W19) does not use that code.
+- The temporary automatic sign-in was removed by the system task (reported `ok`); the report's own registry check did not run because the VM was already back at its checkpoint.
+
 ## 2026-11-10 #27 — Donut scaling proof (ticket 04, criterion 3 passes)
 - Second run on the Windows 11 dev PC with the fixed log: 150% (10 valid cold rows, frame2 median 36.0 ms, max 43.5), 200% (5 rows, 28.2 ms), and the window across the edge of two screens at 150%/100% (28.0 ms) and 200%/100% (26.3 ms), 5 rows each. 25 of 25 under 100 ms, ring inside the window 25 of 25, drops Copy and source unchanged 25 of 25, ring whole and centred by eye. The 150% series is the slowest, well under the limit; cause not measured.
 - The recorded screen index differs between series because the straddling window sits half on each screen; the ring is placed from the cursor in the window's own units, not from the screen. One pair (index 2, scale 2.00) is not explained.
