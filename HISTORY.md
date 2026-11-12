@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-12 #30 — W7 decision: threshold 1.3 s, ReadyToRun + trimming ships, AOT optional
+- Owner decision after ticket 03c. **Threshold revised from 1 s to 1.3 s** (median of 10 cold starts, second frame, reference VM with 2 vCPU, 4 GB, SATA SSD, Defender). Reason: the cold start is the worst case, and the measured values go from about 970 ms (files already scanned) to about 1120 ms (first start after copy, #47), both inside with a headroom of 332 and 177 ms; the 1 s was an initial value not derived from data. Revised after the measures, with the figures recorded in ticket-0. No warm target existed in the documents (418 ms is a measurement).
+- ADR 0001 now says the UI ships with ReadyToRun + trimming; Native AOT is **not mandatory**, an opportunistic trial after the CI (ticket 38) with numbers to beat on the VM (968 ms; 811 ms with software rendering) and the same kit without the automatic sign-in. PRD, TRD, architecture, 1.0 spec, release pipeline, tickets 03a, 03c and 38 follow.
+- Software rendering is not adopted yet (ticket 03d, issue #58): GPU against software on the Windows 11 PC. Open risk: the Bricolage Grotesque font is not in the spike and may raise the start-up time; measured again with the real window (ticket 10a).
+
 ## 2026-11-12 #29 — W7 cold-start breakdown on the reference VM (ticket 03c, issue #56)
 - 45 valid cold starts of six variants of the spike window (ReadyToRun + trimming, same measure as #47, reboot + 150 s before each start, unmeasured warm-up, order rotated; a, b, d x10, c, e, f x5). Baseline **968 ms** median (925–993), 10 of 10 under 1 s, where #47 gave 1122.7 ms: the method differs and the data cannot say which factor weighs; the baseline also rises about 7 ms per round.
 - Where the time goes (baseline): first managed code 210 ms, up to Main 278 ms (29%), builder + Avalonia/Skia platform 375 ms (39%), theme + window + layout + second frame about 300 ms. About two thirds of the start is waiting (CPU 313 ms of 968), cause not measured.

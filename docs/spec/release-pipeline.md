@@ -7,7 +7,7 @@ Windows 10 22H2 (build 19045) and Windows 11, x64. No ARM64 build in 1.0. Per-us
 
 ## Pipeline, in order
 1. **Restore, build, test, format check** (`dotnet build`, `dotnet test`, `dotnet format --verify-no-changes`). Any failure stops the pipeline.
-2. **Publish the app** with the build mode the build spike chose (Native AOT, or ReadyToRun and trimming if W7 fails).
+2. **Publish the app** with ReadyToRun and trimming (ADR 0001; Native AOT only if the trial of ticket 38 is adopted).
 3. **Publish the Worker executable** self-contained and trimmed, with warnings as errors (W9).
 4. **Third-party notices**: generate THIRD-PARTY-NOTICES from the dependency list and the licence texts (libvips and other LGPL notices with the source offer, the OFL text for the font once the original licence text of Mayenne Sans is obtained (TRD to-do), MIT/BSD/Apache texts); the About page shows it. A missing licence text fails the build.
 5. **Sign the executables**, only if W18 confirmed that SignPath Foundation accepts the project.

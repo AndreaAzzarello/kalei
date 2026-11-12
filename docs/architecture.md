@@ -5,7 +5,7 @@ Decisions behind this are in [docs/adr](adr/). Terms: [GLOSSARY.md](../GLOSSARY.
 ## Shape
 
 ```
-Kalei.App (Avalonia, Native AOT)        UI only: states, drop zone, accent, settings
+Kalei.App (Avalonia, R2R + trimmed)     UI only: states, drop zone, accent, settings
    │ calls
 Kalei.Core (pure .NET, no UI)           format detection (header only), queue, limits, module manager,
    │                                    output naming, temp/log policy, Broker

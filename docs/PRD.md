@@ -46,7 +46,7 @@ The limits table (limit, default, whether editable, hard maximum, enforcing comp
 
 ## Success criteria
 Thresholds and measuring method are in [ticket-0.md](ticket-0.md). **Reference machine**: a Hyper-V virtual machine with Windows 10 22H2, 2 vCPU, 4 GB RAM and a virtual SSD (the worst case, reproducible); startup, memory and Donut latency are measured there and confirmed on a Windows 11 desktop PC.
-- Installer: target ≤ 45 MB, acceptable ≤ 60 MB; above that the scope is reviewed. Cold start ≤ 1 s on the reference machine (otherwise ReadyToRun instead of Native AOT, ADR 0001).
+- Installer: target ≤ 45 MB, acceptable ≤ 60 MB; above that the scope is reviewed. Cold start ≤ 1.3 s (median of 10) on the reference machine, with the UI published as ReadyToRun + trimming (threshold revised from 1 s on 2026-11-12 after measuring, see [ticket-0](ticket-0.md#w7--decision-after-ticket-03c-2026-11-12) and ADR 0001; Native AOT is an optional trial).
 - A user converts a file in at most three actions (drop, check target, Convert).
 - **Conditional on gate S5:** a TCP connect and a DNS lookup from inside a Worker both fail (sandbox test); if the gate fails for an OS, this criterion and the matching README claim are removed for that OS.
 - Malformed, oversized and mislabeled files fail cleanly, with a message, and leave no temporary files (checked by a sample per Format, including corrupt, oversized and wrong-extension files).
