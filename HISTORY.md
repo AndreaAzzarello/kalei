@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-12 #29 — W7 cold-start breakdown on the reference VM (ticket 03c, issue #56)
+- 45 valid cold starts of six variants of the spike window (ReadyToRun + trimming, same measure as #47, reboot + 150 s before each start, unmeasured warm-up, order rotated; a, b, d x10, c, e, f x5). Baseline **968 ms** median (925–993), 10 of 10 under 1 s, where #47 gave 1122.7 ms: the method differs and the data cannot say which factor weighs; the baseline also rises about 7 ms per round.
+- Where the time goes (baseline): first managed code 210 ms, up to Main 278 ms (29%), builder + Avalonia/Skia platform 375 ms (39%), theme + window + layout + second frame about 300 ms. About two thirds of the start is waiting (CPU 313 ms of 968), cause not measured.
+- Variants: window first (b) 918 ms but complete content 986 ms, no real gain; lean start (c) +23 ms; runtime options with ReadyToRun composite (d) **+578 ms**, worse in every phase; b + c + d (f) +530 ms; software rendering (e) **811 ms, −150 ms** (platform services 280 → 153 ms).
+- Not verified: Native AOT, software rendering on a PC with a GPU, the cause of the drift and of the gap to #47, the real font in the window. Raw data and report stay out of the repository; code and kit on `spike/03a-build` (`92efe87`, `8abb070`).
+
 ## 2026-11-11 #28 — Reference VM results (issue #47): W1–W4, W8, W10 pass, W7 fails
 - Hyper-V VM, Windows 10 Pro 22H2 build 19045.6456, 2 vCPU, 4 GB, host disk a SATA SSD; firewall services and profiles on, Defender only, no third-party firewall. **W1–W4 pass** (15 pass, 0 fail): the sandbox converts PNG to AVIF and WebP, TCP, UDP, DNS and loopback fail inside and succeed outside, handles are seekable, no admin needed; **W8 pass** (trimmed Worker 10 of 10). ADR 0003 and 0006 are now accepted for Windows 11 and Windows 10 22H2; the stopped-firewall states stay open (W19, W20).
 - **W7 fails** with ReadyToRun + trimming: median 1122.7 ms over 10 cold starts (min 1020.8, max 1614.8) against 1000 ms. ADR 0001 unchanged, decision open: new ticket 03c (issue #56) breaks the start into phases and tries optimisations without AOT before the owner chooses between AOT (ticket 38), a revised threshold and optimisation. Tickets are now 48.
