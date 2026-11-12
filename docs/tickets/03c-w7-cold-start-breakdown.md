@@ -1,6 +1,6 @@
 # 03c — W7 cold start: where the time goes
 
-- **Status**: done (2026-11-12)
+- **Status**: needs-owner-hardware
 - **Size**: S
 - **Blocked by**: –
 - **Rules**: none

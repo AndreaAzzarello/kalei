@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-12 #31 — Ticket 03d (issue #58): software rendering or GPU
+- New ticket 03d (group:1.0, size S, needs-owner-hardware, issue #58): on the Windows 11 PC with a GPU compare the default (GPU) with software rendering on warm start-up, Donut latency at 100% and 300%, smoothness of the ring rotation and colour change (frame times over 5 s) and CPU use. Software rendering is adopted only if the Donut stays at 100 ms or less and the animation is smooth; the automatic choice (software only without a usable GPU) is evaluated with Avalonia's documentation (default list `AngleEgl`, then `Software`; automatic fallback when no GPU).
+- The meaning of "smooth" (at most 1% of frames over 33 ms, median within 10% of the refresh period) is a proposal in the ticket, to be confirmed before the run.
+- Ticket 10a gets a criterion: cold start of the real window within 1.3 s on the reference machine, with the font risk recorded. Tickets are now 49 (index, `CLAUDE.md` and the labels page updated); links and ticket structure checked (0 errors).
+
 ## 2026-11-12 #30 — W7 decision: threshold 1.3 s, ReadyToRun + trimming ships, AOT optional
 - Owner decision after ticket 03c. **Threshold revised from 1 s to 1.3 s** (median of 10 cold starts, second frame, reference VM with 2 vCPU, 4 GB, SATA SSD, Defender). Reason: the cold start is the worst case, and the measured values go from about 970 ms (files already scanned) to about 1120 ms (first start after copy, #47), both inside with a headroom of 332 and 177 ms; the 1 s was an initial value not derived from data. Revised after the measures, with the figures recorded in ticket-0. No warm target existed in the documents (418 ms is a measurement).
 - ADR 0001 now says the UI ships with ReadyToRun + trimming; Native AOT is **not mandatory**, an opportunistic trial after the CI (ticket 38) with numbers to beat on the VM (968 ms; 811 ms with software rendering) and the same kit without the automatic sign-in. PRD, TRD, architecture, 1.0 spec, release pipeline, tickets 03a, 03c and 38 follow.
