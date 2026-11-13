@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #39 — Graphify rule: code-only updates
+- `CLAUDE.md`: the graph is updated only with `/graphify . --code-only --update` (AST, free). Document extraction only on the owner's explicit request.
+- Reference cost: the full graph of 2026-11-13 used 547,410 tokens, all on documents; code cost 0.
+
 ## 2026-11-13 #38 — Ticket 05 merged (#60); no .pdb in releases; Graphify index
 - PR #60 squash-merged (ticket 05, issue #6 closed). Tickets 30 (criterion 6, ZIP) and 31 (criterion 7, installer) now require that the release publish contains no `.pdb` file, in particular the native ones of SkiaSharp and HarfBuzzSharp (about 100 MB in a plain publish); checked by listing the files; issues #37 and #38 updated.
 - Graphify run on the repository (129 files: 36 code, 82 documents, 11 images skipped to save tokens): 533 nodes, 788 edges, 35 communities. Code (AST) 212 nodes and 324 edges at no token cost; documents 316 nodes and 535 edges from 4 Haiku subagents, 547,410 tokens in total (input and output together). Health: 68 edges with an endpoint that is not a node, 25 collapsed same-endpoint edges. `graphify-out/` is local and ignored by git.

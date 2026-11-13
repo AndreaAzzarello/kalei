@@ -40,7 +40,7 @@ Zero telemetry.
 - One commit per step with a clear message; add a dated entry to `HISTORY.md` at every commit.
 - Push, repository creation and releases only after explicit user confirmation.
 - Close any dev server or process you start.
-- Graphify: do not generate the graph yet. When the project exceeds a few thousand lines run `graphify . --code-only`.
+- Graphify: update the graph only with `/graphify . --code-only --update` (AST, no token cost). No document extraction unless the owner asks explicitly. Reference cost: the full graph of 2026-11-13 cost 547,410 tokens, all on documents (code 0).
 
 ## Design
 Read docs/design-brief.md before touching UI. Accent follows the file Category; keep WCAG AA contrast; respect Windows "Reduce animations".
