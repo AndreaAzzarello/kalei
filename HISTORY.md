@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #42 — Ticket 07a, phase 1: IPC specification v1 (PR, not merged)
+- `docs/ipc-spec.md` is v1: every message with fields, limits and a JSON example (all examples parsed); version negotiation (exact match, `1`); framing with unsigned length, 1 MB protocol maximum, a size cap per message type (only the `PreviewData` payload reaches 1 MB) and a rate cap of 100 frames per second; session state machine; watchdog table; case table for malformed, unknown, oversized and out-of-sequence frames, each with a closed log reason and an error code. New code `E_CRASH`. Decisions D1–D9 recorded as taken by the owner.
+- Handshake margin written with the measured data: the Worker's cold start was never measured (warm 46–48 ms); against the UI's cold figures on the VM the 5 s timeout is 18 times `Main` (278 ms) and 3.1 times the slowest full-window start (1,614.8 ms), an inference. Ticket 07b must measure `Hello` cold.
+- `architecture.md` and `module-manifest.md` aligned (string options at most 256 bytes). Documents only, no code.
+
 ## 2026-11-13 #41 — Ruleset on main: PR and green CI required
 - PR #61 (ticket 39) squash-merged, issue #52 closed. Ruleset `main` created on the default branch and active, with an empty bypass list: pull request required (0 approvals, solo owner), required status check `build`, force push and branch deletion blocked, branch not required to be up to date. Checked with `gh api` (rules listed for `main`: deletion, non_fast_forward, pull_request, required_status_checks).
 - `CLAUDE.md`: no direct push to `main`, every change goes through a branch and a PR. Not tested by an actual rejected push (the agent did not push to `main` on purpose).
