@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #32 — Ticket 05 preparation: decisions recorded before the skeleton
+- Ticket 03d: the meaning of "smooth" is confirmed (at most 1% of frames over 33 ms, median within 10% of the refresh period).
+- Spec and ticket 05 aligned: no interface for the global pointer hook or shell integration in 1.0; the Core ban on `Microsoft.Win32.*` excepts `Microsoft.Win32.SafeHandles` (file handles for the Broker, ticket 08).
+- Globalization decided: `InvariantGlobalization` is not set solution-wide. App off (Italian formatting); Core and Donut never use the OS culture; the Worker may use the invariant mode only with explicit `NumberFormatInfo` in code, with a test of `1.234,56` on the published Worker (tickets 20a, 20b, 22; TRD with the Microsoft sources and what they do not state).
+
 ## 2026-11-12 #31 — Ticket 03d (issue #58): software rendering or GPU
 - New ticket 03d (group:1.0, size S, needs-owner-hardware, issue #58): on the Windows 11 PC with a GPU compare the default (GPU) with software rendering on warm start-up, Donut latency at 100% and 300%, smoothness of the ring rotation and colour change (frame times over 5 s) and CPU use. Software rendering is adopted only if the Donut stays at 100 ms or less and the animation is smooth; the automatic choice (software only without a usable GPU) is evaluated with Avalonia's documentation (default list `AngleEgl`, then `Software`; automatic fallback when no GPU).
 - The meaning of "smooth" (at most 1% of frames over 33 ms, median within 10% of the refresh period) is a proposal in the ticket, to be confirmed before the run.

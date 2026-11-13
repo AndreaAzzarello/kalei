@@ -15,3 +15,4 @@ A user turns a JSON array into a spreadsheet or CSV and back, with predictable f
 2. An array of plain values becomes a single column value; ragged objects give the union of keys with empty cells; JSON that is not an array gives E_FORMAT with a clear message.
 3. A table converts to a JSON array of objects, recognising numbers including Italian numbers.
 4. Round-trip tests keep the data for the supported shapes.
+5. Globalization constraint ([TRD](../TRD.md#culture-and-globalization-decided-2026-11-13)): recognising Italian numbers uses explicit `NumberFormatInfo` defined in code, never the OS culture; a test on the published Worker (invariant mode allowed) converts a table with `1.234,56` to JSON `1234.56`.
