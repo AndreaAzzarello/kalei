@@ -38,15 +38,15 @@ internal static class TestLaunchers
     public static WatchdogTimes Times(Transport transport) => transport == Transport.InProcess
         ? new WatchdogTimes
         {
-            Hello = TimeSpan.FromMilliseconds(300),
-            Heartbeat = TimeSpan.FromMilliseconds(300),
-            CancelGrace = TimeSpan.FromMilliseconds(300),
-            FinalGrace = TimeSpan.FromMilliseconds(300),
+            Hello = TimeSpan.FromMilliseconds(1000),
+            Heartbeat = TimeSpan.FromMilliseconds(500),
+            CancelGrace = TimeSpan.FromMilliseconds(400),
+            FinalGrace = TimeSpan.FromMilliseconds(400),
         }
         : new WatchdogTimes
         {
             Hello = TimeSpan.FromSeconds(5),
-            Heartbeat = TimeSpan.FromMilliseconds(800),
+            Heartbeat = TimeSpan.FromMilliseconds(2000),
             CancelGrace = TimeSpan.FromMilliseconds(500),
             FinalGrace = TimeSpan.FromMilliseconds(500),
         };

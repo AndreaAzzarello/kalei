@@ -53,6 +53,8 @@ internal sealed class WorkerHost(Stream fromCore, Stream toCore, IRequestHandler
 
         if (first == next)
         {
+            // Let the engine unwind (it was told to stop), but not for long: the Core kills this process after 3 s anyway.
+            await Task.WhenAny(work, Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None)).ConfigureAwait(false);
             _ = work.ContinueWith(static t => _ = t.Exception, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
             return await next.ConfigureAwait(false) is { Message: CancelMessage } ? Done : ProtocolError;
         }
