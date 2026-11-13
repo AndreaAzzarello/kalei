@@ -4,7 +4,7 @@
 
 Kalei is a small desktop app that converts files between formats on your own PC. You drop a file (or a folder), check the proposed target format and press Convert. It is open source (MIT).
 
-> **Status: pre-alpha, documents only.** There is no code and no download yet. This repository holds the design: what Kalei will do, how it is built, and the tickets to build it. Nothing below is shipped; "planned" means exactly that.
+> **Status: pre-alpha, design and a code skeleton.** There is no working converter and no download yet. This repository holds the design: what Kalei will do, how it is built, and the tickets to build it. Nothing below is shipped; "planned" means exactly that.
 
 ## What it aims to be
 
@@ -29,6 +29,21 @@ Kalei is inspired by Filee (https://github.com/KnifeLemon/Filee, MIT), which pio
 ## Stack
 
 Avalonia 12 on .NET 10; conversion engines run in separate processes. Details and licences are in the [TRD](docs/TRD.md).
+
+## Build from source (developers)
+
+Needs the .NET SDK pinned in `global.json` (10.0.404 or a later 10.0 feature band, runtime 10.0.14 or later).
+
+```powershell
+dotnet build -warnaserror
+dotnet test
+dotnet format --verify-no-changes
+# Published shapes (App: ReadyToRun + trimmed; Worker: trimmed), warnings as errors
+dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained -p:TreatWarningsAsErrors=true
+dotnet publish src/Kalei.Worker.Builtin -c Release -r win-x64 --self-contained -p:TreatWarningsAsErrors=true
+```
+
+Layout: `src/Kalei.App` (UI), `src/Kalei.Core` (no OS API), `src/Kalei.Donut` (pure library), `src/Kalei.Platform.Windows` (adapters), `src/Kalei.Worker.Builtin`, `tests/Kalei.Tests`, `tests/samples` (see its README).
 
 ## Licence
 

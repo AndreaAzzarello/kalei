@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #37 — Ticket 05: samples, publish checks, documents
+- `tests/samples/README.md` (rules; large samples generated, `tests/samples/generated/` ignored by git). A guard test keeps `InvariantGlobalization` out of `Directory.Build.props`, off in the App and unset in Core and Donut.
+- Publish checked locally with warnings as errors: App (ReadyToRun + trimmed, self-contained win-x64) and Worker (trimmed) both succeed with no trimming warning; the published Worker exits 0; App assemblies carry the ReadyToRun header, the Worker's do not (as decided). App folder 55.0 MB without `.pdb` files, but the publish also copies two native `.pdb` (libSkiaSharp 80 MB, libHarfBuzzSharp 20 MB) that the release pipeline must leave out (tickets 30 and 31).
+- Measured in invariant mode (TRD): `it-IT` cannot be created and `1.234,56` fails with the invariant culture, while an explicit `NumberFormatInfo` in code parses and formats it. Not verified: cold start of the window (ticket 10a), the CI (ticket 39), other machines.
+
 ## 2026-11-13 #36 — Ticket 05: logging abstraction without paths (criterion 7, S10)
 - `IKaleiLog.Write(LogEvent)`; `LogEvent` holds only a level, a code and an optional duration (no string, object, Uri, FileSystemInfo or Exception). A shape test reads every public member of the logging types and fails on any free-text or path-like type; eight deliberately bad sample types prove that each way of smuggling a path in is caught.
 - The file writer with rotation and the log scan are ticket 26.
