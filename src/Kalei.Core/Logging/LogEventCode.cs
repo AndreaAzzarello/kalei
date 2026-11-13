@@ -8,4 +8,7 @@ public enum LogEventCode
 {
     /// <summary>Network canary verdict (architecture.md, S5).</summary>
     NetCanary,
+
+    /// <summary>A request to a Worker ended because the channel failed: protocol violation, crash or time-out (ipc-spec.md).</summary>
+    IpcEnd,
 }
