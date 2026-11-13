@@ -8,11 +8,16 @@ namespace Kalei.Tests.Ipc;
 /// <summary>The Worker side of the protocol (ticket 07a): what the Worker host sends, and how it treats a Core it does not trust.</summary>
 public sealed class WorkerHostTests
 {
-    private sealed class DelayedResult(TimeSpan delay) : IRequestHandler
+    /// <summary>Finishes only when the test says so, so the test never depends on how fast the machine is.</summary>
+    private sealed class GatedResult : IRequestHandler
     {
+        private readonly TaskCompletionSource _open = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public void Release() => _open.TrySetResult();
+
         public async Task<IpcMessage> HandleAsync(IpcMessage request, CancellationToken cancellationToken)
         {
-            await Task.Delay(delay, cancellationToken);
+            await _open.Task.WaitAsync(cancellationToken);
             return new ResultMessage { OutputBytes = 7 };
         }
     }
@@ -129,23 +134,36 @@ public sealed class WorkerHostTests
     }
 
     [Fact]
-    public async Task SlowRequest_SendsPureHeartbeats_ThenTheAnswer()
+    public async Task SlowRequest_SendsPureHeartbeatsAtASteadyPace_ThenTheAnswer()
     {
-        var core = new FakeCore(new DelayedResult(TimeSpan.FromMilliseconds(500)), TimeSpan.FromMilliseconds(100));
+        var handler = new GatedResult();
+        var core = new FakeCore(handler, TimeSpan.FromMilliseconds(100));
         await core.HandshakeAsync();
         await core.SendAsync(FrameTests.ConvertSample());
 
-        var heartbeats = 0;
-        IpcMessage? last;
-        while ((last = await core.ReadAsync()) is ProgressMessage progress)
+        var arrivals = new List<TimeSpan>();
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        while (arrivals.Count < 4)
         {
+            var progress = Assert.IsType<ProgressMessage>(await core.ReadAsync());
             Assert.Null(progress.Fraction);
             Assert.Null(progress.Bytes);
-            heartbeats++;
+            arrivals.Add(clock.Elapsed);
+        }
+
+        handler.Release();
+        IpcMessage? last;
+        while ((last = await core.ReadAsync()) is ProgressMessage)
+        {
         }
 
         Assert.IsType<ResultMessage>(last);
-        Assert.InRange(heartbeats, 3, 10); // every 100 ms for half a second, never faster than 10 per second
+        // Never faster than 10 per second: 100 ms apart, with a little slack for timer rounding.
+        for (var i = 1; i < arrivals.Count; i++)
+        {
+            Assert.True(arrivals[i] - arrivals[i - 1] >= TimeSpan.FromMilliseconds(50), "heartbeats came faster than the interval");
+        }
+
         Assert.Equal(0, await core.Run);
     }
 
