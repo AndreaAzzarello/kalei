@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows implementations of the Core's Platform adapter interfaces. -->
+  <PropertyGroup>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kalei.Core\Kalei.Core.csproj" />
+  </ItemGroup>
+
+</Project>

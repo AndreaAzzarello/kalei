@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Worker executable for the built-in Modules. Published self-contained and trimmed, not AOT (ADR 0001):
+       dotnet publish -c Release -r win-x64 (self-contained) -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <!-- Allowed only while every number and date is parsed and formatted with NumberFormatInfo / DateTimeFormatInfo
+         defined in code, never the OS culture (docs/TRD.md, "Culture and globalization"). -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kalei.Core\Kalei.Core.csproj" />
+  </ItemGroup>
+
+</Project>

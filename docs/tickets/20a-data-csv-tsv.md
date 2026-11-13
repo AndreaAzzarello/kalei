@@ -18,3 +18,4 @@ A user converts between CSV and TSV, including Italian files, safely, and sees t
 5. A file one byte over the data and text size limit gives E_SIZE.
 6. The file card shows the first lines of a CSV or TSV file (through Preview), and the preselected target of TSV is CSV as in the spec table.
 7. Samples: valid, truncated, wrong extension, Italian with ;, Windows-1252, UTF-16.
+8. Globalization constraint ([TRD](../TRD.md#culture-and-globalization-decided-2026-11-13)): the Worker may run with InvariantGlobalization only if every number and date is parsed and formatted with `NumberFormatInfo` and `DateTimeFormatInfo` defined in code, never the OS culture; a test on the **published** Worker proves that `1.234,56` is read as 1234.56.

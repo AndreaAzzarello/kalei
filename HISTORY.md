@@ -2,6 +2,32 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #37 — Ticket 05: samples, publish checks, documents
+- `tests/samples/README.md` (rules; large samples generated, `tests/samples/generated/` ignored by git). A guard test keeps `InvariantGlobalization` out of `Directory.Build.props`, off in the App and unset in Core and Donut.
+- Publish checked locally with warnings as errors: App (ReadyToRun + trimmed, self-contained win-x64) and Worker (trimmed) both succeed with no trimming warning; the published Worker exits 0; App assemblies carry the ReadyToRun header, the Worker's do not (as decided). App folder 55.0 MB without `.pdb` files, but the publish also copies two native `.pdb` (libSkiaSharp 80 MB, libHarfBuzzSharp 20 MB) that the release pipeline must leave out (tickets 30 and 31).
+- Measured in invariant mode (TRD): `it-IT` cannot be created and `1.234,56` fails with the invariant culture, while an explicit `NumberFormatInfo` in code parses and formats it. Not verified: cold start of the window (ticket 10a), the CI (ticket 39), other machines.
+
+## 2026-11-13 #36 — Ticket 05: logging abstraction without paths (criterion 7, S10)
+- `IKaleiLog.Write(LogEvent)`; `LogEvent` holds only a level, a code and an optional duration (no string, object, Uri, FileSystemInfo or Exception). A shape test reads every public member of the logging types and fails on any free-text or path-like type; eight deliberately bad sample types prove that each way of smuggling a path in is caught.
+- The file writer with rotation and the log scan are ticket 26.
+
+## 2026-11-13 #35 — Ticket 05: adapter interfaces and Windows paths (criteria 2 and 3)
+- Core.Platform: `IPlatformPaths` and `IInstallerLayout` complete (`InstallMode`, `DataFolderStatus`); `ISandboxLauncher`, `IPlatformImageCodec` and `IFileOrigin` are empty and name the ticket that defines their members (07a/07b, 09a/18, 27). No hook or shell interface.
+- Platform.Windows: `WindowsInstallerLayout` (marker `kalei.portable`) and `WindowsPlatformPaths` (installed `%LOCALAPPDATA%\Kalei`, portable `data` next to the executable; logs, settings.json, temp). `CheckDataFolder` reports a folder that cannot be written. Tests written first cover both modes and the not-writable case.
+
+## 2026-11-13 #34 — Ticket 05: dependency test (criterion 4)
+- Metadata scanner (System.Reflection.Metadata, nothing loaded) with one rule per assembly: Core (no System.Net.*, Process, Pipes, Microsoft.Win32.* except SafeHandles, native calls), App (no System.Net.*), Donut (no UI or OS API, no other Kalei project). A fixture that breaks every rule proves the scanner sees each one; the three real assemblies pass.
+- Tests run on Microsoft.Testing.Platform (xunit.v3), which .NET 10 requires for `dotnet test` (set in `global.json`).
+
+## 2026-11-13 #33 — Ticket 05: solution, projects and build settings
+- Kalei.slnx with Kalei.App (Avalonia 12.1.6, empty window), Kalei.Core, Kalei.Donut, Kalei.Platform.Windows, Kalei.Worker.Builtin and tests/Kalei.Tests (xunit.v3); all net10.0, central package versions, `global.json` pins SDK 10.0.404 (runtime 10.0.15 installed, above the 10.0.14 floor).
+- Build settings: warnings as errors, analyzers at latest-recommended, NuGet audit on, no solution-wide InvariantGlobalization (App explicitly off, Worker on with the TRD constraint). Build and format check pass.
+
+## 2026-11-13 #32 — Ticket 05 preparation: decisions recorded before the skeleton
+- Ticket 03d: the meaning of "smooth" is confirmed (at most 1% of frames over 33 ms, median within 10% of the refresh period).
+- Spec and ticket 05 aligned: no interface for the global pointer hook or shell integration in 1.0; the Core ban on `Microsoft.Win32.*` excepts `Microsoft.Win32.SafeHandles` (file handles for the Broker, ticket 08).
+- Globalization decided: `InvariantGlobalization` is not set solution-wide. App off (Italian formatting); Core and Donut never use the OS culture; the Worker may use the invariant mode only with explicit `NumberFormatInfo` in code, with a test of `1.234,56` on the published Worker (tickets 20a, 20b, 22; TRD with the Microsoft sources and what they do not state).
+
 ## 2026-11-12 #31 — Ticket 03d (issue #58): software rendering or GPU
 - New ticket 03d (group:1.0, size S, needs-owner-hardware, issue #58): on the Windows 11 PC with a GPU compare the default (GPU) with software rendering on warm start-up, Donut latency at 100% and 300%, smoothness of the ring rotation and colour change (frame times over 5 s) and CPU use. Software rendering is adopted only if the Donut stays at 100 ms or less and the animation is smooth; the automatic choice (software only without a usable GPU) is evaluated with Avalonia's documentation (default list `AngleEgl`, then `Software`; automatic fallback when no GPU).
 - The meaning of "smooth" (at most 1% of frames over 33 ms, median within 10% of the refresh period) is a proposal in the ticket, to be confirmed before the run.

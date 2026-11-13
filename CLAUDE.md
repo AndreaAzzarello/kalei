@@ -22,7 +22,7 @@ At the start of every session read the last 3 entries of `HISTORY.md`.
 - [HISTORY.md](HISTORY.md): dated log of changes; [assets/icon/](assets/icon/): icon sources
 
 ## Commands
-Run through the Bash tool without full paths: `dotnet build`, `dotnet test`. Lint/format: `dotnet format --verify-no-changes`. (Solution does not exist yet; created by the build spike, ticket 03a, and the skeleton, ticket 05.)
+Run through the Bash tool without full paths: `dotnet build -warnaserror`, `dotnet test` (Microsoft.Testing.Platform, set in `global.json`). Lint/format: `dotnet format --verify-no-changes`. Publish checks (trimming warnings as errors): `dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained -p:TreatWarningsAsErrors=true`, same for `src/Kalei.Worker.Builtin`. The solution is `Kalei.slnx` (ticket 05).
 
 ## Security requirements (non-negotiable)
 The only place they are written is [docs/architecture.md](docs/architecture.md#security-requirements-normative-the-only-place-they-are-written) (S1–S12). Do not copy their text elsewhere; use this checklist:

@@ -1,0 +1,6 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Kalei.App.MainWindow"
+        Title="Kalei" Width="640" Height="420" WindowStartupLocation="CenterScreen">
+  <!-- Empty shell: the real window is ticket 10a. -->
+</Window>

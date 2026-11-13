@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kalei.Core\Kalei.Core.csproj" />
+    <ProjectReference Include="..\..\src\Kalei.Donut\Kalei.Donut.csproj" />
+    <ProjectReference Include="..\..\src\Kalei.Platform.Windows\Kalei.Platform.Windows.csproj" />
+    <ProjectReference Include="..\..\src\Kalei.App\Kalei.App.csproj" />
+  </ItemGroup>
+
+</Project>

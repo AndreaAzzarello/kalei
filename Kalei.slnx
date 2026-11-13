@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kalei.App/Kalei.App.csproj" />
+    <Project Path="src/Kalei.Core/Kalei.Core.csproj" />
+    <Project Path="src/Kalei.Donut/Kalei.Donut.csproj" />
+    <Project Path="src/Kalei.Platform.Windows/Kalei.Platform.Windows.csproj" />
+    <Project Path="src/Kalei.Worker.Builtin/Kalei.Worker.Builtin.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kalei.Tests/Kalei.Tests.csproj" />
+  </Folder>
+</Solution>
