@@ -75,7 +75,10 @@ jobs:
         # PublishedWorkerTests, which publishes the Worker trimmed and talks to it over real pipes.
         run: |
           & ./publish/worker/Kalei.Worker.Builtin.exe
-          if ($LASTEXITCODE -ne 2) { throw "Worker exited with code $LASTEXITCODE, expected 2" }
+          $code = $LASTEXITCODE
+          if ($code -ne 2) { throw "Worker exited with code $code, expected 2" }
+          # The step must not inherit the expected exit code 2 as its own result.
+          $global:LASTEXITCODE = 0
 
       - name: Publish App (ReadyToRun and trimmed, warnings as errors)
         run: dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/app
