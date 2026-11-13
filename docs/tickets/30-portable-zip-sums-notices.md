@@ -17,3 +17,4 @@ A reproducible build produces a portable ZIP, a first checksum file and the lice
    The notices also carry the Inno Setup copyright lines ("Copyright (C) 1997-2026 Jordan Russell", "Portions Copyright (C) 2000-2026 Martijn Laan") and its web address (https://jrsoftware.org/): the installer is treated as binary redistribution (owner decision, [TRD](../TRD.md)). Only Bricolage Grotesque is cited for the font; no mention of its ancestor.
 4. About shows the notices.
 5. A provisional SHA256SUMS for the unsigned ZIP is produced; the README explains how to verify a download and how to run the clean-up command before deleting a portable folder.
+6. The release publish contains no `.pdb` file, in particular not the native ones of SkiaSharp and HarfBuzzSharp (`libSkiaSharp.pdb` and `libHarfBuzzSharp.pdb`, about 100 MB together in a plain publish, ticket [05](05-solution-skeleton.md)). Checked by listing the files of the ZIP; the build fails if any `.pdb` is listed.

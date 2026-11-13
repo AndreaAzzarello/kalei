@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #38 — Ticket 05 merged (#60); no .pdb in releases; Graphify index
+- PR #60 squash-merged (ticket 05, issue #6 closed). Tickets 30 (criterion 6, ZIP) and 31 (criterion 7, installer) now require that the release publish contains no `.pdb` file, in particular the native ones of SkiaSharp and HarfBuzzSharp (about 100 MB in a plain publish); checked by listing the files; issues #37 and #38 updated.
+- Graphify run on the repository (129 files: 36 code, 82 documents, 11 images skipped to save tokens): 533 nodes, 788 edges, 35 communities. Code (AST) 212 nodes and 324 edges at no token cost; documents 316 nodes and 535 edges from 4 Haiku subagents, 547,410 tokens in total (input and output together). Health: 68 edges with an endpoint that is not a node, 25 collapsed same-endpoint edges. `graphify-out/` is local and ignored by git.
+
 ## 2026-11-13 #37 — Ticket 05: samples, publish checks, documents
 - `tests/samples/README.md` (rules; large samples generated, `tests/samples/generated/` ignored by git). A guard test keeps `InvariantGlobalization` out of `Directory.Build.props`, off in the App and unset in Core and Donut.
 - Publish checked locally with warnings as errors: App (ReadyToRun + trimmed, self-contained win-x64) and Worker (trimmed) both succeed with no trimming warning; the published Worker exits 0; App assemblies carry the ReadyToRun header, the Worker's do not (as decided). App folder 55.0 MB without `.pdb` files, but the publish also copies two native `.pdb` (libSkiaSharp 80 MB, libHarfBuzzSharp 20 MB) that the release pipeline must leave out (tickets 30 and 31).

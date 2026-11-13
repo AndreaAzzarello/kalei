@@ -18,3 +18,4 @@ A user installs Kalei without administrator rights, the sandbox works straight a
 4. W8, final: the installer and the ZIP are measured; 45 MB or less is the target and 60 MB the limit; above that the scope is reviewed with the owner.
 5. W17: Microsoft Defender, one other free antivirus (named in the report) and SmartScreen results for the installer and the app are recorded.
 6. The portable build refuses to convert with a clear message if the sandbox set-up fails (behaviour of ticket [07b](07b-windows-sandbox-launcher.md), checked here).
+7. The installer ships no `.pdb` file, in particular not the native ones of SkiaSharp and HarfBuzzSharp. Checked by listing the files of the folder the installer is built from and of the folder after an install; the size measure of criterion 4 is taken without them.
