@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #43 — Ticket 07a, phase 2, step 1: IPC messages and framing (branch feat/07a-ipc)
+- PR #63 (spec v1) merged after a green `build`. Code in `src/Kalei.Core/Ipc`: the 12 messages as records with the discriminator `type` (System.Text.Json source generator, `UnmappedMemberHandling.Disallow`, `RespectNullableAnnotations`, strict enums), `FrameWriter`, `FrameReader` (length, cap of the type read from the first 32 bytes, strict UTF-8, `JsonDocument` with depth 4 and no duplicate keys, no nulls, unknown/missing field found from the generated metadata, ranges and patterns), `FrameRateLimiter` (100 frames per second). Tests first: 124 pass (cases 1–8 and 12 of the spec table, caps, round trips).
+- Options checked on Context7 (/dotnet/docs) before writing: `JsonSourceGenerationOptions.UnmappedMemberHandling`, `JsonDocumentOptions.AllowDuplicateProperties` (.NET 10), `JsonPolymorphic` discriminator that must come first unless `AllowOutOfOrderMetadataProperties`, `RespectNullableAnnotations` (null throws, a missing property does not: `required` does that).
+
 ## 2026-11-13 #42 — Ticket 07a, phase 1: IPC specification v1 (PR, not merged)
 - `docs/ipc-spec.md` is v1: every message with fields, limits and a JSON example (all examples parsed); version negotiation (exact match, `1`); framing with unsigned length, 1 MB protocol maximum, a size cap per message type (only the `PreviewData` payload reaches 1 MB) and a rate cap of 100 frames per second; session state machine; watchdog table; case table for malformed, unknown, oversized and out-of-sequence frames, each with a closed log reason and an error code. New code `E_CRASH`. Decisions D1–D9 recorded as taken by the owner.
 - Handshake margin written with the measured data: the Worker's cold start was never measured (warm 46–48 ms); against the UI's cold figures on the VM the 5 s timeout is 18 times `Main` (278 ms) and 3.1 times the slowest full-window start (1,614.8 ms), an inference. Ticket 07b must measure `Hello` cold.
