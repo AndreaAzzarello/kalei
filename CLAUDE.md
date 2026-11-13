@@ -39,6 +39,7 @@ Zero telemetry.
 - Test first (`/tdd`). Samples in `tests/samples/` for every Format, including corrupt, huge (generated, not committed) and wrong-extension files; test both result and failure behaviour.
 - One commit per step with a clear message; add a dated entry to `HISTORY.md` at every commit.
 - Push, repository creation and releases only after explicit user confirmation.
+- `main` is protected by a ruleset (no bypass, not even for the admin): no direct push, ever. Every change, even documentation or HISTORY only, goes through a branch and a pull request whose `build` check (CI) is green. Merge only after explicit user confirmation.
 - Close any dev server or process you start.
 - Graphify: update the graph only with `/graphify . --code-only --update` (AST, no token cost). No document extraction unless the owner asks explicitly. Reference cost: the full graph of 2026-11-13 cost 547,410 tokens, all on documents (code 0).
 

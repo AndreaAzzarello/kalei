@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #41 — Ruleset on main: PR and green CI required
+- PR #61 (ticket 39) squash-merged, issue #52 closed. Ruleset `main` created on the default branch and active, with an empty bypass list: pull request required (0 approvals, solo owner), required status check `build`, force push and branch deletion blocked, branch not required to be up to date. Checked with `gh api` (rules listed for `main`: deletion, non_fast_forward, pull_request, required_status_checks).
+- `CLAUDE.md`: no direct push to `main`, every change goes through a branch and a PR. Not tested by an actual rejected push (the agent did not push to `main` on purpose).
+
 ## 2026-11-13 #40 — Ticket 39 (issue #52): CI on GitHub Actions
 - `.github/workflows/ci.yml`: on push to `main`, on pull requests and on manual dispatch; one job `build` on `windows-latest`. Steps: restore, `dotnet build -warnaserror`, `dotnet test`, `dotnet format --verify-no-changes`, Worker published trimmed with warnings as errors plus smoke test (exit 0), App published ReadyToRun + trimmed with warnings as errors, then `build/Assert-RuntimeVersion.ps1` (fails below runtime/ILCompiler 10.0.14, or if it finds none).
 - Security: actions pinned to full SHA (checkout v7.0.1, setup-dotnet v6.1.0, cache v6.1.0), `permissions: contents: read`, no secret, no `pull_request_target`, no untrusted input in scripts, `persist-credentials: false`, SDK from `global.json`, NuGet cache keyed on `Directory.Packages.props`, `.csproj` and `global.json`, no artefact upload.
