@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: the workflow only reads the repository. No secret is used anywhere.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+  NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+
+jobs:
+  build:
+    name: build
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      # The SDK version comes from global.json (10.0.404, runtime 10.0.15; the floor is 10.0.14).
+      - name: Set up .NET
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - name: NuGet cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', 'Directory.Build.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: SDK and runtime in use
+        run: dotnet --info
+
+      - name: Restore
+        run: |
+          dotnet restore Kalei.slnx
+          dotnet restore src/Kalei.App -r win-x64
+          dotnet restore src/Kalei.Worker.Builtin -r win-x64
+
+      - name: Build (warnings as errors)
+        run: dotnet build Kalei.slnx -c Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test --solution Kalei.slnx -c Release --no-build
+
+      - name: Format check
+        run: dotnet format Kalei.slnx --verify-no-changes --no-restore
+
+      - name: Publish Worker (trimmed, warnings as errors)
+        run: dotnet publish src/Kalei.Worker.Builtin -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/worker
+
+      - name: Smoke test of the trimmed Worker
+        run: |
+          & ./publish/worker/Kalei.Worker.Builtin.exe
+          if ($LASTEXITCODE -ne 0) { throw "Worker exited with code $LASTEXITCODE" }
+
+      - name: Publish App (ReadyToRun and trimmed, warnings as errors)
+        run: dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/app
+
+      - name: Runtime and ILCompiler at 10.0.14 or later
+        run: ./build/Assert-RuntimeVersion.ps1 -Path publish -AssetsPath src

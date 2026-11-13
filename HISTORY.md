@@ -2,6 +2,12 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #40 — Ticket 39 (issue #52): CI on GitHub Actions
+- `.github/workflows/ci.yml`: on push to `main`, on pull requests and on manual dispatch; one job `build` on `windows-latest`. Steps: restore, `dotnet build -warnaserror`, `dotnet test`, `dotnet format --verify-no-changes`, Worker published trimmed with warnings as errors plus smoke test (exit 0), App published ReadyToRun + trimmed with warnings as errors, then `build/Assert-RuntimeVersion.ps1` (fails below runtime/ILCompiler 10.0.14, or if it finds none).
+- Security: actions pinned to full SHA (checkout v7.0.1, setup-dotnet v6.1.0, cache v6.1.0), `permissions: contents: read`, no secret, no `pull_request_target`, no untrusted input in scripts, `persist-credentials: false`, SDK from `global.json`, NuGet cache keyed on `Directory.Packages.props`, `.csproj` and `global.json`, no artefact upload.
+- Cost, checked 2026-11-13 on https://docs.github.com/en/billing/concepts/product-billing/github-actions: standard runners in public repositories are free; larger runners are billed and not used. The repository is public. The account's billing page and the run duration are recorded below once the first run has finished.
+- Whole sequence run locally first: 30 tests pass, format clean, both publishes without warnings, Worker exit 0, runtime 10.0.15. Merge protection is only a recommendation (`docs/tickets/README.md`).
+
 ## 2026-11-13 #39 — Graphify rule: code-only updates
 - `CLAUDE.md`: the graph is updated only with `/graphify . --code-only --update` (AST, free). Document extraction only on the owner's explicit request.
 - Reference cost: the full graph of 2026-11-13 used 547,410 tokens, all on documents; code cost 0.
