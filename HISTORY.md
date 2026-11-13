@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #34 — Ticket 05: dependency test (criterion 4)
+- Metadata scanner (System.Reflection.Metadata, nothing loaded) with one rule per assembly: Core (no System.Net.*, Process, Pipes, Microsoft.Win32.* except SafeHandles, native calls), App (no System.Net.*), Donut (no UI or OS API, no other Kalei project). A fixture that breaks every rule proves the scanner sees each one; the three real assemblies pass.
+- Tests run on Microsoft.Testing.Platform (xunit.v3), which .NET 10 requires for `dotnet test` (set in `global.json`).
+
 ## 2026-11-13 #33 — Ticket 05: solution, projects and build settings
 - Kalei.slnx with Kalei.App (Avalonia 12.1.6, empty window), Kalei.Core, Kalei.Donut, Kalei.Platform.Windows, Kalei.Worker.Builtin and tests/Kalei.Tests (xunit.v3); all net10.0, central package versions, `global.json` pins SDK 10.0.404 (runtime 10.0.15 installed, above the 10.0.14 floor).
 - Build settings: warnings as errors, analyzers at latest-recommended, NuGet audit on, no solution-wide InvariantGlobalization (App explicitly off, Worker on with the TRD constraint). Build and format check pass.
