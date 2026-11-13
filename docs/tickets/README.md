@@ -151,3 +151,6 @@ Every one of the 65 [user stories](../spec/1.0-windows.md#user-stories) is deliv
 | 63 | [30](30-portable-zip-sums-notices.md) |
 | 64 | [30](30-portable-zip-sums-notices.md) |
 | 65 | [31](31-per-user-installer.md) |
+
+## CI and merge protection (recommendation, not set by an agent)
+The workflow `.github/workflows/ci.yml` (ticket [39](39-ci-github-actions.md)) has one job, `build`. Recommended repository ruleset on `main`, to be created by the owner: require a pull request, require the status check `build` to pass, block force pushes and deletion of the branch. Requiring the branch to be up to date is optional (it costs a re-run per merge). Free on public repositories; the owner decides whether to allow bypass.

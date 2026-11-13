@@ -2,6 +2,16 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #40 — Ticket 39 (issue #52): CI on GitHub Actions
+- `.github/workflows/ci.yml`: on push to `main`, on pull requests and on manual dispatch; one job `build` on `windows-latest`. Steps: restore, `dotnet build -warnaserror`, `dotnet test`, `dotnet format --verify-no-changes`, Worker published trimmed with warnings as errors plus smoke test (exit 0), App published ReadyToRun + trimmed with warnings as errors, then `build/Assert-RuntimeVersion.ps1` (fails below runtime/ILCompiler 10.0.14, or if it finds none).
+- Security: actions pinned to full SHA (checkout v7.0.1, setup-dotnet v6.1.0, cache v6.1.0), `permissions: contents: read`, no secret, no `pull_request_target`, no untrusted input in scripts, `persist-credentials: false`, SDK from `global.json`, NuGet cache keyed on `Directory.Packages.props`, `.csproj` and `global.json`, no artefact upload.
+- Cost, checked 2026-11-13 on https://docs.github.com/en/billing/concepts/product-billing/github-actions: standard runners in public repositories are free; larger runners are billed and not used. The repository is public. First run on PR #61 (https://github.com/AndreaAzzarello/kalei/actions/runs/43438906646): green, job 1 min 35 s (about 2 billable minutes, rounded up per job; nothing charged on a public repository). Longest steps: Set up .NET 23 s, App publish 15 s, Restore 11 s, format 6 s, Worker publish 5 s; tests 30 of 30 in 1 s; cache was empty on this first run. SDK 10.0.404, runtime 10.0.15, published runtime pack 10.0.15 (check passes). Image windows-2025 version 20261103.629. The account billing page (web login) is not read by the agent: the owner checks it.
+- Whole sequence run locally first: 30 tests pass, format clean, both publishes without warnings, Worker exit 0, runtime 10.0.15. Merge protection is only a recommendation (`docs/tickets/README.md`).
+
+## 2026-11-13 #39 — Graphify rule: code-only updates
+- `CLAUDE.md`: the graph is updated only with `/graphify . --code-only --update` (AST, free). Document extraction only on the owner's explicit request.
+- Reference cost: the full graph of 2026-11-13 used 547,410 tokens, all on documents; code cost 0.
+
 ## 2026-11-13 #38 — Ticket 05 merged (#60); no .pdb in releases; Graphify index
 - PR #60 squash-merged (ticket 05, issue #6 closed). Tickets 30 (criterion 6, ZIP) and 31 (criterion 7, installer) now require that the release publish contains no `.pdb` file, in particular the native ones of SkiaSharp and HarfBuzzSharp (about 100 MB in a plain publish); checked by listing the files; issues #37 and #38 updated.
 - Graphify run on the repository (129 files: 36 code, 82 documents, 11 images skipped to save tokens): 533 nodes, 788 edges, 35 communities. Code (AST) 212 nodes and 324 edges at no token cost; documents 316 nodes and 535 edges from 4 Haiku subagents, 547,410 tokens in total (input and output together). Health: 68 edges with an endpoint that is not a node, 25 collapsed same-endpoint edges. `graphify-out/` is local and ignored by git.
