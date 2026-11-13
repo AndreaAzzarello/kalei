@@ -15,9 +15,9 @@
     <ProjectReference Include="..\..\src\Kalei.Donut\Kalei.Donut.csproj" />
     <ProjectReference Include="..\..\src\Kalei.Platform.Windows\Kalei.Platform.Windows.csproj" />
     <ProjectReference Include="..\..\src\Kalei.App\Kalei.App.csproj" />
-    <!-- Started as processes by the IPC tests: built here, never referenced by code. -->
-    <ProjectReference Include="..\..\src\Kalei.Worker.Builtin\Kalei.Worker.Builtin.csproj" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Kalei.FakeWorker\Kalei.FakeWorker.csproj" ReferenceOutputAssembly="false" />
+    <!-- Started as processes by the IPC tests (their output is copied next to the tests); no test code uses their types. -->
+    <ProjectReference Include="..\..\src\Kalei.Worker.Builtin\Kalei.Worker.Builtin.csproj" />
+    <ProjectReference Include="..\Kalei.FakeWorker\Kalei.FakeWorker.csproj" />
   </ItemGroup>
 
   <ItemGroup>
