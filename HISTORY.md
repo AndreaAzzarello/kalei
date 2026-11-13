@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #36 — Ticket 05: logging abstraction without paths (criterion 7, S10)
+- `IKaleiLog.Write(LogEvent)`; `LogEvent` holds only a level, a code and an optional duration (no string, object, Uri, FileSystemInfo or Exception). A shape test reads every public member of the logging types and fails on any free-text or path-like type; eight deliberately bad sample types prove that each way of smuggling a path in is caught.
+- The file writer with rotation and the log scan are ticket 26.
+
 ## 2026-11-13 #35 — Ticket 05: adapter interfaces and Windows paths (criteria 2 and 3)
 - Core.Platform: `IPlatformPaths` and `IInstallerLayout` complete (`InstallMode`, `DataFolderStatus`); `ISandboxLauncher`, `IPlatformImageCodec` and `IFileOrigin` are empty and name the ticket that defines their members (07a/07b, 09a/18, 27). No hook or shell interface.
 - Platform.Windows: `WindowsInstallerLayout` (marker `kalei.portable`) and `WindowsPlatformPaths` (installed `%LOCALAPPDATA%\Kalei`, portable `data` next to the executable; logs, settings.json, temp). `CheckDataFolder` reports a folder that cannot be written. Tests written first cover both modes and the not-writable case.
