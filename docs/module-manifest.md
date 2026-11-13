@@ -30,7 +30,7 @@ Every Module, built-in or optional, is described by a `module.json`; the Core bu
 ```
 
 ## Options type system
-`type` is one of `bool`, `int` (with `min`, `max`), `enum` (with `values`, each with a `label` key), `string` (with `pattern` and `maxLength`). `control` is a hint for the Advanced panel (`toggle`, `slider`, `number`, `dropdown`, `text`). `label` and enum labels are resource keys, never display text (English and Italian live in the app's string tables). `default: null` means "not set". The Advanced panel shows only the options listed for the selected pair and a "Reset to defaults". The Core validates every value against the type before sending `Convert`; the Worker validates again.
+`type` is one of `bool`, `int` (with `min`, `max`), `enum` (with `values`, each with a `label` key), `string` (with `pattern` and `maxLength`, at most 256: the IPC caps a `Convert` frame, see [ipc-spec](ipc-spec.md)). `control` is a hint for the Advanced panel (`toggle`, `slider`, `number`, `dropdown`, `text`). `label` and enum labels are resource keys, never display text (English and Italian live in the app's string tables). `default: null` means "not set". The Advanced panel shows only the options listed for the selected pair and a "Reset to defaults". The Core validates every value against the type before sending `Convert`; the Worker validates again.
 
 ## `.kmod` layout (from 1.1)
 A ZIP-like package with `module.json` at the root and the files under `files/`. Nothing else is read. Extraction rules and the whole-package hash check are S8; the file list in the manifest must match the content exactly.
