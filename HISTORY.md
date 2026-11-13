@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #33 — Ticket 05: solution, projects and build settings
+- Kalei.slnx with Kalei.App (Avalonia 12.1.6, empty window), Kalei.Core, Kalei.Donut, Kalei.Platform.Windows, Kalei.Worker.Builtin and tests/Kalei.Tests (xunit.v3); all net10.0, central package versions, `global.json` pins SDK 10.0.404 (runtime 10.0.15 installed, above the 10.0.14 floor).
+- Build settings: warnings as errors, analyzers at latest-recommended, NuGet audit on, no solution-wide InvariantGlobalization (App explicitly off, Worker on with the TRD constraint). Build and format check pass.
+
 ## 2026-11-13 #32 — Ticket 05 preparation: decisions recorded before the skeleton
 - Ticket 03d: the meaning of "smooth" is confirmed (at most 1% of frames over 33 ms, median within 10% of the refresh period).
 - Spec and ticket 05 aligned: no interface for the global pointer hook or shell integration in 1.0; the Core ban on `Microsoft.Win32.*` excepts `Microsoft.Win32.SafeHandles` (file handles for the Broker, ticket 08).

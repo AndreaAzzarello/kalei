@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- UI only. Published ReadyToRun + trimmed, self-contained (ADR 0001):
+       dotnet publish -c Release -r win-x64 (self-contained) -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <!-- Off on purpose: the UI formats numbers and dates in Italian, which needs culture data (docs/TRD.md). -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kalei.Core\Kalei.Core.csproj" />
+    <ProjectReference Include="..\Kalei.Donut\Kalei.Donut.csproj" />
+    <ProjectReference Include="..\Kalei.Platform.Windows\Kalei.Platform.Windows.csproj" />
+  </ItemGroup>
+
+</Project>
