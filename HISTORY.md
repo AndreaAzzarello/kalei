@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-13 #35 — Ticket 05: adapter interfaces and Windows paths (criteria 2 and 3)
+- Core.Platform: `IPlatformPaths` and `IInstallerLayout` complete (`InstallMode`, `DataFolderStatus`); `ISandboxLauncher`, `IPlatformImageCodec` and `IFileOrigin` are empty and name the ticket that defines their members (07a/07b, 09a/18, 27). No hook or shell interface.
+- Platform.Windows: `WindowsInstallerLayout` (marker `kalei.portable`) and `WindowsPlatformPaths` (installed `%LOCALAPPDATA%\Kalei`, portable `data` next to the executable; logs, settings.json, temp). `CheckDataFolder` reports a folder that cannot be written. Tests written first cover both modes and the not-writable case.
+
 ## 2026-11-13 #34 — Ticket 05: dependency test (criterion 4)
 - Metadata scanner (System.Reflection.Metadata, nothing loaded) with one rule per assembly: Core (no System.Net.*, Process, Pipes, Microsoft.Win32.* except SafeHandles, native calls), App (no System.Net.*), Donut (no UI or OS API, no other Kalei project). A fixture that breaks every rule proves the scanner sees each one; the three real assemblies pass.
 - Tests run on Microsoft.Testing.Platform (xunit.v3), which .NET 10 requires for `dotnet test` (set in `global.json`).
