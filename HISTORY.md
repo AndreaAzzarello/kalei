@@ -2,6 +2,9 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-14 #46 — Ticket 07a merged (#64); criterion 6 added to ticket 09a
+- PR #64 squash-merged after a green `build`, issue #8 closed. Ticket 09a (issue #11) gets criterion 6: the constant Module declarations of the Worker (images, data, text 1.0.0) are replaced by the manifests' when the engines arrive, and no Module is declared without an engine. Issue body updated with the same text. Documents only.
+
 ## 2026-11-13 #45 — Ticket 07a, step 3: Worker host, real Worker over real pipes, Hello latency
 - `Kalei.Worker.Builtin`: `WorkerHost` (Hello first, before any engine; one request; pure heartbeat every second while it runs; Cancel stops it; any broken frame from the Core ends it with code 2, unanswered), `UnavailableHandler` (every request answers `E_FORMAT` until the Modules exist), `BuiltinModules` (images, data, text, 1.0.0, constants of the build). Started with two handle numbers; without them it exits 2. CI smoke step now expects exit 2.
 - Tests: 258 in the solution, all pass. The Worker host in-process (Hello first, heartbeats at most 10 per second, Cancel, 8 kinds of broken Core), the real Worker executable through `WorkerSession` over anonymous pipes, and the Worker **published trimmed** by the test itself (`PublishedWorkerTests`, `-p:TreatWarningsAsErrors=true`).
