@@ -178,7 +178,7 @@ The Core decides the verdict; it never trusts `connected` without its own listen
 - While a request is open the Worker sends a frame at least every 2 s (`Progress`, with or without a value) and at most 10 per second. The Worker host emits the heartbeat from its own timer. It proves that the process and the pipe are alive, not that the engine progresses: an engine stuck in a loop is ended by the request timeout and the memory cap. A killed Worker's partial Output is removed (journal, lifecycle step 5).
 - The Probe and Preview timeouts are initial values; tickets 09a and 14a measure them.
 - **Does the 5 s handshake hold on a cold start?** Measured on the reference VM (Hyper-V Windows 10 22H2, 2 vCPU, 4 GB, SATA SSD, Defender on) and on the Windows 11 PC:
-  - the spike Worker takes 46–48 ms from process creation to its first message, **warm** (tickets 01 and #47, median of 10); no cold start of the Worker was measured (stated as not verified in [ticket-0](ticket-0.md));
+  - the spike Worker takes 46–48 ms from process creation to its first message, **warm** (tickets 01 and #47, median of 10); the real Worker of ticket 07a (published trimmed, not ReadyToRun) takes **median 206 ms (min 202, max 220), warm, 10 starts, on the Windows 11 PC**, measured by `PublishedWorkerTests` (about 4 times the spike, which sent a text line; it includes the first JIT of the serializer); no cold start of the Worker was measured (stated as not verified in [ticket-0](ticket-0.md));
   - the nearest cold figures are those of the UI on the same VM ([ticket 03c](ticket-0.md#results)): the managed code starts at **210 ms** (median), `Main` at **278 ms**, and the whole window shows at **968 ms** (max 993); on the first start after a copy (#47) the window showed at median **1,122.7 ms**, slowest start **1,614.8 ms** (Defender scanning new files). Those figures include the whole of Avalonia; the Worker is smaller but is not ReadyToRun (JIT), and its `Hello` path loads no engine;
   - margin: 5 s is **18 times** the `Main` start (278 ms), **4.5 times** the median of the first start after a copy and **3.1 times** its slowest full-window start. It is an inference from the UI, not a measurement of the Worker;
   - rules that keep the margin: the Worker host sends `Hello` **before** it loads any engine or library (libvips, the largest, is loaded on the first request); `modules` is a constant of the build; the timer starts when the launcher returns, so the one-off creation of the AppContainer profile (07b) is outside it;
@@ -191,7 +191,7 @@ In every row the Core kills the Worker, sends nothing, and the request ends with
 |---|---|---|---|
 | 1 | length `N` above 1,048,576 (including a "negative" length) | `FrameTooLarge` | `E_PROTOCOL` |
 | 2 | `N` = 0 or below 17 (the shortest valid body is `{"type":"Cancel"}`) | `BadLength` | `E_PROTOCOL` |
-| 3 | `N` above the cap of its type (type read from the first 32 bytes) | `FrameTooLargeForType` | `E_PROTOCOL` |
+| 3 | `N` above the cap of its (known) type, type read from the first 32 bytes; an unknown type is case 5 and a body that does not start with `{"type":"` is case 4, because no cap can be chosen for them (they are still never read in full) | `FrameTooLargeForType` | `E_PROTOCOL` |
 | 4 | body does not start with `{"type":"`; invalid UTF-8 or JSON; depth above 4; duplicate key; `null`; bytes after the object (a prefix shorter than the real JSON shows up here, as truncated JSON) | `BadJson` | `E_PROTOCOL` |
 | 5 | type name not in the table, or not allowed in this direction | `UnknownType` | `E_PROTOCOL` |
 | 6 | a field that is not in the table | `UnknownField` | `E_PROTOCOL` |
@@ -205,7 +205,7 @@ In every row the Core kills the Worker, sends nothing, and the request ends with
 | 14 | the Worker has not exited 3 s after `Cancel` | (none) | `E_CANCELLED` |
 | 15 | a non-zero exit code after a valid final frame | ignored | the final frame decides |
 
-Case 12 is separated from the protocol errors because for the user a converter that crashed on a file is a different event from a converter that spoke wrongly. The log gets one `IPC_END` event per request with the code, the reason, the phase and the duration; no frame content, no path, no file name (S10).
+Case 12 is separated from the protocol errors because for the user a converter that crashed on a file is a different event from a converter that spoke wrongly. The log gets one `IPC_END` event for each request whose channel failed (cases 1–13: code, reason, phase, duration); an `Error` the Worker reported honestly, a cancellation and a success write nothing (the log has only warning and error levels). No frame content, no path, no file name (S10).
 
 ## Error codes
 Catalogue for the whole app. A Worker may send **only**: `E_FORMAT`, `E_CORRUPT`, `E_PIXELS`, `E_MEM`, `E_BOMB`, `E_COMPLEX`, `E_UNSUPPORTED_OPTION`, `E_NO_CODEC`, `E_IO`. Every other code is raised by the Core, and a Worker that sends one is ended with `BadValue`.

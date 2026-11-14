@@ -15,4 +15,9 @@
     <ProjectReference Include="..\Kalei.Core\Kalei.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The IPC tests drive the Worker host directly (in-process) as well as the executable. -->
+    <InternalsVisibleTo Include="Kalei.Tests" />
+  </ItemGroup>
+
 </Project>

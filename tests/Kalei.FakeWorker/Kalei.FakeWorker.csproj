@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Test-only Worker that misbehaves on purpose (ticket 07a). Never published, never shipped. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kalei.Core\Kalei.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -71,9 +71,14 @@ jobs:
         run: dotnet publish src/Kalei.Worker.Builtin -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/worker
 
       - name: Smoke test of the trimmed Worker
+        # Started without Kalei's pipes the Worker refuses to run (exit 2). The handshake itself is tested by
+        # PublishedWorkerTests, which publishes the Worker trimmed and talks to it over real pipes.
         run: |
           & ./publish/worker/Kalei.Worker.Builtin.exe
-          if ($LASTEXITCODE -ne 0) { throw "Worker exited with code $LASTEXITCODE" }
+          $code = $LASTEXITCODE
+          if ($code -ne 2) { throw "Worker exited with code $code, expected 2" }
+          # The step must not inherit the expected exit code 2 as its own result.
+          $global:LASTEXITCODE = 0
 
       - name: Publish App (ReadyToRun and trimmed, warnings as errors)
         run: dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/app
