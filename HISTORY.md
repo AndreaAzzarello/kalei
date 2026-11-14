@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-14 #50 — Ticket 07b, step 3: the Windows sandbox launcher
+- `WindowsSandboxLauncher` and `SandboxedWorker` (Kalei.Platform.Windows/Sandbox), written again from the spike's sequence, not copied: set-up once on the first Start (anything but Ready: no Worker, `E_SANDBOX`); two anonymous pipes created non-inheritable; the pipe ends and the Source/Output handles are made inheritable only while `CreateProcess` runs (one launch at a time) and are the only handles in `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`; AppContainer with no capabilities; process created suspended, put in the Job Object (kill-on-close, one process, per-process memory cap, CPU time cap, die on unhandled exception, completion port for the cause), then resumed. Any failure ends the new process and throws `SandboxStartException` (a closed list of failures and the OS error number, never text); `WorkerSession` logs it as `SandboxStart`.
+- Measured: with a minimal environment (no profile variable) `CreateProcess` fails with error 203 for an AppContainer; the Worker now gets `LOCALAPPDATA`, `TEMP`, `TMP` pointing to the Windows temp folder (which the sandbox cannot use), `PATH` (system32 only), `SystemRoot` and `windir`, and nothing of the user's environment.
+- Test first: the real Kalei.Worker.Builtin in the sandbox sends its Hello and answers `E_FORMAT` (the first launcher test; 271 in the solution, all pass).
+
 ## 2026-11-14 #49 — Ticket 07b, step 2: AppContainer profile and sandbox set-up
 - `Kalei.Platform.Windows/Sandbox`: `Native` (LibraryImport, so trimming and AOT safe; the SID is a `SafeHandle` freed with FreeSid), `AppContainerProfile` (no capabilities; created or taken if it exists), `SandboxSetup`: `Prepare()` creates the profile and, only if read-and-execute for ALL APPLICATION PACKAGES is missing and the folder's owner is the current user, adds that one access rule (inherited by folders and files); a folder that is not the user's and has no grant gives `FolderNotOwned` and is left untouched; `Remove()` deletes the profile and the explicit grant, and can be repeated.
 - Tests first (6, all pass, on a temporary folder and a profile name of their own; no profile left behind, checked in the registry).

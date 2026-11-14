@@ -328,6 +328,38 @@ public sealed class SessionTests
         Assert.Null(outcome.Answer);
     }
 
+    private sealed class FailingLauncher(Exception error) : ISandboxLauncher
+    {
+        public IWorkerProcess Start(WorkerStart start) => throw error;
+    }
+
+    [Fact]
+    public async Task LauncherThatCannotStart_IsLoggedWithTheFailureAndTheOsCode_AndNothingElse()
+    {
+        var log = new ListLog();
+        var session = new WorkerSession(new FailingLauncher(new SandboxStartException(SandboxFailure.Job, 5)), new FakeCatalog(), log, WatchdogTimes.Default);
+
+        await session.RunAsync(s_probe, new RequestOptions { Timeout = TimeSpan.FromSeconds(1) }, null, TestContext.Current.CancellationToken);
+
+        var logged = Assert.Single(log.Events);
+        Assert.Equal(LogEventCode.SandboxStart, logged.Code);
+        Assert.Equal(ErrorCode.Sandbox, logged.Error);
+        Assert.Equal(SandboxFailure.Job, logged.Sandbox);
+        Assert.Equal(5, logged.OsError);
+    }
+
+    [Fact]
+    public async Task LauncherThatThrowsAnythingElse_IsESandboxWithFailureOther()
+    {
+        var log = new ListLog();
+        var session = new WorkerSession(new FailingLauncher(new InvalidOperationException("a message that names a path")), new FakeCatalog(), log, WatchdogTimes.Default);
+
+        var outcome = await session.RunAsync(s_probe, new RequestOptions { Timeout = TimeSpan.FromSeconds(1) }, null, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ErrorCode.Sandbox, outcome.Error);
+        Assert.Equal(SandboxFailure.Other, Assert.Single(log.Events).Sandbox);
+    }
+
     [Fact]
     public async Task ARequestThatIsNotARequest_IsRefused()
     {

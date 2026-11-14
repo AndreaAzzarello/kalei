@@ -11,4 +11,7 @@ public enum LogEventCode
 
     /// <summary>A request to a Worker ended because the channel failed: protocol violation, crash or time-out (ipc-spec.md).</summary>
     IpcEnd,
+
+    /// <summary>The sandbox could not start a Worker (ticket 07b); nothing was converted.</summary>
+    SandboxStart,
 }

@@ -29,9 +29,13 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
                 CpuTimeLimit = options.Timeout * Environment.ProcessorCount,
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Whatever stopped the launcher, the answer is the same: no Worker runs unsandboxed (07b logs the detail).
+            // Whatever stopped the launcher, the answer is the same: no Worker runs unsandboxed. The log gets the kind of failure
+            // and the OS error number, never the exception text (it could hold a path, S10).
+            var failure = ex as SandboxStartException;
+            log.Write(new LogEvent(LogLevel.Error, LogEventCode.SandboxStart, Stopwatch.GetElapsedTime(started), ErrorCode.Sandbox,
+                Sandbox: failure?.Failure ?? SandboxFailure.Other, OsError: failure?.OsError));
             return new RequestOutcome { Error = ErrorCode.Sandbox };
         }
 
