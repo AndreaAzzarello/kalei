@@ -138,7 +138,7 @@ internal static partial class Native
     public const int JobObjectAssociateCompletionPort = 7;
     public const int JobObjectExtendedLimitInformation = 9;
 
-    public const uint JobMsgEndOfJobTime = 4;
+    public const uint JobMsgEndOfJobTime = 1;
     public const uint JobMsgProcessMemoryLimit = 9;
     public const uint JobMsgJobMemoryLimit = 10;
 
@@ -190,6 +190,10 @@ internal static partial class Native
     [LibraryImport("kernel32.dll", EntryPoint = "SetInformationJobObject", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool SetInformationJobObject(SafeKernelHandle job, int informationClass, ref JobCompletionPort information, int length);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool QueryInformationJobObject(SafeKernelHandle job, int informationClass, out JobExtendedLimit information, int length, nint returnLength);
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

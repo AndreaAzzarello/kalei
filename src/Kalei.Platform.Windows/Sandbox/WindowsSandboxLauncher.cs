@@ -110,7 +110,7 @@ public sealed class WindowsSandboxLauncher : ISandboxLauncher
 
             toWorker.DisposeLocalCopyOfClientHandle();
             fromWorker.DisposeLocalCopyOfClientHandle();
-            return new SandboxedWorker(toWorker, fromWorker, process, job, port);
+            return new SandboxedWorker(toWorker, fromWorker, process, job, port, start.MemoryLimitBytes);
         }
         catch
         {

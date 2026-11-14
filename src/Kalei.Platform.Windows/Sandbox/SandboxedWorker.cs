@@ -16,11 +16,13 @@ internal sealed class SandboxedWorker : IWorkerProcess
     private readonly RegisteredWaitHandle _registration;
     private readonly TaskCompletionSource _exit = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly Lock _gate = new();
+    private readonly long _memoryLimit;
     private WorkerEndCause _cause;
     private bool _disposed;
 
-    public SandboxedWorker(AnonymousPipeServerStream toWorker, AnonymousPipeServerStream fromWorker, SafeProcessHandle process, SafeKernelHandle job, SafeKernelHandle port)
+    public SandboxedWorker(AnonymousPipeServerStream toWorker, AnonymousPipeServerStream fromWorker, SafeProcessHandle process, SafeKernelHandle job, SafeKernelHandle port, long memoryLimit)
     {
+        _memoryLimit = memoryLimit;
         _toWorker = toWorker;
         _fromWorker = fromWorker;
         _process = process;
@@ -54,10 +56,24 @@ internal sealed class SandboxedWorker : IWorkerProcess
                     };
                 }
 
+                if (!_disposed && _cause == WorkerEndCause.None && _exit.Task.IsCompleted && PeakMemoryReachedTheGcLimit())
+                {
+                    _cause = WorkerEndCause.MemoryLimit;
+                }
+
                 return _cause;
             }
         }
     }
+
+    /// <summary>
+    /// The .NET GC reads the job's memory cap and throws OutOfMemoryException itself at 75% of it, so the kernel never sees a
+    /// violation and posts no message (measured, ticket 07b; the spike's Worker stopped at 72% of 2 GB). A Worker that ended with a
+    /// peak of at least 70% of the cap is a Worker the cap ended; a native allocation that fails at the cap posts a message instead.
+    /// </summary>
+    private bool PeakMemoryReachedTheGcLimit() =>
+        Native.QueryInformationJobObject(_job, Native.JobObjectExtendedLimitInformation, out var limits, System.Runtime.InteropServices.Marshal.SizeOf<JobExtendedLimit>(), 0)
+        && (double)limits.PeakProcessMemoryUsed >= _memoryLimit * 0.7;
 
     public Task WaitForExitAsync() => _exit.Task;
 

@@ -18,6 +18,9 @@ internal static class Behaviours
         Modules = [new ModuleInfo { Id = "images", Version = "1.0.0" }],
     };
 
+    /// <summary>The Hello of the scripted Worker, for the behaviours that run only in a real process (Program.cs).</summary>
+    public static HelloMessage Hello => s_hello;
+
     public static async Task RunAsync(string name, Stream fromCore, Stream toCore, CancellationToken ct)
     {
         var reader = new FrameReader(fromCore, Direction.ToWorker);

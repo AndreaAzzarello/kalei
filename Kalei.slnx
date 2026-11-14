@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Kalei.FakeWorker/Kalei.FakeWorker.csproj" />
+    <Project Path="tests/Kalei.SandboxCheck/Kalei.SandboxCheck.csproj" />
     <Project Path="tests/Kalei.Tests/Kalei.Tests.csproj" />
   </Folder>
 </Solution>
