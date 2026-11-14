@@ -15,7 +15,8 @@ public enum SandboxSetupStatus
 
 /// <summary>
 /// First-run set-up and clean-up of the sandbox (ticket 07b, criterion 5): the AppContainer profile and read-and-execute access
-/// to the Worker's folder for ALL APPLICATION PACKAGES, so the AppContainer can load its own files (W4). Nothing else is granted.
+/// to the Worker's folder and the files directly in it (not its subfolders) for ALL APPLICATION PACKAGES, so the AppContainer can
+/// load its own files (W4). Nothing else is granted.
 /// </summary>
 public sealed class SandboxSetup(string profileName, string workerFolder, SecurityIdentifier? currentUser = null)
 {
@@ -45,7 +46,7 @@ public sealed class SandboxSetup(string profileName, string workerFolder, Securi
             }
 
             security.AddAccessRule(new FileSystemAccessRule(s_allApplicationPackages, FileSystemRights.ReadAndExecute,
-                InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                InheritanceFlags.ObjectInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow)); // not the subfolders (portable "data\")
             folder.SetAccessControl(security);
             return SandboxSetupStatus.Ready;
         }
@@ -83,5 +84,5 @@ public sealed class SandboxSetup(string profileName, string workerFolder, Securi
         .Any(r => r.AccessControlType == AccessControlType.Allow
             && r.IdentityReference == s_allApplicationPackages
             && (r.FileSystemRights & FileSystemRights.ReadAndExecute) == FileSystemRights.ReadAndExecute
-            && r.InheritanceFlags.HasFlag(InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit));
+            && r.InheritanceFlags.HasFlag(InheritanceFlags.ObjectInherit));
 }

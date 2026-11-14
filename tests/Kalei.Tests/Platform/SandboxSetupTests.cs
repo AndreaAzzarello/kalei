@@ -46,7 +46,9 @@ public sealed class SandboxSetupTests
             var rule = Assert.Single(new DirectoryInfo(folder.Path).GetAccessControl()
                 .GetAccessRules(true, false, typeof(SecurityIdentifier)).Cast<FileSystemAccessRule>(), r => r.IdentityReference == s_allApplicationPackages);
             Assert.Equal(FileSystemRights.ReadAndExecute | FileSystemRights.Synchronize, rule.FileSystemRights);
-            Assert.Equal(InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, rule.InheritanceFlags);
+            // The folder and the files directly in it, not the subfolders: in portable mode "data\" (settings, logs) lives inside.
+            Assert.Equal(InheritanceFlags.ObjectInherit, rule.InheritanceFlags);
+            Assert.Equal(PropagationFlags.NoPropagateInherit, rule.PropagationFlags);
         }
         finally
         {
