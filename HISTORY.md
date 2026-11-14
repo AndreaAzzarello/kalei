@@ -2,6 +2,9 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-14 #47 — Ticket 07b: criterion 6 moved to ticket 08
+- W16 splits in two: ticket 07b proves the Worker half (a hung Worker killed, Cancel ends the Worker, nothing left running); ticket 08 owns the partial Output file and the journal (its criteria 3 and 4). 07b is no longer blocked by 08. Tickets 07b and 08 and the README table updated; issues #9 and #10 get the same text. Documents only.
+
 ## 2026-11-14 #46 — Ticket 07a merged (#64); criterion 6 added to ticket 09a
 - PR #64 squash-merged after a green `build`, issue #8 closed. Ticket 09a (issue #11) gets criterion 6: the constant Module declarations of the Worker (images, data, text 1.0.0) are replaced by the manifests' when the engines arrive, and no Module is declared without an engine. Issue body updated with the same text. Documents only.
 
