@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using Kalei.Core.Ipc;
+using Kalei.Core.Platform;
 using Xunit;
 
 namespace Kalei.Tests.Ipc;
@@ -71,7 +72,7 @@ public sealed class PublishedWorkerTests : IDisposable
     {
         var launcher = new ProcessLauncher(exe);
         var clock = Stopwatch.StartNew();
-        using var worker = launcher.Start();
+        using var worker = launcher.Start(new WorkerStart());
         var frame = await new FrameReader(worker.FromWorker, Direction.ToCore).ReadAsync(TestContext.Current.CancellationToken);
         var elapsed = clock.Elapsed.TotalMilliseconds;
         Assert.IsType<HelloMessage>(frame!.Message);

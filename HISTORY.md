@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-14 #48 — Ticket 07b, step 1: the launcher seam in the Core
+- `ISandboxLauncher.Start(WorkerStart)`: handles to inherit (SafeHandle, never paths), memory cap and CPU time cap. `IWorkerProcess.EndCause` (`None`, `MemoryLimit`, `TimeLimit`): when the sandbox ended the Worker for a limit and the channel closed, `WorkerSession` answers `E_MEM` or `E_TIME` instead of `E_CRASH`. `RequestOptions` carries `Handles` and `MemoryLimitBytes` (default 2 GB, the Limits table); the CPU cap is the request timeout times the logical processors, a safety net the wall-clock watchdog always beats.
+- Tests first (4 new, 262 in the solution, all pass); the test launchers follow the new signature.
+
 ## 2026-11-14 #47 — Ticket 07b: criterion 6 moved to ticket 08
 - W16 splits in two: ticket 07b proves the Worker half (a hung Worker killed, Cancel ends the Worker, nothing left running); ticket 08 owns the partial Output file and the journal (its criteria 3 and 4). 07b is no longer blocked by 08. Tickets 07b and 08 and the README table updated; issues #9 and #10 get the same text. Documents only.
 

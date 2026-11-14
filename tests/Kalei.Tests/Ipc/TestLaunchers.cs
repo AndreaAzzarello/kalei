@@ -58,7 +58,7 @@ internal sealed class InProcessLauncher(string behaviour) : ITestLauncher
 
     public bool LastWorkerEnded => _last is { Ended: true };
 
-    public IWorkerProcess Start()
+    public IWorkerProcess Start(WorkerStart start)
     {
         var worker = new InProcessWorker(behaviour);
         _last = worker;
@@ -101,6 +101,8 @@ internal sealed class InProcessWorker : IWorkerProcess, IEnded
 
     public Stream FromWorker { get; }
 
+    public WorkerEndCause EndCause => WorkerEndCause.None;
+
     public Task WaitForExitAsync() => _run;
 
     public void Kill() => _killed.Cancel();
@@ -118,7 +120,7 @@ internal sealed class ProcessLauncher(string fileName, params string[] leadingAr
 
     public bool LastWorkerEnded => _last is { Ended: true };
 
-    public IWorkerProcess Start()
+    public IWorkerProcess Start(WorkerStart start)
     {
         lock (s_gate)
         {
@@ -151,6 +153,8 @@ internal sealed class ProcessWorker(Process process, Stream toWorker, Stream fro
     public Stream ToWorker { get; } = toWorker;
 
     public Stream FromWorker { get; } = fromWorker;
+
+    public WorkerEndCause EndCause => WorkerEndCause.None;
 
     public Task WaitForExitAsync() => process.WaitForExitAsync();
 

@@ -253,7 +253,68 @@ public sealed class SessionTests
 
     private sealed class RefusingLauncher : ISandboxLauncher
     {
-        public IWorkerProcess Start() => throw new InvalidOperationException("no sandbox");
+        public IWorkerProcess Start(WorkerStart start) => throw new InvalidOperationException("no sandbox");
+    }
+
+    // --- Limits of the sandbox: the channel closes, the sandbox says why ------------------------------------------------
+
+    /// <summary>A Worker the sandbox ended: both pipes are already closed and the launcher knows the cause.</summary>
+    private sealed class EndedByLauncher(WorkerEndCause cause) : ISandboxLauncher
+    {
+        public WorkerStart? Received { get; private set; }
+
+        public IWorkerProcess Start(WorkerStart start)
+        {
+            Received = start;
+            return new EndedWorker(cause);
+        }
+
+        private sealed class EndedWorker(WorkerEndCause cause) : IWorkerProcess
+        {
+            public Stream ToWorker => Stream.Null;
+
+            public Stream FromWorker => Stream.Null;
+
+            public WorkerEndCause EndCause => cause;
+
+            public Task WaitForExitAsync() => Task.CompletedTask;
+
+            public void Kill()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(WorkerEndCause.MemoryLimit, ErrorCode.Mem)]
+    [InlineData(WorkerEndCause.TimeLimit, ErrorCode.Time)]
+    [InlineData(WorkerEndCause.None, ErrorCode.Crash)]
+    public async Task ChannelClosedBySandboxLimit_IsEMemOrETime_OtherwiseECrash(WorkerEndCause cause, ErrorCode expected)
+    {
+        var session = new WorkerSession(new EndedByLauncher(cause), new FakeCatalog(), new ListLog(), WatchdogTimes.Default);
+
+        var outcome = await session.RunAsync(s_probe, new RequestOptions { Timeout = TimeSpan.FromSeconds(1) }, null, TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected, outcome.Error);
+    }
+
+    [Fact]
+    public async Task TheLimitsOfTheRequestReachTheLauncher()
+    {
+        var launcher = new EndedByLauncher(WorkerEndCause.None);
+        var session = new WorkerSession(launcher, new FakeCatalog(), new ListLog(), WatchdogTimes.Default);
+        using var handle = File.OpenHandle(typeof(SessionTests).Assembly.Location);
+        var options = new RequestOptions { Timeout = TimeSpan.FromSeconds(30), MemoryLimitBytes = 123_456_789, Handles = [handle] };
+
+        await session.RunAsync(s_probe, options, null, TestContext.Current.CancellationToken);
+
+        Assert.Equal(123_456_789, launcher.Received!.MemoryLimitBytes);
+        Assert.Same(handle, Assert.Single(launcher.Received.InheritedHandles));
+        Assert.Equal(TimeSpan.FromSeconds(30) * Environment.ProcessorCount, launcher.Received.CpuTimeLimit);
     }
 
     [Fact]

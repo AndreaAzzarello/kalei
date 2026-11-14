@@ -22,7 +22,12 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
         IWorkerProcess process;
         try
         {
-            process = launcher.Start();
+            process = launcher.Start(new WorkerStart
+            {
+                InheritedHandles = options.Handles,
+                MemoryLimitBytes = options.MemoryLimitBytes,
+                CpuTimeLimit = options.Timeout * Environment.ProcessorCount,
+            });
         }
         catch (Exception)
         {
@@ -35,6 +40,7 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
             var conversation = new Conversation(process, request, options, catalog, times, progress);
             var outcome = await conversation.RunAsync(cancellationToken).ConfigureAwait(false);
             await conversation.TerminateAsync().ConfigureAwait(false);
+            outcome = BlameTheSandbox(outcome, process.EndCause);
 
             if (outcome.Reason is not null)
             {
@@ -44,6 +50,16 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
             return outcome;
         }
     }
+
+    /// <summary>A Worker that vanished because the sandbox ended it for a limit is E_MEM or E_TIME, not E_CRASH.</summary>
+    private static RequestOutcome BlameTheSandbox(RequestOutcome outcome, WorkerEndCause cause) => outcome.Error == ErrorCode.Crash
+        ? cause switch
+        {
+            WorkerEndCause.MemoryLimit => outcome with { Error = ErrorCode.Mem },
+            WorkerEndCause.TimeLimit => outcome with { Error = ErrorCode.Time },
+            _ => outcome,
+        }
+        : outcome;
 
     /// <summary>The state of one request. Single use.</summary>
     private sealed class Conversation(IWorkerProcess process, IpcMessage request, RequestOptions options, IModuleCatalog catalog,
