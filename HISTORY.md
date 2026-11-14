@@ -2,6 +2,10 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-14 #49 — Ticket 07b, step 2: AppContainer profile and sandbox set-up
+- `Kalei.Platform.Windows/Sandbox`: `Native` (LibraryImport, so trimming and AOT safe; the SID is a `SafeHandle` freed with FreeSid), `AppContainerProfile` (no capabilities; created or taken if it exists), `SandboxSetup`: `Prepare()` creates the profile and, only if read-and-execute for ALL APPLICATION PACKAGES is missing and the folder's owner is the current user, adds that one access rule (inherited by folders and files); a folder that is not the user's and has no grant gives `FolderNotOwned` and is left untouched; `Remove()` deletes the profile and the explicit grant, and can be repeated.
+- Tests first (6, all pass, on a temporary folder and a profile name of their own; no profile left behind, checked in the registry).
+
 ## 2026-11-14 #48 — Ticket 07b, step 1: the launcher seam in the Core
 - `ISandboxLauncher.Start(WorkerStart)`: handles to inherit (SafeHandle, never paths), memory cap and CPU time cap. `IWorkerProcess.EndCause` (`None`, `MemoryLimit`, `TimeLimit`): when the sandbox ended the Worker for a limit and the channel closed, `WorkerSession` answers `E_MEM` or `E_TIME` instead of `E_CRASH`. `RequestOptions` carries `Handles` and `MemoryLimitBytes` (default 2 GB, the Limits table); the CPU cap is the request timeout times the logical processors, a safety net the wall-clock watchdog always beats.
 - Tests first (4 new, 262 in the solution, all pass); the test launchers follow the new signature.
