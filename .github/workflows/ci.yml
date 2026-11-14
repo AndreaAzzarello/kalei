@@ -83,5 +83,13 @@ jobs:
       - name: Publish App (ReadyToRun and trimmed, warnings as errors)
         run: dotnet publish src/Kalei.App -c Release -r win-x64 --self-contained --no-restore -p:TreatWarningsAsErrors=true -o publish/app
 
+      - name: Smoke test of the published App
+        # The clean-up command opens no window and exits 0 (nothing to remove on a runner). It fails if trimming or ReadyToRun
+        # left out an assembly the App needs at start-up (a GUI executable does not block `&`, hence Start-Process -Wait).
+        run: |
+          $app = Resolve-Path ./publish/app/Kalei.App.exe
+          $p = Start-Process -FilePath $app -ArgumentList '--remove-sandbox' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "App exited with code $($p.ExitCode), expected 0" }
+
       - name: Runtime and ILCompiler at 10.0.14 or later
         run: ./build/Assert-RuntimeVersion.ps1 -Path publish -AssetsPath src
