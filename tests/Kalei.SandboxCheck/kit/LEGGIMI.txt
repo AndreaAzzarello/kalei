@@ -1,0 +1,83 @@
+KALEI - TICKET 07b: SANDBOX DEL WORKER E HELLO A FREDDO SULLA VM (issue #9)
+==========================================================================
+VM: Hyper-V "Kalei-Win10-Ref" (Windows 10 22H2, 2 vCPU, 4 GB). Il kit NON richiede l'SDK .NET: e' tutto self-contained.
+Kit NUOVO e separato dai precedenti (E:\KaleiVM, E:\KaleiVM-W7): non li usa e non li tocca.
+La VM ora entra senza password: questo kit NON usa accesso automatico, UAC, segreti LSA o password.
+
+COSA FA
+  1. Ambiente: versione di Windows, CPU, RAM, Defender, servizi del firewall.
+  2. Primo avvio del Worker dopo la copia (i file sono nuovi e Defender li scansiona) e set-up della sandbox
+     (profilo AppContainer + accesso in lettura alle cartelle del kit, come fara' l'app al primo avvio).
+  3. 20 prove della sandbox, ognuna con il suo controllo FUORI dalla sandbox (circa 40 secondi):
+     rete (TCP, UDP, DNS), file per percorso, handle ereditati, processi figli, limiti di memoria e di tempo,
+     Worker senza heartbeat ucciso entro 10 s, Cancel, Worker che muore con il suo launcher (kill-on-close).
+     Servono per AC 3 (TCP e DNS devono FALLIRE dentro il Worker) e per la parte Worker di W16.
+     Le prove di rete hanno il controllo su Internet: la VM deve poter uscire. Se non puo', quelle prove
+     risultano INCONCLUDENTI (non "passate").
+  4. 10 avvii a freddo del Worker: riavvio, 150 s di assestamento, UN avvio, riavvio (metodo W7).
+     Misura il tempo fino all'Hello: "dopo Start" (e' cio' che misura il timer di 5 s) e "totale".
+  5. Report sanificato. Se il caso peggiore supera 2,5 s il report lo dice: allora si rivedono i 5 s con i numeri.
+
+DURATA
+  Circa 45 minuti (10 avvii x 4 minuti + prove). Puoi allontanarti.
+
+PRIMA DI COMINCIARE
+  - Apri la VM con SESSIONE AVANZATA e condividi il disco E: (Risorse locali). Nella VM comparira' come \\tsclient\E.
+    Senza sessione avanzata funziona uguale: alla fine dovrai solo copiare a mano i file del report (vedi passo 5).
+  - Le prove vanno lanciate da una PowerShell NORMALE (non "Esegui come amministratore").
+  - La VM deve poter uscire su Internet (controlli delle prove di rete). Nessun'altra rete serve.
+
+PASSO PER PASSO
+ 1) Copia il kit nella VM, su disco LOCALE (non lanciare da \\tsclient: l'avvio a freddo misurerebbe la rete):
+        Copy-Item -Path '\\tsclient\E\KaleiVM-07b' -Destination 'C:\KaleiSandbox' -Recurse
+    (il percorso di destinazione NON deve contenere spazi.)
+
+ 2) Start > "Windows PowerShell" (clic normale) e scrivi:
+        cd C:\KaleiSandbox
+        Set-ExecutionPolicy -Scope Process Bypass
+        .\avvia.ps1
+    Rispondi S alla conferma dell'ExecutionPolicy se te la chiede.
+    Lo script fa le prime tre fasi e poi inizia i riavvii.
+
+ 3) A OGNI riavvio la VM mostra la schermata di accesso: entra (senza password) e NON toccare nulla, non aprire altre app.
+    Dopo l'accesso si apre da sola una finestra PowerShell: e' lo script che riprende (RunOnce). Dopo 150 s dall'avvio fa
+    UNA misura e riavvia. Se non entri, la misura aspetta: non va persa.
+
+ 4) A fine misure lo script toglie tutto cio' che ha creato (profilo AppContainer e
+    accesso alle cartelle), scrive il report e, se la sessione avanzata e' attiva, lo copia nel disco E: del PC
+    (E:\KaleiVM-07b\risultati). Controlla nel report la riga "Pulizia ... ok".
+
+ 5) Se la copia automatica non c'e', copia a mano dalla VM:
+        C:\KaleiSandbox\risultati\report-07b.json, report-07b.txt, misure-07b.jsonl   ->   E:\KaleiVM-07b\risultati\
+    Il report NON contiene percorsi personali, nome utente o nome del computer (se la sanificazione fallisce non lo scrive).
+
+ 6) Quando i file sono sul PC, scrivimi nella chat di Claude:
+        "Ho il report 07b, leggi E:\KaleiVM-07b\risultati\report-07b.json"
+
+ 7) SOLO DOPO aver messo al sicuro il report: torna al checkpoint "aggiornato". Sul PC host, PowerShell come amministratore:
+        Get-VMCheckpoint -VMName 'Kalei-Win10-Ref' | Select-Object Name, CreationTime
+        Restore-VMCheckpoint -VMName 'Kalei-Win10-Ref' -Name 'aggiornato' -Confirm:$false
+        Start-VM -Name 'Kalei-Win10-Ref'
+    ATTENZIONE: il checkpoint e' precedente alla copia, quindi cancella anche C:\KaleiSandbox e il report dentro la VM.
+
+SE QUALCOSA VA STORTO
+  - Interrompere/riprendere: puoi chiudere la finestra e rilanciare .\avvia.ps1: riparte dal punto giusto. Lo stato e' in
+    C:\KaleiSandbox\stato\ e le misure sono solo aggiunte a stato\misure.jsonl: lo script non cancella mai nulla li'.
+    Se hai rilanciato a mano prima del riavvio previsto, lo script lo capisce e riavvia da solo.
+  - Fermarsi prima della fine: .\avvia.ps1 -Annulla (PowerShell normale). Toglie la ripresa automatica, pulisce, scrive
+    il report con quello che c'e'. Poi controlla "Pulizia ... ok" e salva i file come sopra.
+  - Solo rigenerare il report dai dati raccolti: .\avvia.ps1 -Report
+  - "Questa PowerShell e' ELEVATA": chiudila e apri una PowerShell normale.
+  - Tre avvii di fila senza una misura valida: lo script si ferma da solo e scrive il report.
+  - Se il report dice che la pulizia NON e' confermata: torna al checkpoint "aggiornato" dopo aver salvato il report.
+
+COSA NON SI PUO' CONCLUDERE
+  - Il report non decide la revisione dei 5 s: da' i numeri, la decisione e' tua.
+  - Gli stati con il firewall spento (W19, W20) non sono in questo kit: sono del ticket 07c e dell'issue #47.
+  - La memoria: il limite non fa scattare un messaggio del sistema per un Worker .NET (il GC si ferma al 75%); la causa
+    "E_MEM" e' dedotta dal picco di memoria. Un'allocazione nativa (libvips) contro il limite si prova col modulo immagini (09a).
+
+CHI TOCCA COSA SULLA VM
+  Lo script scrive solo in C:\KaleiSandbox, nella voce RunOnce "KaleiSandbox07b" (rimossa a fine misure) e, tramite lo
+  strumento, nel profilo AppContainer "Kalei.Kit.07b" (HKCU) e nell'accesso in lettura per ALL APPLICATION PACKAGES sulle
+  cartelle worker\ e tools\ del kit (tutto rimosso e verificato a fine misure). Dopo il ritorno al checkpoint non resta nulla.
