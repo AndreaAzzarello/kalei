@@ -2,6 +2,9 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-15 #55 — Ticket 07b: known limits and an installer criterion
+- Ticket 31 (issue #38) gets criterion 8: the clean-up must not remove a folder access the installer created (shared marker, or remove only what the app added). Ticket 07b gets a "Known limits" section with the other two low findings of the audit (pipe-handle inheritance window, Administrators-owned folder). No code change.
+
 ## 2026-11-14 #54 — Ticket 07b, step 8: security audit of the IPC and the launcher, one fix
 - Focused review (not the full six-phase workflow) of `src/Kalei.Core/Ipc`, `ISandboxLauncher` and `src/Kalei.Platform.Windows/Sandbox`, threat model: the Worker is untrusted, the Core is trusted. IPC framing, caps, validation, watchdog and session: no confirmed finding. Launcher: job limits, handle list, environment and kill-on-close as designed.
 - **Medium, fixed:** the first-run grant to ALL APPLICATION PACKAGES was inherited by every subfolder, so in portable mode a compromised Worker could read `data\` (settings, logs) and any folder placed next to the executable. Now the grant is "this folder and the files directly in it" (`ObjectInherit` + `NoPropagateInherit`); the built-in Worker has no subfolders. Test first (red, then green); the real-process sandbox tests still pass. A grant already made by an installer is still accepted.

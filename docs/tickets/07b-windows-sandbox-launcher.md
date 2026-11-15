@@ -19,3 +19,9 @@ The Core can start a Worker under the Windows sandbox and always end it: on succ
 4. If the sandbox cannot start, the result is E_SANDBOX and nothing is converted; Kalei never runs a Worker unsandboxed.
 5. First run: the AppContainer profile is created; if the folder access for the sandbox is missing (portable ZIP) and the folder is one the user owns, the app sets it; a clean-up command of the app removes both; if the set-up is impossible a clear message is shown and no conversion starts.
 6. W16, Worker part: Cancel ends the Worker (Cancel message, then kill after 3 s) and leaves nothing running; the partial Output file and the journal are checked in ticket [08](08-broker-and-output-writing.md) (criteria 3 and 4), which owns that half of W16.
+
+## Known limits
+Found by the security review of this ticket (low severity, not fixed here):
+- `SandboxSetup.Remove()` removes every explicit allow rule of ALL APPLICATION PACKAGES on the Worker folder, including one an installer made; ticket [31](31-per-user-installer.md) (criterion 8) owns the fix, with a shared marker.
+- The window in which the Worker's pipe ends are inheritable is closed only against other Kalei launches (a process-wide lock). Another `CreateProcess` with handle inheritance in the same process during that window could pass them on; the app starts no other process today, and any ticket that does must take the same lock.
+- A Worker folder owned by the Administrators group (not by the user) gives `FolderNotOwned`: no conversion starts and nothing is changed. The installer grants the access, so this concerns the portable ZIP only.
