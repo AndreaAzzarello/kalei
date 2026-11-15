@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-15 #57 — Ticket 07b: VM report, handshake timeout 15 s, results in the documents
+- Report of the kit on the Windows 10 22H2 VM: 20 of 20 sandbox proofs pass; cold `Hello` after `Start`: 8 of 10 between 634 and 796 ms (median 720 ms), but two consecutive starts at 4,835 and 5,387 ms with `Start` itself ten times slower (the whole VM was slow after those reboots). The 5 s handshake would have failed the second one.
+- Owner decision: **handshake timeout 15 s** (`WatchdogTimes.Hello`, test first; heartbeat 10 s, request timeouts and the 3 s after `Cancel` unchanged). Reason: the Worker is already confined, so a longer wait costs no safety, and 15 s is 2.8 times the worst case measured. Future option, not now: a ReadyToRun Worker (to be measured with the engines, ticket 09a).
+- Documents: `ticket-0` (W16 Worker part and the cold `Hello` table), ADR 0003 (launcher verified on Windows 11 and 10 22H2), `ipc-spec` (Watchdog and the margin), `architecture` (how the Worker limits are enforced: job CPU cap as a safety net, `E_MEM` deduced from the peak), `release-pipeline` (`--remove-sandbox`, narrower grant). Not verified: firewall-off states (07c, #47), native allocation at the cap (09a), the journal half of W16 (08).
+
 ## 2026-11-15 #56 — Ticket 07b: first CI run, folder owner of an elevated administrator
 - The first CI run failed in every sandbox test: on the runner the folders belong to the Administrators group (the token's default owner), so the set-up answered `FolderNotOwned`. This was one of the "low" notes of the audit; it is a real defect, so it is fixed: a folder counts as the user's if its owner is the user or the token's default owner. Ticket 07b's known limit is reworded. Not provable locally (this PC's token owner is the user); the CI is the check.
 

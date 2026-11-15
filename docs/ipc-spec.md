@@ -169,7 +169,7 @@ The Core decides the verdict; it never trusts `connected` without its own listen
 ## Watchdog
 | Timer | Value | Starts | On expiry |
 |---|---|---|---|
-| Handshake | 5 s | the launcher returns the started process | kill, `E_TIME`, reason `HelloTimeout` |
+| Handshake | 15 s | the launcher returns the started process | kill, `E_TIME`, reason `HelloTimeout` |
 | Heartbeat | 10 s | every received frame (reset each time), while `Open` | kill, `E_TIME`, reason `Heartbeat` |
 | Request timeout | `Convert`: the Limits table (2 min + 1 min per 100 MB, at most 15 min); `Probe` 10 s; `Preview` 30 s; `Canary`: set by ticket 07c | request sent | kill, `E_TIME`, reason `Timeout` |
 | After `Cancel` | 3 s | `Cancel` sent | kill, outcome `E_CANCELLED` |
@@ -177,12 +177,13 @@ The Core decides the verdict; it never trusts `connected` without its own listen
 
 - While a request is open the Worker sends a frame at least every 2 s (`Progress`, with or without a value) and at most 10 per second. The Worker host emits the heartbeat from its own timer. It proves that the process and the pipe are alive, not that the engine progresses: an engine stuck in a loop is ended by the request timeout and the memory cap. A killed Worker's partial Output is removed (journal, lifecycle step 5).
 - The Probe and Preview timeouts are initial values; tickets 09a and 14a measure them.
-- **Does the 5 s handshake hold on a cold start?** Measured on the reference VM (Hyper-V Windows 10 22H2, 2 vCPU, 4 GB, SATA SSD, Defender on) and on the Windows 11 PC:
-  - the spike Worker takes 46–48 ms from process creation to its first message, **warm** (tickets 01 and #47, median of 10); the real Worker of ticket 07a (published trimmed, not ReadyToRun) takes **median 206 ms (min 202, max 220), warm, 10 starts, on the Windows 11 PC**, measured by `PublishedWorkerTests` (about 4 times the spike, which sent a text line; it includes the first JIT of the serializer); no cold start of the Worker was measured (stated as not verified in [ticket-0](ticket-0.md));
-  - the nearest cold figures are those of the UI on the same VM ([ticket 03c](ticket-0.md#results)): the managed code starts at **210 ms** (median), `Main` at **278 ms**, and the whole window shows at **968 ms** (max 993); on the first start after a copy (#47) the window showed at median **1,122.7 ms**, slowest start **1,614.8 ms** (Defender scanning new files). Those figures include the whole of Avalonia; the Worker is smaller but is not ReadyToRun (JIT), and its `Hello` path loads no engine;
-  - margin: 5 s is **18 times** the `Main` start (278 ms), **4.5 times** the median of the first start after a copy and **3.1 times** its slowest full-window start. It is an inference from the UI, not a measurement of the Worker;
-  - rules that keep the margin: the Worker host sends `Hello` **before** it loads any engine or library (libvips, the largest, is loaded on the first request); `modules` is a constant of the build; the timer starts when the launcher returns, so the one-off creation of the AppContainer profile (07b) is outside it;
-  - ticket 07b must measure the time to `Hello` cold on the VM (same method as W7: reboot, 150 s settle, one start, 10 starts, also the first start after install). If the slowest start exceeds 2.5 s (half the timeout), the value is revised with the numbers.
+- **Does the handshake hold on a cold start? It did not at 5 s; it is 15 s.** Ticket 07b measured the real Worker (published trimmed, not ReadyToRun) in the real sandbox on the reference VM (Hyper-V Windows 10 22H2, 2 vCPU, 4 GB, Defender on): the first start after a copy, then 10 cold starts (reboot, 150 s settle, one start), the time from the launcher returning to the `Hello` read (the figure the timer measures):
+  - first start after a copy: **672 ms** (Defender scanning the new files; the one-off set-up took 38 ms and is outside the timer);
+  - 8 of the 10 cold starts: **634 to 796 ms, median 720 ms** (the Windows 11 PC, warm: median 206 ms, 183 ms after `Start`);
+  - the cold starts 4 and 5 (consecutive): **4,835 ms and 5,387 ms**, with `Start` itself at 523 and 586 ms instead of about 40: the whole VM was slow after that reboot, not the Worker. At 5 s the start 5 would have failed (`E_TIME`, `HelloTimeout`) with a healthy Worker; the 2.5 s review threshold of the first draft was passed by a factor of two;
+  - decision (owner, 2026-11-15): **15 s**. The Worker is already confined by the AppContainer and the Job Object (no network, no files, memory and CPU caps, one process), so a longer wait for a first sign of life does not reduce safety; it only delays the answer for a Worker that never speaks. 15 s is 2.8 times the worst case measured (5.39 s). The other timers are unchanged: heartbeat (the Worker sends a frame at least every 2 s; the kill is after 10 s without one), the request timeouts and the 3 s after `Cancel`;
+  - rules that keep the margin: the Worker host sends `Hello` **before** it loads any engine or library (libvips, the largest, is loaded on the first request); `modules` is a constant of the build; the timer starts when the launcher returns, so the one-off creation of the AppContainer profile is outside it;
+  - **future option, not now**: the Worker is not ReadyToRun, and about 700 ms cold against 206 ms warm is mostly JIT. A ReadyToRun Worker could shorten it at the cost of size; to be measured when the engines exist (ticket 09a). The table of figures is in [ticket-0](ticket-0.md#w16-and-the-cold-hello-of-the-worker-ticket-07b-run-2026-11-15).
 
 ## Malformed, unknown, oversized, out-of-sequence
 In every row the Core kills the Worker, sends nothing, and the request ends with the code shown. The checks run in the order of the table.
@@ -201,7 +202,7 @@ In every row the Core kills the Worker, sends nothing, and the request ends with
 | 10 | `Hello.protocol` other than 1 | `BadVersion` | `E_PROTOCOL` |
 | 11 | more than 100 frames in 1 s | `FrameRate` | `E_PROTOCOL` |
 | 12 | the pipe closes or the process exits before the final frame, including in the middle of a frame or of a `PreviewData` payload | `PipeClosed` | `E_CRASH` |
-| 13 | no `Hello` in 5 s; no frame in 10 s; request timeout | `HelloTimeout`, `Heartbeat`, `Timeout` | `E_TIME` |
+| 13 | no `Hello` in 15 s; no frame in 10 s; request timeout | `HelloTimeout`, `Heartbeat`, `Timeout` | `E_TIME` |
 | 14 | the Worker has not exited 3 s after `Cancel` | (none) | `E_CANCELLED` |
 | 15 | a non-zero exit code after a valid final frame | ignored | the final frame decides |
 
@@ -229,4 +230,4 @@ Each error and each notice maps to one plain-language message in the UI (catalog
 | D8 | `PreviewData` pixels are not premultiplied | Avalonia shows them directly (`AlphaFormat.Unpremul`) |
 | D9 | Size cap per type and a rate cap of 100 frames per second, kill and `E_PROTOCOL` (`FrameTooLargeForType`, `FrameRate`) | a compromised Worker gets neither memory nor CPU from the Core; honest traffic is far below both |
 
-Values to confirm by test, not decisions: the caps of the size table, the 100 frames per second, the Hello margin on a cold Worker (07b).
+Values to confirm by test, not decisions: the caps of the size table, the 100 frames per second. (The Hello margin on a cold Worker was measured in 07b: see above.)

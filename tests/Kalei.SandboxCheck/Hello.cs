@@ -5,7 +5,7 @@ using Kalei.Platform.Windows.Sandbox;
 
 namespace Kalei.SandboxCheck;
 
-/// <summary>One start of the real Worker in the sandbox, timed up to its Hello. The watchdog's timer starts when the launcher returns, so that is the figure that matters (<see cref="HelloResult.HelloAfterStartMs"/>).</summary>
+/// <summary>One start of the real Worker in the sandbox, timed up to its Hello. The watchdog's timer (15 s) starts when the launcher returns, so that is the figure that matters (<see cref="HelloResult.HelloAfterStartMs"/>).</summary>
 internal static class Hello
 {
     public static async Task<HelloResult> RunAsync(string workerExe, string profile)
@@ -53,6 +53,6 @@ internal static class Hello
 /// <param name="Detail">What the first frame was, or why there was none.</param>
 /// <param name="PrepareMs">Set-up (profile, folder access): the one-off cost, outside the watchdog.</param>
 /// <param name="StartMs">The launcher's Start call.</param>
-/// <param name="HelloAfterStartMs">From the launcher returning to the Hello read: what the 5 s handshake timer measures.</param>
+/// <param name="HelloAfterStartMs">From the launcher returning to the Hello read: what the handshake timer measures.</param>
 /// <param name="HelloTotalMs">From just before Start to the Hello read (the figure of ticket 07a, process creation included).</param>
 internal sealed record HelloResult(bool Ok, string Setup, string Detail, double PrepareMs, double StartMs, double HelloAfterStartMs, double HelloTotalMs);

@@ -20,8 +20,9 @@ Windows 10 22H2 (build 19045) and Windows 11, x64. No ARM64 build in 1.0. Per-us
 Tickets: 30 builds steps 1–4 and 6 and a provisional sums file without signing; 31 adds the installer; 32 adds signing and makes the final sums.
 
 ## Sandbox set-up at install time
-- The installer grants read and execute on the install folder to ALL APPLICATION PACKAGES, so an AppContainer Worker can load its own files (W4).
+- The installer grants read and execute on the install folder to ALL APPLICATION PACKAGES, so an AppContainer Worker can load its own files (W4). The app's own grant (portable ZIP) covers the folder and the files directly in it, not the subfolders, so the portable `data` folder stays out of the Worker's reach.
 - The AppContainer profiles (one per Worker executable; in 1.0 one, for the built-in Worker) are created by the app at first run (not by the installer, which runs without administrator rights) and removed on uninstall through an app command the uninstaller calls.
+- **The clean-up command** is `Kalei.App.exe --remove-sandbox`: no window, exit code 0 if the profile and the folder access are gone (it is safe to repeat), 1 otherwise; the uninstaller calls it, and CI runs it on the published App as a smoke test. Ticket 31 (criterion 8) makes sure it never removes an access the installer created.
 - **Portable ZIP**: the app sets the same access on its own folder at first run if it can; if it cannot (read-only folder, or a location the user does not own), it shows a clear message and does not convert until the sandbox can start. It never converts without the sandbox. A copied portable folder leaves the AppContainer profile and the folder access behind: the app has a clean-up command (the uninstaller calls the same one), and the README says how to run it before deleting a portable folder.
 
 ## Uninstall

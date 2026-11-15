@@ -89,6 +89,33 @@ The tickets are in [tickets/README.md](tickets/README.md).
 ## Results
 Measured or read results, newest first. A row not listed here is still open.
 
+### W16 and the cold Hello of the Worker (ticket 07b, run 2026-11-15)
+Real launcher of ticket 07b (AppContainer without capabilities + Job Object), real Worker published trimmed (not ReadyToRun), kit `E:\KaleiVM-07b` built from the branch of PR #66. Reference VM: Hyper-V Windows 10 Pro 22H2 build 19045.6456, 2 vCPU, 4 GB, Defender on, firewall services running, normal (not elevated) PowerShell. Report valid (no dry run); clean-up of the profile and the folder access confirmed.
+
+**Sandbox proofs: 20 of 20 pass on Windows 10 22H2, and on the Windows 11 PC** (also by the 22 tests on the real process, run locally and on the CI runner). Every "must fail" proof has a control outside the sandbox that worked: TCP to 1.1.1.1:443 (access denied), UDP DNS (no answer), DNS lookup (host unknown) and TCP to a local listener (timeout) all fail inside; file by path, user profile listing and writes to temp and to the Worker folder are denied; a listed handle is readable, an unlisted one is not inherited; a child process is refused; the Worker sees none of the user's environment variables; the 256 MB cap ends an allocating Worker with `E_MEM`; the CPU cap ends a spinning one; the 2 s request timeout gives `E_TIME`; without the set-up nothing starts (`E_SANDBOX`).
+
+**W16, Worker part: pass.** A Worker that stops sending after its `Hello` is killed with reason `Heartbeat` **10.1 s** after the start (limit 10 s plus the poll); a Worker that ignores `Cancel` is ended 3 s after it (outcome `Cancelled` 4.5 s after the start, `Cancel` sent at 1.5 s); the Worker is gone 49 ms after its launcher is killed and at once when it ends normally (kill-on-close). The partial Output file and the journal half of W16 belong to ticket [08](tickets/08-broker-and-output-writing.md).
+
+**Cold `Hello` of the Worker** (method of W7: reboot, 150 s settle, one start; "after Start" is what the handshake timer measures; `Start` is the creation of the sandboxed process):
+
+| Start | uptime | `Start` | after `Start` | total |
+|---|---|---|---|---|
+| first after the copy | – | 45.3 ms | 671.8 ms | 717.1 ms |
+| cold 1 | 150 s | 59.8 ms | 740.8 ms | 800.6 ms |
+| cold 2 | 150 s | 53.2 ms | 795.9 ms | 849.1 ms |
+| cold 3 | 151 s | 47.3 ms | 757.7 ms | 805.0 ms |
+| **cold 4** | 151 s | **523.1 ms** | **4,835 ms** | 5,358 ms |
+| **cold 5** | 153 s | **586.2 ms** | **5,387 ms** | 5,973 ms |
+| cold 6 | 150 s | 38.8 ms | 694.7 ms | 733.6 ms |
+| cold 7 | 151 s | 41.7 ms | 700.1 ms | 741.8 ms |
+| cold 8 | 150 s | 40.2 ms | 654.6 ms | 694.8 ms |
+| cold 9 | 151 s | 41.5 ms | 685.8 ms | 727.3 ms |
+| cold 10 | 150 s | 40.0 ms | 634.1 ms | 674.1 ms |
+
+Cold, after `Start`: min 634 ms, **median 720 ms**, max 5,387 ms (8 of 10 between 634 and 796 ms). Warm on the Windows 11 PC: median 206 ms in total, 183 ms after `Start`. The two slow starts are consecutive and `Start` itself was ten times slower than usual (523 and 586 ms against about 40): the whole VM was slow after those reboots, not the Worker. With the 5 s timeout the start 5 would have failed with a healthy Worker; the 2.5 s review threshold was exceeded, so the handshake timeout was revised to **15 s** (owner decision, 2026-11-15; reasoning in [ipc-spec](ipc-spec.md#watchdog)). Future option, not now: a ReadyToRun Worker (about 700 ms cold against 206 ms warm, mostly JIT), to be measured with the engines in ticket 09a.
+
+**Not verified here**: the firewall-off states (W19, W20; ticket 07c and issue #47); a native allocation (libvips) against the memory cap (ticket 09a): a .NET Worker is stopped by its own GC at 75% of the cap, so the cause `E_MEM` is deduced from the job's peak memory; the journal half of W16 (ticket 08).
+
 ### W7 — Cold-start breakdown on the reference VM (ticket 03c, issue [#56](https://github.com/AndreaAzzarello/kalei/issues/56), run 2026-11-11)
 Machine: Hyper-V Windows 10 22H2 build 19045.6456, 2 vCPU, 4 GB, SATA SSD host disk, Defender real-time protection on (the VM's checkpoint "aggiornato"). Code and kit: branch `spike/03a-build` (commits `92efe87` and `8abb070`, throwaway, not merged). Same window, same measure as #47 (process creation to the second animation frame after the window opened), plus phase markers.
 - **Method**: six variants, all self-contained ReadyToRun + trimming; reboot before each start, 150 s settle time (uptime at every start 150–151 s), one start, reboot. One unmeasured warm-up start of each variant before the first reboot (it makes Defender scan the new files). Rounds 1–5 ran all six variants, rounds 6–10 only a, b, d (reduced plan to save time: c, e, f have **5** starts instead of 10), 45 valid starts, 0 failed, 0 interrupted. The order rotated every round; variants are compared **in the same round** because the baseline drifts upwards.

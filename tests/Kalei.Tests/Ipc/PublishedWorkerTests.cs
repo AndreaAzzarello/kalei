@@ -8,7 +8,7 @@ namespace Kalei.Tests.Ipc;
 
 /// <summary>
 /// The Worker as it ships: published trimmed and self-contained. Proves it speaks the protocol and measures the time to its Hello,
-/// the figure that the 5 s handshake timeout of docs/ipc-spec.md is checked against.
+/// the figure that the 15 s handshake timeout of docs/ipc-spec.md is checked against.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class PublishedWorkerTests : IDisposable
@@ -103,10 +103,10 @@ public sealed class PublishedWorkerTests : IDisposable
         var median = (times[4] + times[5]) / 2;
         var report =
             $"Published trimmed Worker, process creation to Hello, WARM on this PC (10 starts): min {times[0]:F0} ms, median {median:F0} ms, max {times[^1]:F0} ms. "
-            + "Not a cold start: repeat cold on the reference VM in ticket 07b (handshake timeout 5000 ms).";
+            + "Not a cold start: repeat cold on the reference VM in ticket 07b (handshake timeout 15000 ms).";
         TestContext.Current.SendDiagnosticMessage(report);
         await File.WriteAllTextAsync(Path.Combine(AppContext.BaseDirectory, "worker-hello-latency.txt"), report, TestContext.Current.CancellationToken);
 
-        Assert.True(times[^1] < WatchdogTimes.Default.Hello.TotalMilliseconds, $"slowest Hello {times[^1]:F0} ms against a 5000 ms timeout");
+        Assert.True(times[^1] < WatchdogTimes.Default.Hello.TotalMilliseconds, $"slowest Hello {times[^1]:F0} ms against a 15000 ms timeout");
     }
 }
