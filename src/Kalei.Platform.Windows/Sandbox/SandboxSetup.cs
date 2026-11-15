@@ -39,8 +39,12 @@ public sealed class SandboxSetup(string profileName, string workerFolder, Securi
                 return SandboxSetupStatus.Ready;
             }
 
-            var user = currentUser ?? WindowsIdentity.GetCurrent().User;
-            if (user is null || security.GetOwner(typeof(SecurityIdentifier)) != user)
+            // The folder is "the user's" if its owner is the user or the default owner of the token: files made by an
+            // elevated administrator belong to the Administrators group, not to the user (found on the CI runner).
+            using var identity = WindowsIdentity.GetCurrent();
+            var owner = security.GetOwner(typeof(SecurityIdentifier));
+            var isTheUsers = currentUser is not null ? owner == currentUser : owner == identity.User || owner == identity.Owner;
+            if (!isTheUsers)
             {
                 return SandboxSetupStatus.FolderNotOwned;
             }

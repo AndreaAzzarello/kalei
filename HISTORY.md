@@ -2,6 +2,9 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-15 #56 — Ticket 07b: first CI run, folder owner of an elevated administrator
+- The first CI run failed in every sandbox test: on the runner the folders belong to the Administrators group (the token's default owner), so the set-up answered `FolderNotOwned`. This was one of the "low" notes of the audit; it is a real defect, so it is fixed: a folder counts as the user's if its owner is the user or the token's default owner. Ticket 07b's known limit is reworded. Not provable locally (this PC's token owner is the user); the CI is the check.
+
 ## 2026-11-15 #55 — Ticket 07b: known limits and an installer criterion
 - Ticket 31 (issue #38) gets criterion 8: the clean-up must not remove a folder access the installer created (shared marker, or remove only what the app added). Ticket 07b gets a "Known limits" section with the other two low findings of the audit (pipe-handle inheritance window, Administrators-owned folder). No code change.
 
