@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Test-only tool (ticket 07b): drives the real Windows sandbox launcher from a process of its own, and later measures the
+       cold start of the Worker on the reference VM. Never shipped. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kalei.Core\Kalei.Core.csproj" />
+    <ProjectReference Include="..\..\src\Kalei.Platform.Windows\Kalei.Platform.Windows.csproj" />
+  </ItemGroup>
+
+</Project>

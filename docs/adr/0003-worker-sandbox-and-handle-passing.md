@@ -29,6 +29,15 @@ Hyper-V VM, Windows 10 Pro 22H2 build 19045.6456, 2 vCPU, 4 GB, .NET 10.0.13, li
 - **Also**: filesystem by path denied (0 of 6 allowed, 6 of 6 outside); memory cap 2 GB (out of memory at 1,472 MB, job peak 1,503 MB); timeout kill at 3,999 ms; child process refused; Worker gone 7 ms after a normal exit and 0 ms after the app was killed. Warm measures: 48 ms to the first message, 166 ms to convert, 270 ms for the whole run, 102 MB peak private memory (median of 10; not cold timings).
 - **Not verified**: the stopped-service and allow-rule states (W19, W20, issue #47), a third-party firewall, HEIC through WIC inside the sandbox (ticket 18), a Worker started from the installer-set folder (tickets 07b and 31).
 
+## Result of the launcher of ticket 07b (Windows 11 and Windows 10 22H2, 2026-11-14 and 2026-11-15)
+
+The production launcher (`Kalei.Platform.Windows`: AppContainer without capabilities, Job Object, handle list, minimal environment) was tested on the real process: 22 tests on the Windows 11 PC and on the CI runner, and 20 proofs of the same kind with controls outside the sandbox on the reference VM (Windows 10 Pro 22H2, normal PowerShell, firewall services running): **20 pass, 0 fail, 0 inconclusive** on the VM. Details and the cold `Hello` table: [ticket-0](../ticket-0.md#w16-and-the-cold-hello-of-the-worker-ticket-07b-run-2026-11-15).
+- The promise of this ADR holds for the shipped code, not only for the spike: TCP (Internet and loopback), UDP DNS and name lookup fail inside; files by path are denied; only listed handles are inherited; no child process; no user environment; kill-on-close; a Worker that cannot be sandboxed is `E_SANDBOX` and nothing runs.
+- A first-run set-up grants read and execute to ALL APPLICATION PACKAGES on the Worker folder **and the files directly in it, not the subfolders** (the spike granted the whole tree; found by the security review of 07b: in portable mode it would have exposed the `data` folder). It runs only if the folder is the user's (owner is the user or the token's default owner, as for an elevated administrator) and the grant is missing; `Kalei.App.exe --remove-sandbox` removes it with the profile.
+- Environment: an AppContainer process started with an empty environment fails with error 203; the Worker gets `LOCALAPPDATA`, `TEMP`, `TMP`, `PATH`, `SystemRoot` and `windir`, pointing to folders it cannot use.
+- Limits: the memory cap is deduced from the job's peak memory because the .NET GC stops at 75% of the cap; the CPU cap of the job is a safety net behind the real-time watchdog. The handshake timeout is **15 s** (5 s failed on a slow cold start of the VM: 5.39 s at worst, typical 0.7 s; [ipc-spec](../ipc-spec.md#watchdog)).
+- Still open: the firewall-off states (W19, W20, #47; the start-up canary of ticket 07c), a native allocation at the cap (ticket 09a).
+
 ## What enforces the network block (Microsoft documentation, read 2026-11-10)
 
 The block is not a property of the process alone: it is done by Windows Filtering Platform (WFP) filters.

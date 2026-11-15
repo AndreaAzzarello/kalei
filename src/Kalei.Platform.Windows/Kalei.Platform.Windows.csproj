@@ -3,6 +3,8 @@
   <!-- Windows implementations of the Core's Platform adapter interfaces. -->
   <PropertyGroup>
     <IsAotCompatible>true</IsAotCompatible>
+    <!-- Required by the LibraryImport source generator (the Win32 calls of the sandbox launcher). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

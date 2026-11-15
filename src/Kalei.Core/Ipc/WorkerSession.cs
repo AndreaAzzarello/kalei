@@ -22,11 +22,20 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
         IWorkerProcess process;
         try
         {
-            process = launcher.Start();
+            process = launcher.Start(new WorkerStart
+            {
+                InheritedHandles = options.Handles,
+                MemoryLimitBytes = options.MemoryLimitBytes,
+                CpuTimeLimit = options.Timeout * Environment.ProcessorCount,
+            });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Whatever stopped the launcher, the answer is the same: no Worker runs unsandboxed (07b logs the detail).
+            // Whatever stopped the launcher, the answer is the same: no Worker runs unsandboxed. The log gets the kind of failure
+            // and the OS error number, never the exception text (it could hold a path, S10).
+            var failure = ex as SandboxStartException;
+            log.Write(new LogEvent(LogLevel.Error, LogEventCode.SandboxStart, Stopwatch.GetElapsedTime(started), ErrorCode.Sandbox,
+                Sandbox: failure?.Failure ?? SandboxFailure.Other, OsError: failure?.OsError));
             return new RequestOutcome { Error = ErrorCode.Sandbox };
         }
 
@@ -35,6 +44,7 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
             var conversation = new Conversation(process, request, options, catalog, times, progress);
             var outcome = await conversation.RunAsync(cancellationToken).ConfigureAwait(false);
             await conversation.TerminateAsync().ConfigureAwait(false);
+            outcome = BlameTheSandbox(outcome, process.EndCause);
 
             if (outcome.Reason is not null)
             {
@@ -44,6 +54,16 @@ public sealed class WorkerSession(ISandboxLauncher launcher, IModuleCatalog cata
             return outcome;
         }
     }
+
+    /// <summary>A Worker that vanished because the sandbox ended it for a limit is E_MEM or E_TIME, not E_CRASH.</summary>
+    private static RequestOutcome BlameTheSandbox(RequestOutcome outcome, WorkerEndCause cause) => outcome.Error == ErrorCode.Crash
+        ? cause switch
+        {
+            WorkerEndCause.MemoryLimit => outcome with { Error = ErrorCode.Mem },
+            WorkerEndCause.TimeLimit => outcome with { Error = ErrorCode.Time },
+            _ => outcome,
+        }
+        : outcome;
 
     /// <summary>The state of one request. Single use.</summary>
     private sealed class Conversation(IWorkerProcess process, IpcMessage request, RequestOptions options, IModuleCatalog catalog,

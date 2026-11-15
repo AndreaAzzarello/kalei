@@ -112,6 +112,8 @@ Initial values: tickets 07b, 09a and 14a measure memory, time and Batch size on 
 | YAML | at most 100 aliases, depth 64 | no | – | Worker | `E_COMPLEX` |
 | JSON, XML | depth 64 | no | – | Worker | `E_COMPLEX` |
 
+How the Worker limits are enforced on Windows (ticket 07b): the Job Object holds the memory cap per process (a .NET Worker is stopped by its own GC at 75% of it, so the kernel posts no message and the cause `E_MEM` is deduced from the job's peak memory, 70% of the cap or more; a native allocation that fails at the cap does post a message) and a CPU-time cap of the request timeout times the number of logical processors, which is a safety net only: the real-time watchdog (Hello 15 s, heartbeat 10 s, request timeout, 3 s after `Cancel`) always acts first, and a Worker the job ended for CPU time is `E_TIME`.
+
 Above the Batch limit the whole Batch is refused with `E_COUNT` and nothing starts. Folder walk: symbolic links and junctions are not followed; hidden and system files are skipped; folders deeper than the depth limit are skipped (`E_DEPTH`, reason "too deep"); each skipped file shows its reason (unsupported format, over a limit, system or hidden, symbolic link or junction, too deep, already in this format, unreadable, clash declined). Result lists of large Batches are virtualised in the UI.
 
 ## Capability table per OS

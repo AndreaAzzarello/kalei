@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices;
+using Kalei.Core.Platform;
+
 namespace Kalei.Core.Ipc;
 
 /// <summary>Where a request was when it ended (for the log).</summary>
@@ -15,6 +18,12 @@ public sealed record RequestOptions
 
     /// <summary>Size of the Source, if known: a Progress claiming more bytes than this is refused.</summary>
     public long? SourceSize { get; init; }
+
+    /// <summary>File handles the Worker inherits (Source, Output); the Broker owns them.</summary>
+    public IReadOnlyList<SafeHandle> Handles { get; init; } = [];
+
+    /// <summary>Memory cap of the Worker (Limits table).</summary>
+    public long MemoryLimitBytes { get; init; } = WorkerStart.DefaultMemoryLimitBytes;
 }
 
 /// <summary>How one request ended. <see cref="Reason"/> is set only when the channel failed (protocol, crash, time), not for an error the Worker reported.</summary>
