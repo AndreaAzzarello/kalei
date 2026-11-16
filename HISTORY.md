@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-16 #67 — Ticket 06, step 1: header detector and the ftyp brand rule
+- `HeaderDetector.Detect` (Core, pure, allocation-free) recognises PNG, JPG, GIF, WebP, BMP, TIFF, ICO, AVIF and HEIC from at most 64 KB; everything else is unknown. Tests first: with `Detect` stubbed to `null`, 44 of the 87 detection tests failed; with the real code all 87 pass.
+- New rule in `format-detection.md`, deterministic: a known major brand (`avif`/`avis`, `heic`/`heix`/`hevc`/`hevx`) decides; only `mif1`/`msf1` read the compatible brands, and if both `avif` and `heic` are there **AVIF wins** (confirmed in 1.0, readable and writable by the engine; HEIC is input-only and out of 1.0). `avis` is a major brand only, `heis` is not in the table (owner confirmed).
+- Hostile box sizes (0, 1 with 64-bit size, too small, beyond the data) are covered by tests.
+
 ## 2026-11-15 #57 — Ticket 07b: VM report, handshake timeout 15 s, results in the documents
 - Report of the kit on the Windows 10 22H2 VM: 20 of 20 sandbox proofs pass; cold `Hello` after `Start`: 8 of 10 between 634 and 796 ms (median 720 ms), but two consecutive starts at 4,835 and 5,387 ms with `Start` itself ten times slower (the whole VM was slow after those reboots). The 5 s handshake would have failed the second one.
 - Owner decision: **handshake timeout 15 s** (`WatchdogTimes.Hello`, test first; heartbeat 10 s, request timeouts and the 3 s after `Cancel` unchanged). Reason: the Worker is already confined, so a longer wait costs no safety, and 15 s is 2.8 times the worst case measured. Future option, not now: a ReadyToRun Worker (to be measured with the engines, ticket 09a).
