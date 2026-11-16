@@ -2,6 +2,11 @@
 
 Dated entries, newest first, 5–8 lines each, updated at every commit. No sensitive data or personal paths.
 
+## 2026-11-16 #67 — Ticket 06, step 2: reader, MISMATCH, robustness tests and samples
+- `HeaderReader.Read` stops at 64 KB (tested on a synthetic 200 GB stream: exactly 65,536 bytes read; partial reads and empty streams handled). `FormatDetection.Classify` gives Format, Category (`image` or `other`) and the MISMATCH flag; the extension never changes the Format.
+- Fuzz: 10,000 inputs, seed `0x060006`, length 0 to 70,000, half with a mutated signature and extreme `ftyp` sizes: no exception, result always one of the nine ids or null. Same for empty, 1-byte, 64 KB, 64 KB + 1 and 1 MB inputs.
+- Samples in `tests/samples/<format>/` (valid, truncated, wrong extension; all under 650 bytes, generated with Pillow, HEIC header hand-made); `.gitattributes` keeps them byte-exact (`autocrlf` would otherwise touch the PNG signature). Full suite: 413 tests green.
+
 ## 2026-11-16 #67 — Ticket 06, step 1: header detector and the ftyp brand rule
 - `HeaderDetector.Detect` (Core, pure, allocation-free) recognises PNG, JPG, GIF, WebP, BMP, TIFF, ICO, AVIF and HEIC from at most 64 KB; everything else is unknown. Tests first: with `Detect` stubbed to `null`, 44 of the 87 detection tests failed; with the real code all 87 pass.
 - New rule in `format-detection.md`, deterministic: a known major brand (`avif`/`avis`, `heic`/`heix`/`hevc`/`hevx`) decides; only `mif1`/`msf1` read the compatible brands, and if both `avif` and `heic` are there **AVIF wins** (confirmed in 1.0, readable and writable by the engine; HEIC is input-only and out of 1.0). `avis` is a major brand only, `heis` is not in the table (owner confirmed).

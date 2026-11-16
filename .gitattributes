@@ -1,0 +1,2 @@
+# Test samples are byte-exact (a PNG signature contains 0D 0A): never convert line endings.
+tests/samples/*/* -text
